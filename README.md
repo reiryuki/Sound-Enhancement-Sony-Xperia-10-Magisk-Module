@@ -13,8 +13,8 @@
 - Install the module via Magisk Manager only
 - Reboot
 - It will take about 3 minutes after device boot until the effect is started
-- For devices that doesn't support "compress-offload-playback", it will take sometime to play mp3 file until audio_route is changed to "low-latency-playback"
 - Open equalizer option through your stock Music app
+- For devices that doesn't support "compress-offload-playback", it will take sometime to play mp3 file until audio_route is changed to "low-latency-playback"
 
 ## Troubleshootings
 - Install Audio Compatibility Patch module if encounter processing problem
