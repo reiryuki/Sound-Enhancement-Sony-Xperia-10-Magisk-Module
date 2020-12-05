@@ -12,6 +12,7 @@
 - Android 10 arm64 CrDroid ROM
 
 ## Installation Guide
+- Don't use ACDB!
 - Install the module via Magisk Manager only
 - Reboot
 - It will take about 3 minutes after device boot until the effect is started
