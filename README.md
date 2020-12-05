@@ -2,6 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
+- DSEEHX is enabled as global supported, so no toggle for that because the toggle is buggy. But don't worry, it's enabled by default.
 
 ## Requirements
 - Android 10 or 11
