@@ -20,7 +20,7 @@
 - For devices that doesn't support "compress-offload-playback", it will take sometime to play an mp3 file until audio_route is changed to "low-latency-playback" automatically
 
 ## Troubleshootings
-- If settings are greyed, delete "ro.somc.dseehx.supported=true" in /data/adb/modules/SoundEnhancement/system.prop and reboot device
+- If settings are greyed out, delete "ro.somc.dseehx.supported=true" in /data/adb/modules/SoundEnhancement/system.prop and reboot device
 - If you enable DSEEHX settings after that, you have to enable it again first if you want to disable it
 - Install Audio Compatibility Patch module if encounter processing problem
 - Install Audio Modification Library module if you using other audio mods
