@@ -4,7 +4,6 @@
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Only working with apps that has EQ option
 - Doesn't support ACDB because using effect proxy
-- DSEEHX toggle is fixed, but sometimes will buggy again
 - DSEEHX toggle only appear through Audio Settings launcher
 - Audio Settings launcher is need root access to work
 
@@ -22,6 +21,7 @@
 - For devices that doesn't support "compress-offload-playback", it will take sometime to play an mp3 file until audio_route is changed to "low-latency-playback" automatically
 
 ## Troubleshootings
+- DSEEHX toggle is fixed, but will buggy again sometimes. Then you need to enable it first if you want to disable it.
 - Install Audio Compatibility Patch module if encounter processing problem
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
