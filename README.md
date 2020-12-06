@@ -4,7 +4,9 @@
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Only working with apps that has EQ option
 - Doesn't support ACDB because using effect proxy
-- DSEEHX is enabled as global supported, so no toggle for that because the toggle is buggy. But don't worry, it's enabled by default.
+- DSEEHX toggle is fixed, but if you turning on other audio mods, it will buggy again
+- DSEEHX toggle only appear through Audio Settings launcher
+- Audio Settings launcher is need root access to work
 
 ## Requirements
 - Android 10 or 11
@@ -17,12 +19,9 @@
 - Install the module via Magisk Manager only
 - Reboot
 - It will take about 3 minutes after device boot until the effect is started
-- Open equalizer option through your stock Music app
 - For devices that doesn't support "compress-offload-playback", it will take sometime to play an mp3 file until audio_route is changed to "low-latency-playback" automatically
 
 ## Troubleshootings
-- If settings are greyed out, delete "ro.somc.dseehx.supported=true" in /data/adb/modules/SoundEnhancement/system.prop and reboot device
-- If you enable DSEEHX settings after that, you have to enable it again first if you want to disable it
 - Install Audio Compatibility Patch module if encounter processing problem
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
