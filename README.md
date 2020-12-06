@@ -4,6 +4,7 @@
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Only working with apps that has EQ option
 - Doesn't support ACDB because using effect proxy
+- Not friendly with other audio mods
 - DSEEHX toggle only appear through Audio Settings launcher
 - Audio Settings launcher is need root access to work
 
