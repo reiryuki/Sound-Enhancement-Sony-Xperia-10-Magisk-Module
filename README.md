@@ -19,7 +19,7 @@
 - Reboot
 
 ## Optional
-- You can edit /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data to any value as you wish to get more xloud and clear audio effects. 
+- You can edit /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data to any value as you wish to get more xloud (dynamic normalizer) and clear audio effects. 
 
 ## Troubleshootings
 - DSEEHX is actually working but the toggle is buggy (always showed off). You need to enable it first if you want to disable it.
