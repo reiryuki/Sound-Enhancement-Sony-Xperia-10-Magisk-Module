@@ -5,6 +5,7 @@
 - Effects only working with Music apps that has EQ option
 - Doesn't support ACDB because using effect proxy
 - Not friendly with other audio mods
+- Will take about 3 minutes after device boot until the effect is started
 
 ## Requirements
 - Android 10 or 11
@@ -16,7 +17,6 @@
 - Don't use ACDB!
 - Install the module via Magisk Manager only
 - Reboot
-- It will take about 3 minutes after device boot until the effect is started
 
 ## Troubleshootings
 - DSEEHX is actually working but the toggle is buggy. You need to enable it first if you want to disable it.
