@@ -6,7 +6,7 @@
 - Doesn't support ACDB because using effect proxy
 - Not friendly with other audio mods
 - Will take about 3 minutes after device boot until the effect is started
-- DSEEHX is not working properly yet (even the toggle is fixed) because it's need IDD service. Will add it later.
+- DSEEHX is not working properly yet (even the toggle is fixed) because it's need IDD HW service. Will add it later.
 
 ## Requirements
 - Android 10 or 11
