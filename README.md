@@ -20,7 +20,7 @@
 - Reboot
 
 ## Optional
-- You can edit /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data to any value as you wish to get more xloud (dynamic normalizer) and clear audio effects. 
+- You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
 - Install Audio Modification Library module if you using other audio mods
