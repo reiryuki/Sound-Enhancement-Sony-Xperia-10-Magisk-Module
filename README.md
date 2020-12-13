@@ -2,7 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
-- Effects only working with Music apps that has EQ option
+- Effects only working with Music apps that has EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB because using effect proxy
 - Not friendly with other audio mods
 - Will take about 3 minutes after device boot until the effect is started
