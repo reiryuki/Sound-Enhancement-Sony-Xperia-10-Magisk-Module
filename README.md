@@ -1,12 +1,13 @@
 # Sony Xperia 10 Sound Enhancement
 
 ## Descriptions
-- An equalizer ported from Sony Xperia 10 (I4113)
+- An equalizer ported from Sony Xperia 10 (I4113).
 - Effects only working with Music apps that has EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
-- Doesn't support ACDB because using effect proxy
-- Not friendly with other audio mods
-- Will take about 3 minutes after device boot until the effect is started
+- Doesn't support ACDB because using effect proxy.
+- Not friendly with other audio mods.
+- Will take about 3 minutes after device boot until the effect is started.
 - DSEEHX is not working properly yet (even the toggle is fixed) because it's need IDD HW service. Will add it later.
+- S-Force Front Surround is actually for device with stereo speaker.
 
 ## Requirements
 - Android 10 or 11
