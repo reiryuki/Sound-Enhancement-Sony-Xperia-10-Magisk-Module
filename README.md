@@ -6,7 +6,6 @@
 - Doesn't support ACDB because using effect proxy.
 - Not friendly with other audio mods.
 - Will take about 3 minutes after device boot until the effect is started.
-- DSEEHX is not working properly yet (even the toggle is fixed) because it's need IDD HW service. Will add it later.
 - S-Force Front Surround is actually for device with stereo speaker.
 
 ## Requirements
