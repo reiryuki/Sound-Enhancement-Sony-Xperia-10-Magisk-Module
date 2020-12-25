@@ -24,7 +24,7 @@
 - You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
-- To disable persistent notification, Sound Enhancement will do it for you it's need [this](https://play.google.com/store/apps/details?id=com.intangibleobject.securesettings.plugin) app plugin
+- To disable persistent notification, Sound Enhancement launcher will do it for you but need [this](https://play.google.com/store/apps/details?id=com.intangibleobject.securesettings.plugin) app plugin
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
 - Open issues and send full logcats if this module is not working for your device
