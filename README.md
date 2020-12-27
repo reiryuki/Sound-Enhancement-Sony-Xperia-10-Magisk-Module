@@ -24,7 +24,7 @@
 - You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
-- DSEEHX is turned off itself every song is changed, that's normal, you have to turn it on again every time song is changed.
+- DSEEHX is turned off itself every time song is stopped or changed, that's normal, you have to turn it on again.
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
 - Open issues and send full logcats if this module is not working for your device
