@@ -2,6 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113).
+- Post process bundle proxy type FX
 - Effects only working with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy.
 - Not friendly with other audio mods.
