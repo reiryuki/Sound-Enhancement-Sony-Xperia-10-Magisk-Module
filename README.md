@@ -17,7 +17,8 @@
 - Android 10 arm64 CrDroid ROM
 
 ## Installation Guide
-- Don't use ACDB!
+- Don't use ACDB module!
+- Using ACP is not recommended
 - Install the module via Magisk Manager only
 - Reboot
 
