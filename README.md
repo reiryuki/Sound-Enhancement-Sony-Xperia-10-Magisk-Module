@@ -27,7 +27,7 @@
 
 ## Troubleshootings
 - Using ACP module is not recommended
-- DSEEHX and Clear Phase will turned off itself every time song is stopped or changed. That's normal, you can turn it on again.
+- DSEEHX and Clear Phase will turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
 - Open issues and send full logcats if this module is not working for your device
