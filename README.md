@@ -41,6 +41,9 @@
 - https://t.me/audioryukimods
 - https://t.me/modsandco
 
+## Credits
+- @aquahol
+
 ## Donate
 - https://www.paypal.me/reiryuki
 
