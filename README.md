@@ -8,7 +8,6 @@
 - Not friendly with other audio mods.
 - Will take about 3 minutes after device boot until the effect is started.
 - DSEEHX is only working with audio output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-24-Bit-Enabler-Magisk-Module) if your device not enabled output 24 bit yet
-- S-Force Front Surround is actually for device with stereo speaker.
 
 ## Requirements
 - Android 10 or 11
