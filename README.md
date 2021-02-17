@@ -42,6 +42,8 @@
 - https://t.me/modsandco
 
 ## Credits
+- @guitardedhero
+- @aip_x
 - @aquahol
 
 ## Donate
