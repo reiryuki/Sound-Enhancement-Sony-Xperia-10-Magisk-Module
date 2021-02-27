@@ -18,7 +18,6 @@
 
 ## Installation Guide
 - Don't use ACDB module!
-- Using ACP is not recommended
 - Install the module via Magisk Manager or Recovery
 - Reboot
 
@@ -26,7 +25,6 @@
 - You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
-- Using ACP module is not recommended because ACP is disabling deep buffer playback while Sound Enhancement need deep buffer to be working properly.
 - DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
