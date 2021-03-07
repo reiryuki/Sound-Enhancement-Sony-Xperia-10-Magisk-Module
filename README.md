@@ -2,12 +2,12 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113).
-- Post process bundle proxy type FX
-- Effects only working with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
+- Post process type FX.
+- FX is only applied with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy.
-- Not friendly with other audio mods.
-- Will take about 3 minutes after device boot until the effect is started.
-- DSEEHX is only working with audio output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-24-Bit-Enabler-Magisk-Module) if your device not enabled output 24 bit yet
+- This FX will deactivates other non post process type FX while turned on.
+- Will take about 3 minutes after device boot until the FX is started.
+- DSEEHX is only works with audio output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-24-Bit-Enabler-Magisk-Module) if your device not enabled output 24 bit yet
 
 ## Requirements
 - Android 10 or 11
@@ -28,16 +28,10 @@
 - DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
 - Install Audio Modification Library module if you using other audio mods
 - Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
-- Open issues and send full logcats if this module is not working for your device
 
-## Attention!
-- Always make nandroid backup before install or updating version, these are just experiments!
-- Don't report anything without logcats!
-- Special thanks to all people that helped and tested my modules.
-
-## Telegram
-- https://t.me/audioryukimods
-- https://t.me/modsandco
+## Report Guide
+- https://t.me/audioryukimods/2618
+- Otherwise, it will be closed immediately.
 
 ## Credits
 - @guitardedhero
