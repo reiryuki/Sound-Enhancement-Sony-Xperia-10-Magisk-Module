@@ -1,4 +1,4 @@
-# Sony Xperia 10 Sound Enhancement Magisk Module
+# Sound Enhancement Sony Xperia 10 Magisk Module
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113).
