@@ -7,7 +7,7 @@
 - Doesn't support ACDB module because using effect proxy.
 - This FX will deactivates other non post process type FX while turned on.
 - Will take about 3 minutes after device boot until the FX is started.
-- DSEEHX is only works with audio output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-24-Bit-Enabler-Magisk-Module) if your device not enabled output 24 bit yet
+- DSEEHX is only works with audio output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-24-Bit-Enabler-Magisk-Module) if your device not enabled output 24 bit yet.
 
 ## Requirements
 - Android 10 or 11
