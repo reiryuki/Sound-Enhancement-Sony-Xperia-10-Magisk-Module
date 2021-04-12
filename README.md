@@ -3,7 +3,7 @@
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113).
 - Post process type FX.
-- FX is only applied with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
+- FX can only be applied with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy.
 - This FX will deactivates other non post process type FX while turned on.
 - Will take about 3 minutes after device boot until the FX is started.
@@ -11,7 +11,7 @@
 
 ## Requirements
 - Android 10 or 11
-- Magisk Installed
+- Magisk installed
 
 ## Tested
 - Android 10 arm64 CrDroid ROM
@@ -27,9 +27,8 @@
 ## Troubleshootings
 - DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
 - Install Audio Modification Library module if you using other audio mods
-- Delete /data/adb/modules/SoundEnhancement via recovery if facing bootloop and send copied and zipped /data/system/dropbox files for fix
 
-## Report Guide
+## Bug Report
 - https://t.me/audioryukimods/2618
 - Otherwise, it will be closed immediately.
 
@@ -38,7 +37,8 @@
 - @aip_x
 - @aquahol
 
-## Donate
+## Thanks for Donations
+- https://t.me/audioryukimods/2619
 - https://www.paypal.me/reiryuki
 
 ## Download
