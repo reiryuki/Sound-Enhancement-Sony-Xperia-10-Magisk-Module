@@ -7,7 +7,7 @@
 - Doesn't support ACDB module because using effect proxy.
 - This FX will deactivates other non post process type FX while turned on.
 - Will take about 3 minutes after device boot until the FX is started.
-- DSEEHX is only works with supported vendor audio primary library (usually Xperia ROM) with audio format pcm output 24 bit. Use [this](https://github.com/reiryuki/Hi-Res-Audio-Enabler-Magisk-Module) if not enabled output 24 bit yet.
+- DSEEHX is only works with supported vendor audio primary library (usually Xperia ROM).
 
 ## Requirements
 - Android 10 or 11
