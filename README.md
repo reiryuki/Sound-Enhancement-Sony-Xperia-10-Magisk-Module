@@ -26,9 +26,9 @@
 - You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
-- Disable the "No active profiles" notification and ignore it it's nothing
+- Disable the "No active profiles" notification and ignore it it's nothing.
 - DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
-- Install Audio Modification Library module if you using other audio mods
+- Install Audio Modification Library module if you using other audio mods.
 
 ## Bug Report
 - https://t.me/audioryukimods/2618
