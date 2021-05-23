@@ -5,12 +5,12 @@
 - Post process type soundfx
 - FX can only be applied with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
 - Doesn't support ACDB module because using effect proxy
-- This FX will deactivates other non post process type FX while turned on
+- This FX will deactivates other any global type soundfx while turned on
 - Will take about 3 minutes after device boot until the FX is started
 - DSEEHX is only works with supported vendor audio primary library (usually Xperia ROM)
 
 ## Requirements
-- Android 10 or 11
+- Android 10 until 12
 - Magisk installed
 
 ## Tested
