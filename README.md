@@ -31,7 +31,7 @@
 - Install Audio Modification Library module if you using other audio mods.
 
 ## Bug Report
-- https://t.me/audioryukimods/2618
+- https://t.me/androidryukimodsdiscussions/2618
 - Otherwise, it will be closed immediately.
 
 ## Credits
@@ -40,7 +40,7 @@
 - @aquahol
 
 ## Thanks for Donations
-- https://t.me/audioryukimods/2619
+- https://t.me/androidryukimodsdiscussions/2619
 - https://www.paypal.me/reiryuki
 
 ## Download
