@@ -29,6 +29,7 @@
 - Disable the "No active profiles" notification and ignore it it's nothing.
 - DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
 - Install Audio Modification Library module if you using other audio mods.
+- If you got playback issue like no sound or volume getting max, install with Moto Waves and Audio Modification Library. Leave the Moto Waves enabled.
 
 ## Bug Report
 - https://t.me/androidryukimodsdiscussions/2618
