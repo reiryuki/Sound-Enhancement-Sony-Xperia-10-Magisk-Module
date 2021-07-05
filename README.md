@@ -2,6 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
+- Added Dolby Atmos from Sony Xperia 1 II
 - Post process type soundfx
 - FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
 - Doesn't support ACDB module because using effect proxy
@@ -14,6 +15,7 @@
 - Sound Enhancement:
   - Android 10 until 12
   - Magisk installed
+
 - Dolby Atmos:
   - 64 bit architecture
   - Android 10 until 12
