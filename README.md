@@ -23,22 +23,16 @@
 - Disable the "No active profiles" notification and ignore it it's nothing
 
 ## Optional
-- You can edit xloud strength and clear audio coefisions at /data/adb/modules_update/SoundEnhancement/system/vendor/etc/sony_effect/effect_params.data
 
 ## Troubleshootings
-- Disable the "No active profiles" notification and ignore it it's nothing.
-- DSEEHX and Clear Phase will be turning off itself every time song is stopped or changed. That's normal, you can turn it on again.
-- Install Audio Modification Library module if you using other audio mods.
-- If you got playback issue like no sound or volume getting max, install with Moto Waves and Audio Modification Library. Leave the Moto Waves enabled.
+- https://t.me/androidryukimodsdiscussions/25187
 
 ## Bug Report
 - https://t.me/androidryukimodsdiscussions/2618
 - Otherwise, it will be closed immediately.
 
 ## Credits
-- @guitardedhero
-- @aip_x
-- @aquahol
+- Android Package Port Factory Team
 
 ## Thanks for Donations
 - https://t.me/androidryukimodsdiscussions/2619
