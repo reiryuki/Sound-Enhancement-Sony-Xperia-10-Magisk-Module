@@ -3,10 +3,11 @@
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Added Dolby Atmos from Sony Xperia 1 II
-- Post process type soundfx
-- FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
+- Sound Enhancement is post process type soundfx
+- Dolby Atmos is global type soundfx
+- Sound Enhancement FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
 - Doesn't support ACDB module because using effect proxy
-- This FX will deactivates other any global type soundfx while turned on
+- Sound Enhancement FX will deactivates any global type soundfx while turned on
 - Will take about 3 minutes after device boot until the FX is started
 - DSEEHX is only works with supported vendor audio primary library (Sony Xperia vendor partition)
 - Changing "ro.product.manufacturer" to "Sony" if you enable Dolby Atmos option
