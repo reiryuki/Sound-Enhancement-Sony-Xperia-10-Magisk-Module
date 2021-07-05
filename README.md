@@ -8,10 +8,16 @@
 - This FX will deactivates other any global type soundfx while turned on
 - Will take about 3 minutes after device boot until the FX is started
 - DSEEHX is only works with supported vendor audio primary library (Sony Xperia vendor partition)
+- Changing "ro.product.manufacturer" to "Sony" if you enable Dolby Atmos option
 
 ## Requirements
-- Android 10 until 12
-- Magisk installed
+- Sound Enhancement:
+  - Android 10 until 12
+  - Magisk installed
+- Dolby Atmos:
+  - 64 bit architecture
+  - Android 10 until 12
+  - Magisk installed
 
 ## Tested
 - Android 10 arm64 CrDroid ROM
