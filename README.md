@@ -3,11 +3,11 @@
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Post process type soundfx
-- FX can only be applied with Music apps that has external EQ option such as [Sony Music](https://github.com/reiryuki/Xperia-Libraries-Magisk-Module), Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
+- FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
 - Doesn't support ACDB module because using effect proxy
 - This FX will deactivates other any global type soundfx while turned on
 - Will take about 3 minutes after device boot until the FX is started
-- DSEEHX is only works with supported vendor audio primary library (usually Xperia ROM)
+- DSEEHX is only works with supported vendor audio primary library (Sony Xperia vendor partition)
 
 ## Requirements
 - Android 10 until 12
