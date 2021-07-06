@@ -10,7 +10,6 @@
 - Sound Enhancement FX will deactivates any global type soundfx while turned on
 - Will take about 3 minutes after device boot until Sound Enhancement FX is started
 - DSEEHX is only works with supported vendor audio primary library (Sony Xperia vendor partition)
-- This module is changing your ro.product.manufacturer to "Sony" if you enable Dolby Atmos option
 
 ## Requirements
 - Sound Enhancement:
