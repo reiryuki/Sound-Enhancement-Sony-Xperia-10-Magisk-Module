@@ -26,6 +26,7 @@
 
 ## Installation Guide
 - Don't use ACDB module!
+- You can enable ZNR FX and Dolby Atmos before installing. Read Troubleshootings.
 - Install the module via Magisk Manager or Recovery
 - Reboot
 - Disable the "No active profiles" notification and ignore it it's nothing
