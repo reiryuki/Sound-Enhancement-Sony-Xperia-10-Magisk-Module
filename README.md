@@ -18,6 +18,7 @@
   - Magisk installed
 
 - Dolby Atmos:
+  - Prepare for possibility of bootloop or even brick because the Dolby is not a pure Magisk Module
   - 64 bit architecture
   - Android 10 until 12
   - Magisk installed
