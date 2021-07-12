@@ -2,6 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
+- Added Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream
 - Added Dolby Atmos from Sony Xperia 1 II
 - Sound Enhancement is post process type soundfx
 - Dolby Atmos is global type soundfx
@@ -26,7 +27,7 @@
 
 ## Installation Guide
 - Don't use ACDB module!
-- You can enable ZNR FX and Dolby Atmos, disabling dirac and misoundfx, and many optional commands before installing. Read Troubleshootings.
+- You can enable Dolby Atmos, disabling dirac and misoundfx, and many optional commands before installing. Read Troubleshootings.
 - Install the module via Magisk Manager or Recovery
 - Reboot
 - Disable the "No active profiles" notification and ignore it it's nothing
