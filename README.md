@@ -2,10 +2,10 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
-- Added Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream
-- Added Dolby Atmos from Sony Xperia 1 II
+- Added Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream (READ Troubleshootings to activate!)
+- Added Dolby Atmos from Sony Xperia 1 II (READ Troubleshootings to activate!)
 - Sound Enhancement is post process type soundfx
-- Dolby Atmos is global type soundfx
+- Dolby Atmos is global type soundfx (READ Troubleshootings to activate!)
 - Sound Enhancement FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app
 - Doesn't support ACDB module because using effect proxy
 - Sound Enhancement FX will deactivates any global type soundfx while turned on
@@ -17,7 +17,7 @@
   - Android 10 until 12
   - Magisk installed
 
-- Dolby Atmos:
+- Dolby Atmos (READ Troubleshootings to activate!):
   - Prepare for possibility of bootloop or even brick because the Dolby is not a pure Magisk Module
   - 64 bit architecture
   - Android 10 until 12
