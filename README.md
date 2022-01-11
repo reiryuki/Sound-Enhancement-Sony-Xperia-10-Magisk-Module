@@ -24,8 +24,8 @@
   - Magisk installed
 
 ## Tested
-- CrDroid ROM Android 10 arm64
-- DotOS ROM Android 11 arm64
+- CrDroid ROM Android 10
+- DotOS ROM Android 11
 
 ## Installation Guide
 - Don't use ACDB module!
