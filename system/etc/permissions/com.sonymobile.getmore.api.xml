@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <library name="com.sonymobile.getmore.api"
+        file="/system/framework/com.sonymobile.getmore.api.jar"/>
+</permissions>
+

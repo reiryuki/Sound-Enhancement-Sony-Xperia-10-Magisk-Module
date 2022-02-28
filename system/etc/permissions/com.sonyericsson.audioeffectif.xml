@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <library name="semc_audioeffectif"
+        file="/system/framework/semc_audioeffectif.jar"/>
+    <library name="com.sonymobile.audioeffect"
+        file="/system/framework/semc_audioeffectif.jar"/>
+    <library name="com.sonymobile.audioeffect_2"
+        file="/system/framework/semc_audioeffectif.jar"/>
+    <library name="com.sonymobile.audioeffect_3"
+        file="/system/framework/semc_audioeffectif.jar"/>
+    <library name="com.sonymobile.audioeffect_4"
+        file="/system/framework/semc_audioeffectif.jar"/>
+    <library name="com.sonymobile.audioeffect_5"
+        file="/system/framework/semc_audioeffectif.jar"/>
+</permissions>

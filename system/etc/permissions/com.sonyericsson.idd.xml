@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <library name="com.sonyericsson.idd"
+        file="/system/framework/com.sonyericsson.idd_impl.jar"/>
+    <library name="com.sonyericsson.idd_2"
+        file="/system/framework/com.sonyericsson.idd_impl.jar"/>
+    <library name="com.sonyericsson.idd_3"
+        file="/system/framework/com.sonyericsson.idd_impl.jar"/>
+</permissions>
+
