@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <hidden-api-whitelisted-app package="com.sonymobile.audioutil"/>
+    <allow-in-power-save package="com.sonymobile.audioutil"/>
+</config>
+
