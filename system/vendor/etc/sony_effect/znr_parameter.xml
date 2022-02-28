@@ -1,1 +1,17 @@
-
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Copyright (C) 2018 Sony Mobile Communications Inc.
+  All rights, including trade secret rights, reserved.
+-->
+<znr_platform_info>
+    <znr_camera_status>
+        <camera id="0" camera_name="Main"/>
+        <camera id="1" camera_name="Front"/>
+    </znr_camera_status>
+    <znr_sample_rate>
+        <sample_rate rate="44100" name="44k" />
+        <sample_rate rate="48000" name="48k" />
+    </znr_sample_rate>
+    <vendor>
+    </vendor>
+</znr_platform_info>
