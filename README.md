@@ -2,7 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
-- Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream (READ Optionals to activate!)
+- Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream
 - Dolby Atmos from Sony Xperia 1 II (READ Optionals to activate!)
 - Sound Enhancement is a post process type soundfx
 - Dolby Atmos is a global type soundfx (READ Optionals to activate!)
@@ -17,7 +17,6 @@
   - Magisk installed
 
 - Dolby Atmos (READ Optionals to activate!):
-  - Prepare for possibility of bootloop or even brick because the Dolby is not a pure Magisk Module
   - 64 bit architecture
   - Android 10 and up
   - Magisk installed
@@ -35,6 +34,7 @@
 - Disable the "No active profiles" notification and ignore it it's nothing
 
 ## Optionals & Troubleshootings
+- https://t.me/androidryukimodsdiscussions/29836
 - https://t.me/androidryukimodsdiscussions/25187
 
 ## Bug Report
