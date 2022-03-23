@@ -95,7 +95,9 @@ UUIDSW=50786e95-da76-4557-976b-7981bdf6feb9
 UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
 UUID=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
 RMV="$LIBSW $LIBHW $NAMESW $NAMEHW $NAME $UUIDSW $UUIDHW $UUID"
-#2RMV2="libdirac.so dirac e069d9e0-8329-11df-9168-0002a5d5c51b"
+#2RMV2="libdiraceffect.so dirac_gef 3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D
+#2      libdirac.so dirac_controller dirac_music b437f4de-da28-449b-9673-667f8b964304 b437f4de-da28-449b-9673-667f8b9643fe
+#2      dirac 1e069d9e0-8329-11df-9168-0002a5d5c51b"
 #3RMV3="libmisoundfx.so misoundfx 5b8e36a5-144a-4c38-b1d7-0002a5d5c51b"
 
 # patch audio effects conf
@@ -118,9 +120,12 @@ if [ "$MODAEC" ]; then
   sed -i "/^        music_helper {/ {;N s/        music_helper {\n        }//}" $MODAEC
   sed -i "/^        voice_helper {/ {;N s/        voice_helper {\n        }//}" $MODAEC
   sed -i "/^        notification_helper {/ {;N s/        notification_helper {\n        }//}" $MODAEC
-  sed -i "/^        music_post_proc {/ {;N s/        music_post_proc {\n        }//}" $MODAEC
-  sed -i "/^        voice_post_proc {/ {;N s/        voice_post_proc {\n        }//}" $MODAEC
-  sed -i "/^        notification_post_proc {/ {;N s/        notification_post_proc {\n        }//}" $MODAEC
+  sed -i "/^        ma_ring_helper {/ {;N s/        ma_ring_helper {\n        }//}" $MODAEC
+  sed -i "/^        ma_alarm_helper {/ {;N s/        ma_alarm_helper {\n        }//}" $MODAEC
+  sed -i "/^        ma_music_helper {/ {;N s/        ma_music_helper {\n        }//}" $MODAEC
+  sed -i "/^        ma_voice_helper {/ {;N s/        ma_voice_helper {\n        }//}" $MODAEC
+  sed -i "/^        ma_system_helper {/ {;N s/        ma_system_helper {\n        }//}" $MODAEC
+  sed -i "/^        ma_notification_helper {/ {;N s/        ma_notification_helper {\n        }//}" $MODAEC
   sed -i "/^        sa3d {/ {;N s/        sa3d {\n        }//}" $MODAEC
   sed -i "/^        fens {/ {;N s/        fens {\n        }//}" $MODAEC
   sed -i "/^        lmfv {/ {;N s/        lmfv {\n        }//}" $MODAEC
@@ -148,13 +153,16 @@ if [ "$MODAEX" ]; then
   sed -i 's/<apply effect="music_helper"\/>//g' $MODAEX
   sed -i 's/<apply effect="voice_helper"\/>//g' $MODAEX
   sed -i 's/<apply effect="notification_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="music_post_proc"\/>//g' $MODAEX
-  sed -i 's/<apply effect="voice_post_proc"\/>//g' $MODAEX
-  sed -i 's/<apply effect="notification_post_proc"\/>//g' $MODAEX
-  sed -i 's/<apply effect="dirac"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_ring_helper"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_alarm_helper"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_music_helper"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_voice_helper"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_system_helper"\/>//g' $MODAEX
+  sed -i 's/<apply effect="ma_notification_helper"\/>//g' $MODAEX
   sed -i 's/<apply effect="sa3d"\/>//g' $MODAEX
   sed -i 's/<apply effect="fens"\/>//g' $MODAEX
   sed -i 's/<apply effect="lmfv"\/>//g' $MODAEX
+  sed -i 's/<apply effect="dirac"\/>//g' $MODAEX
 fi
 
 # patch audio policy

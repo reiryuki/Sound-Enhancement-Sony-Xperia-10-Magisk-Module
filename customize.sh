@@ -127,11 +127,11 @@ if [ $DOLBY == true ]; then
   done
   rm -f /data/vendor/dolby/dax_sqlite3.db
   NAME="dolbyatmos
-          DolbyAudio
-          DolbyAtmos
-          MotoDolby
-          dsplus
-          Dolby"
+        DolbyAudio
+        DolbyAtmos
+        MotoDolby
+        dsplus
+        Dolby"
   conflict
 fi
 ui_print " "
@@ -243,8 +243,23 @@ else
   MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
 fi
 
+# function
+set_read_write() {
+for NAMES in $NAME; do
+  blockdev --setrw $DIR$NAMES
+done
+}
+
 # remount
 if [ $DOLBY == true ]; then
+  DIR=/dev/block/bootdevice/by-name
+  NAME="/vendor$SLOT /cust$SLOT /system$SLOT /system_ext$SLOT"
+  set_read_write
+  DIR=/dev/block/mapper
+  set_read_write
+  DIR=$MAGISKTMP/block
+  NAME="/vendor /system_root /system /system_ext"
+  set_read_write
   mount -o rw,remount $MAGISKTMP/mirror/system
   mount -o rw,remount $MAGISKTMP/mirror/system_root
   mount -o rw,remount $MAGISKTMP/mirror/system_ext
@@ -260,8 +275,9 @@ fi
 if [ $DOLBY == true ]; then
   CHECK=@1.0::IDms/default
   DIR="$MAGISKTMP/mirror/*/etc/vintf
+       $MAGISKTMP/mirror/*/*/etc/vintf
         /*/etc/vintf
-        /system/*/etc/vintf"
+        /*/*/etc/vintf"
   if ! grep -rEq "$CHECK" $DIR\
   && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
     FILE=$MAGISKTMP/mirror/vendor/etc/vintf/manifest.xml
@@ -292,7 +308,7 @@ if [ $DOLBY == true ]; then
     FILE=/system/system_ext/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\; then
+  if ! grep -rEq "$CHECK" $DIR; then
     patching_failed
   fi
 fi
@@ -420,7 +436,7 @@ for APPS in $APP; do
   touch `find $MODPATH/system -type d -name $APPS`/oat/.replace
 done
 }
-replace_app() {
+replace_dir() {
 if [ -d $DIR ]; then
   mkdir -p $MODDIR
   touch $MODDIR/.replace
@@ -433,49 +449,63 @@ else
   DIR=/system/app/$APPS
 fi
 MODDIR=$MODPATH/system/app/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/system/priv-app/$APPS
 else
   DIR=/system/priv-app/$APPS
 fi
 MODDIR=$MODPATH/system/priv-app/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/product/app/$APPS
 else
   DIR=/product/app/$APPS
 fi
 MODDIR=$MODPATH/system/product/app/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/product/priv-app/$APPS
 else
   DIR=/product/priv-app/$APPS
 fi
 MODDIR=$MODPATH/system/product/priv-app/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/product/preinstall/$APPS
 else
   DIR=/product/preinstall/$APPS
 fi
 MODDIR=$MODPATH/system/product/preinstall/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/system_ext/app/$APPS
 else
   DIR=/system/system_ext/app/$APPS
 fi
 MODDIR=$MODPATH/system/system_ext/app/$APPS
-replace_app
+replace_dir
 if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/system_ext/priv-app/$APPS
 else
   DIR=/system/system_ext/priv-app/$APPS
 fi
 MODDIR=$MODPATH/system/system_ext/priv-app/$APPS
-replace_app
+replace_dir
+if [ "$BOOTMODE" == true ]; then
+  DIR=$MAGISKTMP/mirror/vendor/app/$APPS
+else
+  DIR=/vendor/app/$APPS
+fi
+MODDIR=$MODPATH/system/vendor/app/$APPS
+replace_dir
+if [ "$BOOTMODE" == true ]; then
+  DIR=$MAGISKTMP/mirror/vendor/euclid/product/app/$APPS
+else
+  DIR=/vendor/euclid/product/app/$APPS
+fi
+MODDIR=$MODPATH/system/vendor/euclid/product/app/$APPS
+replace_dir
 }
 check_app() {
 if [ "$BOOTMODE" == true ]; then
@@ -485,7 +515,8 @@ if [ "$BOOTMODE" == true ]; then
                $MAGISKTMP/mirror/system_root/system_ext\
                $MAGISKTMP/mirror/system\
                $MAGISKTMP/mirror/product\
-               $MAGISKTMP/mirror/system_ext -type f -name $APPS.apk`
+               $MAGISKTMP/mirror/system_ext\
+               $MAGISKTMP/mirror/vendor -type f -name $APPS.apk`
     if [ "$FILE" ]; then
       ui_print "  Checking $APPS.apk"
       ui_print "  Please wait..."
@@ -510,14 +541,26 @@ fi
 
 # hide
 hide_oat
+APP=MusicFX
+for APPS in $APP; do
+  hide_app
+done
 if [ $DOLBY == true ]; then
-  APP="MotoDolbyV3 OPSoundTuner DolbyAtmos MusicFX AudioFX"
+  APP="MotoDolbyV3 OPSoundTuner DolbyAtmos"
+else
+  APP=AudioFX
+fi
+for APPS in $APP; do
+  hide_app
+done
+if getprop | grep -Eq "disable.dirac\]: \[1" || getprop | grep -Eq "disable.misoundfx\]: \[1"; then
+  APP=MiSound
   for APPS in $APP; do
     hide_app
   done
 fi
-if getprop | grep -Eq "disable.dirac\]: \[1" || getprop | grep -Eq "disable.misoundfx\]: \[1"; then
-  APP=MiSound
+if getprop | grep -Eq "disable.dirac\]: \[1"; then
+  APP=DiracAudioControlService
   for APPS in $APP; do
     hide_app
   done
@@ -554,6 +597,39 @@ else
   detect_soundfx
 fi
 
+# dirac_controller
+FILE=$MODPATH/.aml.sh
+NAME='dirac_controller soundfx'
+UUID=b437f4de-da28-449b-9673-667f8b964304
+if getprop | grep -Eq "disable.dirac\]: \[1"; then
+  ui_print "- $NAME will be disabled"
+  ui_print " "
+else
+  detect_soundfx
+fi
+
+# dirac_music
+FILE=$MODPATH/.aml.sh
+NAME='dirac_music soundfx'
+UUID=b437f4de-da28-449b-9673-667f8b9643fe
+if getprop | grep -Eq "disable.dirac\]: \[1"; then
+  ui_print "- $NAME will be disabled"
+  ui_print " "
+else
+  detect_soundfx
+fi
+
+# dirac_gef
+FILE=$MODPATH/.aml.sh
+NAME='dirac_gef soundfx'
+UUID=3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D
+if getprop | grep -Eq "disable.dirac\]: \[1"; then
+  ui_print "- $NAME will be disabled"
+  ui_print " "
+else
+  detect_soundfx
+fi
+
 # stream mode
 FILE=$MODPATH/.aml.sh
 PROP=`getprop stream.mode`
@@ -567,6 +643,10 @@ if [ $DOLBY == true ]; then
     ui_print "  for Dolby Atmos global effect"
     sed -i 's/persist.sony.effect.dolby_atmos false/persist.sony.effect.dolby_atmos true/g' $MODPATH/service.sh
     sed -i 's/persist.sony.effect.ahc true/persist.sony.effect.ahc false/g' $MODPATH/service.sh
+    APP=AudioFX
+    for APPS in $APP; do
+      hide_app
+    done
     ui_print " "
   fi
   if echo "$PROP" | grep -Eq r; then

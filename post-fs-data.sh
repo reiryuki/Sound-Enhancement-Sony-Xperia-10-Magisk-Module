@@ -140,8 +140,9 @@ fi
 dolby_manifest() {
 CHECK=@1.0::IDms/default
 if ! grep -rEq "$CHECK" $MAGISKTMP/mirror/*/etc/vintf\
-&& ! grep -rEq "$CHECK" $MAGISKTMP/mirror/system/*/etc/vintf\
-&& ! grep -rEq "$CHECK" $MAGISKTMP/mirror/system_root/*/etc/vintf; then
+&& ! grep -rEq "$CHECK" $MAGISKTMP/mirror/*/*/etc/vintf\
+&& ! grep -rEq "$CHECK" /*/etc/vintf\
+&& ! grep -rEq "$CHECK" /*/*/etc/vintf; then
   mv -f $MODETC/unused $MODETC/vintf
   mount -o bind $MODETC/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml /system/etc/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml
   killall hwservicemanager
