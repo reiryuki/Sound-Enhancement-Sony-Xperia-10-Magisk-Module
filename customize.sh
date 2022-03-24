@@ -379,12 +379,12 @@ fi
 if [ $DOLBY == true ]; then
   sed -i 's/#d//g' $MODPATH/.aml.sh
   sed -i 's/#d//g' $MODPATH/*.sh
-  cp -rf $MODPATH/systemdolby/* $MODPATH/system
+  cp -rf $MODPATH/system_dolby/* $MODPATH/system
 else
   MODNAME2='Sound Enhancement Sony Xperia 10'
   sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
 fi
-rm -rf $MODPATH/systemdolby
+rm -rf $MODPATH/system_dolby
 
 # mod ui
 if [ $DOLBY == true ] && getprop | grep -Eq "mod.ui\]: \[1"; then
