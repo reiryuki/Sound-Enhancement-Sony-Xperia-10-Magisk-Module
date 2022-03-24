@@ -106,11 +106,11 @@ ui_print "- Cleaning..."
 PKG="com.sonyericsson.soundenhancement
      com.reiryuki.soundenhancement.launcher
      com.sonymobile.audioutil"
-for PKGS in $PKG; do
-  if [ "$BOOTMODE" == true ]; then
-    UNINSTALL=`pm uninstall $PKGS`
-  fi
-done
+if [ "$BOOTMODE" == true ]; then
+  for PKGS in $PKG; do
+    RES=`pm uninstall $PKGS`
+  done
+fi
 rm -f $MODPATH/LICENSE
 rm -rf $MODPATH/unused
 rm -rf /metadata/magisk/$MODID
@@ -120,11 +120,11 @@ rm -rf /data/unencrypted/magisk/$MODID
 rm -rf /cache/magisk/$MODID
 if [ $DOLBY == true ]; then
   PKG2="com.dolby.daxappui com.dolby.daxservice"
-  for PKG2S in $PKG2; do
-    if [ "$BOOTMODE" == true ]; then
-      UNINSTALL=`pm uninstall $PKG2S`
-    fi
-  done
+  if [ "$BOOTMODE" == true ]; then
+    for PKG2S in $PKG2; do
+      RES=`pm uninstall $PKG2S`
+    done
+  fi
   rm -f /data/vendor/dolby/dax_sqlite3.db
   NAME="dolbyatmos
         DolbyAudio

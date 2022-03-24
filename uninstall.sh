@@ -104,14 +104,14 @@ mount -o rw,remount /vendor
 
 # function
 restore() {
-  for FILES in $FILE; do
-    if [ -f $FILES.orig ]; then
-      mv -f $FILES.orig $FILES
-    fi
-    if [ -f $FILES.bak ]; then
-      mv -f $FILES.bak $FILES
-    fi
-  done
+for FILES in $FILE; do
+  if [ -f $FILES.orig ]; then
+    mv -f $FILES.orig $FILES
+  fi
+  if [ -f $FILES.bak ]; then
+    mv -f $FILES.bak $FILES
+  fi
+done
 }
 
 # restore
