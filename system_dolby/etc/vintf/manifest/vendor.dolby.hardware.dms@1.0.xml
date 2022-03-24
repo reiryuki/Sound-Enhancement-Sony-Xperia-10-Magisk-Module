@@ -1,4 +1,4 @@
-<manifest version="1.0" type="device">
+<manifest version="1.0" type="framework">
     <hal format="hidl">
         <name>vendor.dolby.hardware.dms</name>
         <transport>hwbinder</transport>
