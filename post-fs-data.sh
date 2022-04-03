@@ -4,6 +4,12 @@ mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
 
+# debug
+magiskpolicy --live "dontaudit system_server system_file file write"
+magiskpolicy --live "allow     system_server system_file file write"
+exec 2>$MODPATH/debug-pfsd.log
+set -x
+
 # run
 FILE=$MODPATH/sepolicy.sh
 if [ -f $FILE ]; then
@@ -18,7 +24,7 @@ else
 fi
 ETC=$MAGISKTMP/mirror/system/etc
 VETC=$MAGISKTMP/mirror/system/vendor/etc
-VOETC=$MAGISKTMP/mirror/system/vendor/odm/etc
+VOETC="/odm/etc $MAGISKTMP/mirror/system/vendor/odm/etc"
 MODETC=$MODPATH/system/etc
 MODVETC=$MODPATH/system/vendor/etc
 MODVOETC=$MODPATH/system/vendor/odm/etc
@@ -26,8 +32,9 @@ MODVOETC=$MODPATH/system/vendor/odm/etc
 # conflict
 AML=/data/adb/modules/aml
 ACDB=/data/adb/modules/acdb
-if [ -d $AML ] && [ -d $ACDB ]; then
-  rm -rf $ACDB
+if [ -d $AML ] && [ ! -f $AML/disable ]\
+&& [ -d $ACDB ] && [ ! -f $ACDB/disable ]; then
+  touch $ACDB/disable
 fi
 
 # directory
@@ -42,72 +49,69 @@ if [ -d $VETC/audio/"$PROP" ]; then
   mkdir -p $MODVETC/audio/"$PROP"
 fi
 
-# audio effects
-NAME=*audio*effects*
-rm -f `find $MODPATH/system -type f -name $NAME.conf -o -name $NAME.xml`
-AE=`find $ETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VAE=`find $VETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VOAE=`find $VOETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-cp -f $AE $MODETC
-cp -f $VAE $MODVETC
-cp -f $VOAE $MODVOETC
-if [ "$SKU" ]; then
-  for SKUS in $SKU; do
-    VSAE=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-    cp -f $VSAE $MODVETC/audio/$SKUS
-  done
-fi
-if [ -d $VETC/audio/"$PROP" ]; then
-  VBAE=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-  cp -f $VBAE $MODVETC/audio/"$PROP"
-fi
+# cleaning
+rm -f `find $MODPATH/system -type f -name *audio*effects*.conf\
+-o -name *audio*effects*.xml -o -name *audio*policy*.conf\
+-o -name *stage*policy*.conf -o -name *audio*policy*.xml\
+-o -name media_codecs.xml`
 
-# audio policy
-NAME=*policy*
-rm -f `find $MODPATH/system -type f -name $NAME.conf -o -name $NAME.xml`
-AP=`find $ETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VAP=`find $VETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VAAP=`find $VETC/audio -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VOAP=`find $VOETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-cp -f $AP $MODETC
-cp -f $VAP $MODVETC
-cp -f $VAAP $MODVETC/audio
-cp -f $VOAP $MODVOETC
+# audio files
+A=`find $ETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+   -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+VA=`find $VETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+    -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+VOA=`find $VOETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+VAA=`find $VETC/audio -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+if [ "$A" ]; then
+  cp -f $A $MODETC
+fi
+if [ "$VA" ]; then
+  cp -f $VA $MODVETC
+fi
+if [ "$VOA" ]; then
+  cp -f $VOA $MODVOETC
+fi
+if [ "$VAA" ]; then
+  cp -f $VAA $MODVOETC/audio
+fi
+if [ "$VBA" ]; then
+  cp -f $VBA $MODVETC/audio/"$PROP"
+fi
 if [ "$SKU" ]; then
   for SKUS in $SKU; do
-    VSAP=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-    cp -f $VSAP $MODVETC/audio/$SKUS
+    VSA=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
+         -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+    if [ "$VSA" ]; then
+      cp -f $VSA $MODVETC/audio/$SKUS
+    fi
   done
-fi
-if [ -d $VETC/audio/"$PROP" ]; then
-  VBAP=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-  cp -f $VBAP $MODVETC/audio/"$PROP"
 fi
 
 # aml fix
 DIR=$AML/system/vendor/odm/etc
-if [ "$VOAE" ] || [ "$VOAP" ]; then
-  if [ -d $AML ] && [ ! -d $DIR ]; then
-    mkdir -p $DIR
-    cp -f $VOAE $DIR
-    cp -f $VOAP $DIR
-  fi
+if [ "$VOA" ] && [ -d $AML ] && [ ! -f $AML/disable ] && [ ! -d $DIR ]; then
+  mkdir -p $DIR
+  cp -f $VOA $DIR
 fi
-magiskpolicy "dontaudit vendor_configs_file labeledfs filesystem associate"
-magiskpolicy "allow     vendor_configs_file labeledfs filesystem associate"
-magiskpolicy "dontaudit init vendor_configs_file dir relabelfrom"
-magiskpolicy "allow     init vendor_configs_file dir relabelfrom"
-magiskpolicy "dontaudit init vendor_configs_file file relabelfrom"
-magiskpolicy "allow     init vendor_configs_file file relabelfrom"
+magiskpolicy --live "dontaudit vendor_configs_file labeledfs filesystem associate"
+magiskpolicy --live "allow     vendor_configs_file labeledfs filesystem associate"
+magiskpolicy --live "dontaudit init vendor_configs_file dir relabelfrom"
+magiskpolicy --live "allow     init vendor_configs_file dir relabelfrom"
+magiskpolicy --live "dontaudit init vendor_configs_file file relabelfrom"
+magiskpolicy --live "allow     init vendor_configs_file file relabelfrom"
 chcon -R u:object_r:vendor_configs_file:s0 $DIR
-magiskpolicy --live "type vendor_configs_file"
 
 # media codecs
 NAME=media_codecs.xml
-rm -f $MODVETC/$NAME
 DIR=$AML/system/vendor/etc
-FILE=$AML/disable
-if [ -d $DIR ] && [ ! -f $FILE ]; then
+if [ -d $AML ] && [ ! -f $AML/disable ]; then
+  if [ ! -d $DIR ]; then
+    mkdir -p $DIR
+  fi
   cp -f $VETC/$NAME $DIR
 else
   cp -f $VETC/$NAME $MODVETC
@@ -130,14 +134,13 @@ if [ ! -d $DIR ]; then
 fi
 chmod 0770 $DIR
 chown 1013.1013 $DIR
-magiskpolicy "dontaudit vendor_data_file labeledfs filesystem associate"
-magiskpolicy "allow     vendor_data_file labeledfs filesystem associate"
-magiskpolicy "dontaudit init vendor_data_file dir relabelfrom"
-magiskpolicy "allow     init vendor_data_file dir relabelfrom"
-magiskpolicy "dontaudit init vendor_data_file file relabelfrom"
-magiskpolicy "allow     init vendor_data_file file relabelfrom"
+magiskpolicy --live "dontaudit vendor_data_file labeledfs filesystem associate"
+magiskpolicy --live "allow     vendor_data_file labeledfs filesystem associate"
+magiskpolicy --live "dontaudit init vendor_data_file dir relabelfrom"
+magiskpolicy --live "allow     init vendor_data_file dir relabelfrom"
+magiskpolicy --live "dontaudit init vendor_data_file file relabelfrom"
+magiskpolicy --live "allow     init vendor_data_file file relabelfrom"
 chcon u:object_r:vendor_data_file:s0 $DIR
-magiskpolicy --live "type vendor_data_file"
 }
 
 # directory
@@ -153,10 +156,10 @@ fi
 # function
 dolby_manifest() {
 CHECK=@1.0::IDms/default
-if ! grep -rEq "$CHECK" $MAGISKTMP/mirror/*/etc/vintf\
-&& ! grep -rEq "$CHECK" $MAGISKTMP/mirror/*/*/etc/vintf\
-&& ! grep -rEq "$CHECK" /*/etc/vintf\
-&& ! grep -rEq "$CHECK" /*/*/etc/vintf; then
+if ! grep -r "$CHECK" $MAGISKTMP/mirror/*/etc/vintf\
+&& ! grep -r "$CHECK" $MAGISKTMP/mirror/*/*/etc/vintf\
+&& ! grep -r "$CHECK" /*/etc/vintf\
+&& ! grep -r "$CHECK" /*/*/etc/vintf; then
   mv -f $MODETC/unused $MODETC/vintf
   mount -o bind $MODETC/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml /system/etc/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml
   killall hwservicemanager

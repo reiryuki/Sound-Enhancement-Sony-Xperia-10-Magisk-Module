@@ -1,5 +1,12 @@
 ui_print " "
 
+# magisk
+if [ -d /sbin/.magisk ]; then
+  MAGISKTMP=/sbin/.magisk
+else
+  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
+fi
+
 # info
 MODVER=`grep_prop version $MODPATH/module.prop`
 MODVERCODE=`grep_prop versionCode $MODPATH/module.prop`
@@ -32,6 +39,8 @@ if [ "$IS64BIT" == true ]; then
     sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
     MODNAME=$MODNAME2
     ui_print " "
+  else
+    DOLBY=false
   fi
 else
   ui_print "- 32 bit"
@@ -169,7 +178,7 @@ if [ "$SELINUX" == Enforcing ]; then
   SELINUX=`getenforce`
   if [ "$SELINUX" == Enforcing ]; then
     ui_print "  ! Unsupported Dolby Atmos."
-    ui_print "  ! Your device can't be turned to Permissive state."
+    ui_print "    Your device can't be turned to Permissive state."
     DOLBY=false
   fi
   setenforce 1
@@ -180,6 +189,75 @@ if [ "$SELINUX" == Enforcing ]; then\
   setenforce 0\
 fi\' $MODPATH/post-fs-data.sh
 }
+set_read_write() {
+for NAMES in $NAME; do
+  blockdev --setrw $DIR$NAMES
+done
+}
+find_file() {
+for NAMES in $NAME; do
+  if [ "$SYSTEM_ROOT" == true ]; then
+    if [ "$BOOTMODE" == true ]; then
+      FILE=`find $MAGISKTMP/mirror/system_root\
+                 $MAGISKTMP/mirror/system_ext\
+                 $MAGISKTMP/mirror/vendor -type f -name $NAMES`
+    else
+      FILE=`find /system_root\
+                 /system_ext\
+                 /vendor -type f -name $NAMES`
+    fi
+  else
+    if [ "$BOOTMODE" == true ]; then
+      FILE=`find $MAGISKTMP/mirror/system\
+                 $MAGISKTMP/mirror/system_ext\
+                 $MAGISKTMP/mirror/vendor -type f -name $NAMES`
+    else
+      FILE=`find /system\
+                 /system_ext\
+                 /vendor -type f -name $NAMES`
+    fi
+  fi
+  if [ ! "$FILE" ]; then
+    PROP=`getprop install.hwlib`
+    if [ "$PROP" == 1 ]; then
+      ui_print "- Installing $NAMES directly to /system and /vendor..."
+      magiskpolicy --live "type same_process_hal_file"
+      magiskpolicy --live "type system_lib_file"
+      magiskpolicy --live "dontaudit { same_process_hal_file system_lib_file } labeledfs filesystem associate"
+      magiskpolicy --live "allow     { same_process_hal_file system_lib_file } labeledfs filesystem associate"
+      magiskpolicy --live "dontaudit init { same_process_hal_file system_lib_file } file relabelfrom"
+      magiskpolicy --live "allow     init { same_process_hal_file system_lib_file } file relabelfrom"
+      if [ "$BOOTMODE" == true ]; then
+        cp $MODPATH/system_support/lib/$NAMES $MAGISKTMP/mirror/system/lib
+        cp $MODPATH/system_support/lib64/$NAMES $MAGISKTMP/mirror/system/lib64
+        cp $MODPATH/system_support/vendor/lib/$NAMES $MAGISKTMP/mirror/vendor/lib
+        cp $MODPATH/system_support/vendor/lib64/$NAMES $MAGISKTMP/mirror/vendor/lib64
+        chcon u:object_r:system_lib_file:s0 $MAGISKTMP/mirror/system/lib*/$NAMES
+        chcon u:object_r:same_process_hal_file:s0 $MAGISKTMP/mirror/vendor/lib*/$NAMES
+      else
+        cp $MODPATH/system_support/lib/$NAMES /system/lib
+        cp $MODPATH/system_support/lib64/$NAMES /system/lib64
+        cp $MODPATH/system_support/vendor/lib/$NAMES /vendor/lib
+        cp $MODPATH/system_support/vendor/lib64/$NAMES /vendor/lib64
+        chcon u:object_r:system_lib_file:s0 /system/lib*/$NAMES
+        chcon u:object_r:same_process_hal_file:s0 /vendor/lib*/$NAMES
+      fi
+      ui_print " "
+    else
+      ui_print "! $NAMES not found."
+      ui_print "  This module will not be working without $NAMES."
+      ui_print "  You can type terminal:"
+      ui_print " "
+      ui_print "  su"
+      ui_print "  setprop install.hwlib 1"
+      ui_print " "
+      ui_print "  and reinstalling this module"
+      ui_print "  to install $NAMES directly to this ROM."
+      ui_print " "
+    fi
+  fi
+done
+}
 backup() {
 if [ ! -f $FILE.orig ] && [ ! -f $FILE.bak ]; then
   cp -f $FILE $FILE.orig
@@ -188,10 +266,14 @@ fi
 patch_manifest() {
 if [ -f $FILE ]; then
   backup
-  ui_print "- Patching"
-  ui_print "  $FILE"
-  ui_print "  directly..."
-  sed -i '/<manifest/a\
+  if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
+    ui_print "- Created"
+    ui_print "$FILE.orig"
+    ui_print " "
+    ui_print "- Patching"
+    ui_print "$FILE"
+    ui_print "  directly..."
+    sed -i '/<manifest/a\
     <hal format="hidl">\
         <name>vendor.dolby.hardware.dms</name>\
         <transport>hwbinder</transport>\
@@ -202,26 +284,33 @@ if [ -f $FILE ]; then
         </interface>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $FILE
-  ui_print " "
+    ui_print " "
+  else
+    ui_print "! Failed to create"
+    ui_print "$FILE.orig"
+    ui_print " "
+  fi
 fi
 }
 patch_hwservice() {
 if [ -f $FILE ]; then
   backup
-  ui_print "- Patching"
-  ui_print "  $FILE"
-  ui_print "  directly..."
-  sed -i '1i\
+  if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
+    ui_print "- Created"
+    ui_print "$FILE.orig"
+    ui_print " "
+    ui_print "- Patching"
+    ui_print "$FILE"
+    ui_print "  directly..."
+    sed -i '1i\
 vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
-  ui_print " "
+    ui_print " "
+  else
+    ui_print "! Failed to create"
+    ui_print "$FILE.orig"
+    ui_print " "
+  fi
 fi
-}
-patching_failed() {
-ui_print "! Patching failed. This ROM is Read-Only."
-ui_print "  Will be using systemless manifest.xml patch."
-ui_print "  On some ROMs, it's buggy or even makes bootloop"
-ui_print "  because not allowed to restart hwservicemanager."
-ui_print " "
 }
 
 # permissive
@@ -235,20 +324,6 @@ elif getprop | grep -Eq "permissive.mode\]: \[2"; then
   permissive
   ui_print " "
 fi
-
-# magisk
-if [ -d /sbin/.magisk ]; then
-  MAGISKTMP=/sbin/.magisk
-else
-  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
-fi
-
-# function
-set_read_write() {
-for NAMES in $NAME; do
-  blockdev --setrw $DIR$NAMES
-done
-}
 
 # remount
 if [ $DOLBY == true ]; then
@@ -270,6 +345,13 @@ if [ $DOLBY == true ]; then
   mount -o rw,remount /system_ext
   mount -o rw,remount /vendor
 fi
+
+# find
+NAME=`ls $MODPATH/system_support/vendor/lib`
+if [ $DOLBY == true ]; then
+  find_file
+fi
+rm -rf $MODPATH/system_support
 
 # patch manifest.xml
 if [ $DOLBY == true ]; then
@@ -309,7 +391,10 @@ if [ $DOLBY == true ]; then
     patch_manifest
   fi
   if ! grep -rEq "$CHECK" $DIR; then
-    patching_failed
+    ui_print "- Using systemless manifest.xml patch."
+    ui_print "  On some ROMs, it's buggy or even makes bootloop"
+    ui_print "  because not allowed to restart hwservicemanager."
+    ui_print " "
   fi
 fi
 
@@ -318,8 +403,9 @@ if [ $DOLBY == true ]; then
   CHECK=u:object_r:hal_dms_hwservice:s0
   CHECK2=u:object_r:default_android_hwservice:s0
   FILE="$MAGISKTMP/mirror/*/etc/selinux/*_hwservice_contexts
+        $MAGISKTMP/mirror/*/*/etc/selinux/*_hwservice_contexts
         /*/etc/selinux/*_hwservice_contexts
-        /system/*/etc/selinux/*_hwservice_contexts"
+        /*/*/etc/selinux/*_hwservice_contexts"
   if ! grep -Eq "$CHECK" $FILE\
   && ! grep -Eq "$CHECK2" $FILE\
   && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
@@ -356,10 +442,6 @@ if [ $DOLBY == true ]; then
     FILE=/system/system_ext/etc/selinux/system_ext_hwservice_contexts
     patch_hwservice
   fi
-  #if ! grep -Eq "$CHECK" $FILE\
-  #&& ! grep -Eq "$CHECK2" $FILE; then
-  #  patching_failed
-  #fi
 fi
 
 # remount
@@ -670,9 +752,9 @@ if [ $DOLBY == true ]; then
     ui_print " "
   fi
 fi
-#if echo "$PROP" | grep -Eq c; then
 if ! getprop | grep -Eq "se.znr\]: \[0"; then
-  ui_print "- Activating Sony ZNR effect for mic and camcorder stream..."
+  ui_print "- Activating Sony Zoom Noise Reduction for camcorder, mic,"
+  ui_print "  and voice recognition stream..."
   sed -i 's/#c//g' $FILE
   ui_print " "
 fi
@@ -681,7 +763,7 @@ fi
 if [ $DOLBY == true ]; then
   FILE=$MODPATH/system/vendor/etc/dolby/dax-default.xml
   PROP=`getprop se.bass`
-  if [ "$PROP" -gt 0 ]; then
+  if [ "$PROP" ] && [ "$PROP" -gt 0 ]; then
     ui_print "- Enable bass enhancer for all profiles..."
     sed -i 's/bass-enhancer-enable value="false"/bass-enhancer-enable value="true"/g' $FILE
     ui_print "- Changing bass enhancer boost values to $PROP for all profiles..."
@@ -848,17 +930,21 @@ FILE=`find $MODPATH/system/vendor/bin -type f`
 for FILES in $FILE; do
   chown 0.2000 $FILES
 done
-magiskpolicy "dontaudit { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } labeledfs filesystem associate"
-magiskpolicy "allow     { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } labeledfs filesystem associate"
-magiskpolicy "dontaudit init { system_lib_file vendor_file vendor_configs_file } dir relabelfrom"
-magiskpolicy "allow     init { system_lib_file vendor_file vendor_configs_file } dir relabelfrom"
-magiskpolicy "dontaudit init { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } file relabelfrom"
-magiskpolicy "allow     init { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } file relabelfrom"
+magiskpolicy --live "type system_lib_file"
+magiskpolicy --live "type vendor_file"
+magiskpolicy --live "type vendor_configs_file"
+magiskpolicy --live "type hal_dms_default_exec"
+magiskpolicy --live "dontaudit { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } labeledfs filesystem associate"
+magiskpolicy --live "allow     { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } labeledfs filesystem associate"
+magiskpolicy --live "dontaudit init { system_lib_file vendor_file vendor_configs_file } dir relabelfrom"
+magiskpolicy --live "allow     init { system_lib_file vendor_file vendor_configs_file } dir relabelfrom"
+magiskpolicy --live "dontaudit init { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } file relabelfrom"
+magiskpolicy --live "allow     init { hal_dms_default_exec system_lib_file vendor_file vendor_configs_file } file relabelfrom"
 chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
 chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
-#chcon u:object_r:hal_dms_default_exec:s0 $FILE
+chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
 ui_print " "
 
 # vendor_overlay

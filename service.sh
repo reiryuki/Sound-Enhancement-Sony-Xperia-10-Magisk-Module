@@ -1,8 +1,34 @@
 (
 
 MODPATH=${0%/*}
+API=`getprop ro.build.version.sdk`
 
-# properties
+# debug
+exec 2>$MODPATH/debug.log
+set -x
+
+# wait
+sleep 1
+
+# mount
+AML=/data/adb/modules/aml
+if [ ! -d $AML ] || [ -f $AML/disable ]; then
+  DIR=$MODPATH/system/vendor
+else
+  DIR=$AML/system/vendor
+fi
+FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name *audio*effects*.conf\
+      -o -name *audio*effects*.xml -o -name *audio*policy*.conf\
+      -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+if [ "$FILE" ]; then
+  for i in $FILE; do
+    j="$(echo $i | sed "s|$DIR||")"
+    umount $j
+    mount -o bind $i $j
+  done
+fi
+
+# property
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
 resetprop ro.semc.version.fs GENERIC
@@ -34,62 +60,59 @@ resetprop vendor.audio.use.sw.alac.decoder true
 #dresetprop vendor.audio.dolby.ds2.enabled false
 #dresetprop vendor.audio.dolby.ds2.hardbypass false
 #resetprop -p --delete persist.vendor.dolby.loglevel
-#resetprop -n persist.vendor.dolby.loglevel 1
-#resetprop vendor.dolby.dap.param.tee true
-#resetprop vendor.dolby.mi.metadata.log true
+#resetprop -n persist.vendor.dolby.loglevel 0
+#resetprop vendor.dolby.dap.param.tee false
+#resetprop vendor.dolby.mi.metadata.log false
 
 # restart
 killall audioserver
 
-# run
-#dstop dms-hal-2-0
-#dif ! getprop | grep -Eq init.svc.dms-hal-1-0; then
-#d  /vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service &
-#d  PID=`pidof /vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service`
-#d  resetprop init.svc.dms-hal-1-0 running
-#d  resetprop init.svc_debug_pid.dms-hal-1-0 $PID
-#delse
-#d  killall /vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+# stop
+#dNAME=dms-hal-2-0
+#dif getprop | grep init.svc.$NAME; then
+#d  stop $NAME
 #dfi
 
-# run
-#if ! getprop | grep -Eq init.svc.idds; then
-#  idds &
-#  PID=`pidof idds`
-#  resetprop init.svc.idds running
-#  resetprop init.svc_debug_pid.idds $PID
-#fi
+# function
+run_service() {
+if ! getprop | grep init.svc.$NAME; then
+  $FILE &
+  resetprop init.svc.$NAME running
+else
+  killall $FILE
+fi
+if ! getprop | grep init.svc_debug_pid.$NAME; then
+  PID=`pidof $FILE`
+  resetprop init.svc_debug_pid.$NAME "$PID"
+fi
+}
 
 # run
-#if ! getprop | grep -Eq init.svc.vendor.semc.system.idd-1-0; then
-#  /vendor/bin/hw/vendor.semc.system.idd@1.0-service &
-#  PID=`pidof /vendor/bin/hw/vendor.semc.system.idd@1.0-service`
-#  resetprop init.svc.vendor.semc.system.idd-1-0 running
-#  resetprop init.svc_debug_pid.vendor.semc.system.idd-1-0 $PID
-#fi
+NAME=dms-hal-1-0
+FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+#drun_service
 
-# run
-#if ! getprop | grep -Eq init.svc.idd-logreader; then
-#  /vendor/bin/idd-logreader &
-#  PID=`pidof /vendor/bin/idd-logreader`
-#  resetprop init.svc.idd-logreader running
-#  resetprop init.svc_debug_pid.idd-logreader $PID
-#fi
+# unused
+NAME=idds
+FILE=idds
+NAME=vendor.semc.system.idd-1-0
+FILE=/vendor/bin/hw/vendor.semc.system.idd@1.0-service
+NAME=idd-logreader
+FILE=/vendor/bin/idd-logreader
 
 # wait
-sleep 60
+sleep 59
 
 # grant
-PROP=`getprop ro.build.version.sdk`
 PKG=com.sonyericsson.soundenhancement
 pm grant $PKG android.permission.RECORD_AUDIO
-if [ $PROP -gt 29 ]; then
+if [ "$API" -ge 30 ]; then
   appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
 fi
 
-# pid
+# oom
 PKG=com.dolby.daxservice
-if pm list packages | grep -Eq $PKG ; then
+if pm list packages | grep $PKG ; then
   PID=`pidof $PKG`
   if [ $PID ]; then
     echo -17 > /proc/$PID/oom_adj
@@ -99,17 +122,17 @@ fi
 
 # special file
 FILE=/dev/sony_hweffect_params
-#magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
-#magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
-#magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
-#magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
+magiskpolicy --live "type audio_hweffect_device"
+magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
+magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
+magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
+magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
 if [ ! -e $FILE ]; then
   mknod $FILE c 10 51
   chmod 0660 $FILE
   chown 1000.1005 $FILE
-  #chcon u:object_r:audio_hweffect_device:s0 $FILE
+  chcon u:object_r:audio_hweffect_device:s0 $FILE
 fi
-#magiskpolicy --live "type audio_hweffect_device"
 
 # file
 DIR=/data/vendor/audio/acdbdata/delta
