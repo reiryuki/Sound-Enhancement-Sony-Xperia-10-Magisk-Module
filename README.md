@@ -2,7 +2,7 @@
 
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
-- Sony ZNR (Zoom Noise Reduction) for pre process mic and camcorder stream
+- Sony ZNR (Zoom Noise Reduction) for enhance audio quality on video/audio recordings
 - Dolby Atmos from Sony Xperia 1 II (READ Optionals to activate!)
 - Sound Enhancement is a post process type soundfx
 - Dolby Atmos is a global type soundfx (READ Optionals to activate!)
