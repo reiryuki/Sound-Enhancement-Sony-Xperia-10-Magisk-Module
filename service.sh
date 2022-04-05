@@ -7,27 +7,6 @@ API=`getprop ro.build.version.sdk`
 exec 2>$MODPATH/debug.log
 set -x
 
-# wait
-sleep 1
-
-# mount
-AML=/data/adb/modules/aml
-if [ ! -d $AML ] || [ -f $AML/disable ]; then
-  DIR=$MODPATH/system/vendor
-else
-  DIR=$AML/system/vendor
-fi
-FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name *audio*effects*.conf\
-      -o -name *audio*effects*.xml -o -name *audio*policy*.conf\
-      -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-if [ "$FILE" ]; then
-  for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount $j
-    mount -o bind $i $j
-  done
-fi
-
 # property
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
@@ -64,9 +43,6 @@ resetprop vendor.audio.use.sw.alac.decoder true
 #resetprop vendor.dolby.dap.param.tee false
 #resetprop vendor.dolby.mi.metadata.log false
 
-# restart
-killall audioserver
-
 # stop
 #dNAME=dms-hal-2-0
 #dif getprop | grep init.svc.$NAME; then
@@ -101,7 +77,31 @@ NAME=idd-logreader
 FILE=/vendor/bin/idd-logreader
 
 # wait
-sleep 59
+sleep 20
+
+# mount
+AML=/data/adb/modules/aml
+if [ ! -d $AML ] || [ -f $AML/disable ]; then
+  DIR=$MODPATH/system/vendor
+else
+  DIR=$AML/system/vendor
+fi
+FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name *audio*effects*.conf\
+      -o -name *audio*effects*.xml -o -name *audio*policy*.conf\
+      -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+if [ "$FILE" ]; then
+  for i in $FILE; do
+    j="$(echo $i | sed "s|$DIR||")"
+    umount $j
+    mount -o bind $i $j
+  done
+fi
+
+# restart
+killall audioserver
+
+# wait
+sleep 40
 
 # grant
 PKG=com.sonyericsson.soundenhancement
@@ -127,6 +127,8 @@ magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
 magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
 magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
 magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
+magiskpolicy --live "dontaudit init audio_hweffect_device dir relabelfrom"
+magiskpolicy --live "allow     init audio_hweffect_device dir relabelfrom"
 if [ ! -e $FILE ]; then
   mknod $FILE c 10 51
   chmod 0660 $FILE
