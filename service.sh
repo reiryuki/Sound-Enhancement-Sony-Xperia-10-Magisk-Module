@@ -2,10 +2,18 @@
 
 MODPATH=${0%/*}
 API=`getprop ro.build.version.sdk`
+AML=/data/adb/modules/aml
 
 # debug
 exec 2>$MODPATH/debug.log
 set -x
+
+# prevent soft reboot
+echo 0 > /proc/sys/kernel/panic
+echo 0 > /proc/sys/kernel/panic_on_oops
+echo 0 > /proc/sys/kernel/panic_on_rcu_stall
+echo 0 > /proc/sys/kernel/panic_on_warn
+echo 0 > /proc/sys/vm/panic_on_oom
 
 # property
 resetprop ro.semc.product.model I4113
@@ -43,62 +51,88 @@ resetprop vendor.audio.use.sw.alac.decoder true
 #resetprop vendor.dolby.dap.param.tee false
 #resetprop vendor.dolby.mi.metadata.log false
 
+# restart
+killall audioserver
+
 # stop
-#dNAME=dms-hal-2-0
-#dif getprop | grep init.svc.$NAME; then
-#d  stop $NAME
-#dfi
+NAME=dms-hal-2-0
+if getprop | grep "init.svc.$NAME\]: \[running"; then
+  stop $NAME
+fi
 
 # function
 run_service() {
-if ! getprop | grep init.svc.$NAME; then
+if getprop | grep "init.svc.$NAME\]: \[stopped"; then
+  start $NAME
+fi
+PID=`pidof $SERV`
+if [ ! "$PID" ]; then
   $FILE &
-  resetprop init.svc.$NAME running
-else
-  killall $FILE
+  PID=`pidof $SERV`
 fi
-if ! getprop | grep init.svc_debug_pid.$NAME; then
-  PID=`pidof $FILE`
-  resetprop init.svc_debug_pid.$NAME "$PID"
-fi
+resetprop init.svc.$NAME running
+resetprop init.svc_debug_pid.$NAME "$PID"
 }
 
 # run
 NAME=dms-hal-1-0
-FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+SERV=vendor.dolby.hardware.dms@1.0-service
+FILE=/vendor/bin/hw/$SERV
 #drun_service
 
 # unused
 NAME=idds
-FILE=idds
+SERV=$NAME
+FILE=$SERV
+#run_service
 NAME=vendor.semc.system.idd-1-0
-FILE=/vendor/bin/hw/vendor.semc.system.idd@1.0-service
+SERV=vendor.semc.system.idd@1.0-service
+FILE=/vendor/bin/hw/$SERV
+#run_service
 NAME=idd-logreader
-FILE=/vendor/bin/idd-logreader
+SERV=$NAME
+FILE=/vendor/bin/$SERV
+#run_service
 
 # wait
 sleep 20
 
 # mount
-AML=/data/adb/modules/aml
+NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
 if [ ! -d $AML ] || [ -f $AML/disable ]; then
   DIR=$MODPATH/system/vendor
 else
   DIR=$AML/system/vendor
 fi
-FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name *audio*effects*.conf\
-      -o -name *audio*effects*.xml -o -name *audio*policy*.conf\
-      -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-if [ "$FILE" ]; then
+FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name $NAME`
+if [ "`realpath /odm/etc`" != /vendor/odm/etc ] && [ "$FILE" ]; then
   for i in $FILE; do
     j="$(echo $i | sed "s|$DIR||")"
     umount $j
     mount -o bind $i $j
   done
+  killall audioserver
+fi
+if [ ! -d $AML ] || [ -f $AML/disable ]; then
+  DIR=$MODPATH/system
+else
+  DIR=$AML/system
+fi
+FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
+if [ -d /my_product/etc ] && [ "$FILE" ]; then
+  for i in $FILE; do
+    j="$(echo $i | sed "s|$DIR||")"
+    umount /my_product$j
+    mount -o bind $i /my_product$j
+  done
+  killall audioserver
 fi
 
-# restart
-killall audioserver
+# run
+NAME=dms-hal-1-0
+SERV=vendor.dolby.hardware.dms@1.0-service
+FILE=/vendor/bin/hw/$SERV
+#drun_service
 
 # wait
 sleep 40
@@ -110,9 +144,20 @@ if [ "$API" -ge 30 ]; then
   appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
 fi
 
-# oom
+# allow
+PKG=com.dolby.daxappui
+if pm list packages | grep $PKG ; then
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
+fi
+
+# allow
 PKG=com.dolby.daxservice
 if pm list packages | grep $PKG ; then
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
   PID=`pidof $PKG`
   if [ $PID ]; then
     echo -17 > /proc/$PID/oom_adj

@@ -355,42 +355,40 @@ rm -rf $MODPATH/system_support
 
 # patch manifest.xml
 if [ $DOLBY == true ]; then
-  CHECK=@1.0::IDms/default
-  DIR="$MAGISKTMP/mirror/*/etc/vintf
-       $MAGISKTMP/mirror/*/*/etc/vintf
-        /*/etc/vintf
-        /*/*/etc/vintf"
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
+  FILE=`find $MAGISKTMP/mirror/*/etc/vintf\
+             $MAGISKTMP/mirror/*/*/etc/vintf\
+             /*/etc/vintf /*/*/etc/vintf -type f -name *.xml`
+  if ! getprop | grep -Eq "dolby.skip.vendor\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=$MAGISKTMP/mirror/vendor/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.system\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=$MAGISKTMP/mirror/system/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.system_ext\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system_ext\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=$MAGISKTMP/mirror/system_ext/etc/vintf/manifest.xml
-    patch_manifest
+   patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.vendor\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=/vendor/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.system\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=/system/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR\
-  && ! getprop | grep -Eq "se.skip.system_ext\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system_ext\]: \[1"\
+  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     FILE=/system/system_ext/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -rEq "$CHECK" $DIR; then
+  if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
     ui_print "- Using systemless manifest.xml patch."
     ui_print "  On some ROMs, it's buggy or even makes bootloop"
     ui_print "  because not allowed to restart hwservicemanager."
@@ -400,45 +398,37 @@ fi
 
 # patch hwservice contexts
 if [ $DOLBY == true ]; then
-  CHECK=u:object_r:hal_dms_hwservice:s0
-  CHECK2=u:object_r:default_android_hwservice:s0
   FILE="$MAGISKTMP/mirror/*/etc/selinux/*_hwservice_contexts
         $MAGISKTMP/mirror/*/*/etc/selinux/*_hwservice_contexts
         /*/etc/selinux/*_hwservice_contexts
         /*/*/etc/selinux/*_hwservice_contexts"
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.vendor\]: \[1"\
+  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=$MAGISKTMP/mirror/vendor/etc/selinux/vendor_hwservice_contexts
     patch_hwservice
   fi
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.system\]: \[1"; then
+ if ! getprop | grep -Eq "dolby.skip.system\]: \[1"\
+ && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=$MAGISKTMP/mirror/system/etc/selinux/plat_hwservice_contexts
     patch_hwservice
   fi
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.system_ext\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system_ext\]: \[1"\
+  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=$MAGISKTMP/mirror/system_ext/etc/selinux/system_ext_hwservice_contexts
     patch_hwservice
   fi
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.vendor\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.vendor\]: \[1"\
+  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=/vendor/etc/selinux/vendor_hwservice_contexts
     patch_hwservice
   fi
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.system\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system\]: \[1"\
+  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=/system/etc/selinux/plat_hwservice_contexts
     patch_hwservice
   fi
-  if ! grep -Eq "$CHECK" $FILE\
-  && ! grep -Eq "$CHECK2" $FILE\
-  && ! getprop | grep -Eq "se.skip.system_ext\]: \[1"; then
+  if ! getprop | grep -Eq "dolby.skip.system_ext\]: \[1"\
+  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
     FILE=/system/system_ext/etc/selinux/system_ext_hwservice_contexts
     patch_hwservice
   fi

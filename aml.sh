@@ -1,6 +1,6 @@
 MODPATH=${0%/*}
 
-# destinations
+# destination
 LIBPATH="\/vendor\/lib\/soundfx"
 MODAEC=`find $MODPATH/system -type f -name *audio*effects*.conf`
 MODAEX=`find $MODPATH/system -type f -name *audio*effects*.xml`
@@ -296,15 +296,16 @@ fi
 
 # store
 #dLIB=libswdap.so
+#dLIBNAME=dap
 #dNAME=dap
 #dUUID=9d4921da-8225-4f29-aefa-39537a04bcaa
-#dRMV="$LIB $NAME $UUID"
+#dRMV="$LIB $LIBNAME $NAME $UUID"
 
 # patch audio effects conf
 #dif [ "$MODAEC" ]; then
 #d  remove_conf
-#d  sed -i "/^libraries {/a\  $NAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
-#d  sed -i "/^effects {/a\  $NAME {\n    library $NAME\n    uuid $UUID\n  }" $MODAEC
+#d  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
+#d  sed -i "/^effects {/a\  $NAME {\n    library $LIBNAME\n    uuid $UUID\n  }" $MODAEC
 #d#m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
 #d#r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC
 #d#a  sed -i "/^    alarm {/a\        $NAME {\n        }" $MODAEC
@@ -315,8 +316,8 @@ fi
 # patch effects xml
 #dif [ "$MODAEX" ]; then
 #d  remove_xml
-#d  sed -i "/<libraries>/a\        <library name=\"$NAME\" path=\"$LIB\"\/>" $MODAEX
-#d  sed -i "/<effects>/a\        <effect name=\"$NAME\" library=\"$NAME\" uuid=\"$UUID\"\/>" $MODAEX
+#d  sed -i "/<libraries>/a\        <library name=\"$LIBNAME\" path=\"$LIB\"\/>" $MODAEX
+#d  sed -i "/<effects>/a\        <effect name=\"$NAME\" library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
 #d#m  sed -i "/<stream type=\"music\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #d#r  sed -i "/<stream type=\"ring\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #d#a  sed -i "/<stream type=\"alarm\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX

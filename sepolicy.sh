@@ -23,8 +23,8 @@ magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_
 magiskpolicy --live "allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }"
 magiskpolicy --live "dontaudit { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }"
 magiskpolicy --live "allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }"
-magiskpolicy --live "dontaudit zygote device file write"
-magiskpolicy --live "allow     zygote device file write"
+magiskpolicy --live "dontaudit zygote { device unlabeled } file write"
+magiskpolicy --live "allow     zygote { device unlabeled } file write"
 
 # chr_file
 magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } device chr_file { read write open getattr ioctl }"

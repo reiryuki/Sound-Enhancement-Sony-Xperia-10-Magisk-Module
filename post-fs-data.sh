@@ -3,6 +3,8 @@
 mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
+AML=/data/adb/modules/aml
+ACDB=/data/adb/modules/acdb
 
 # debug
 magiskpolicy --live "dontaudit system_server system_file file write"
@@ -22,7 +24,7 @@ if [ -d /sbin/.magisk ]; then
 else
   MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
 fi
-ETC=$MAGISKTMP/mirror/system/etc
+ETC="/my_product/etc $MAGISKTMP/mirror/system/etc"
 VETC=$MAGISKTMP/mirror/system/vendor/etc
 VOETC="/odm/etc $MAGISKTMP/mirror/system/vendor/odm/etc"
 MODETC=$MODPATH/system/etc
@@ -30,8 +32,6 @@ MODVETC=$MODPATH/system/vendor/etc
 MODVOETC=$MODPATH/system/vendor/odm/etc
 
 # conflict
-AML=/data/adb/modules/aml
-ACDB=/data/adb/modules/acdb
 if [ -d $AML ] && [ ! -f $AML/disable ]\
 && [ -d $ACDB ] && [ ! -f $ACDB/disable ]; then
   touch $ACDB/disable
@@ -49,23 +49,14 @@ if [ -d $VETC/audio/"$PROP" ]; then
   mkdir -p $MODVETC/audio/"$PROP"
 fi
 
-# cleaning
-rm -f `find $MODPATH/system -type f -name *audio*effects*.conf\
--o -name *audio*effects*.xml -o -name *audio*policy*.conf\
--o -name *stage*policy*.conf -o -name *audio*policy*.xml\
--o -name media_codecs.xml`
-
 # audio files
-A=`find $ETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-   -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-VA=`find $VETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-    -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-VOA=`find $VOETC -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-VAA=`find $VETC/audio -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
-VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-     -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
+rm -f `find $MODPATH/system -type f -name $NAME`
+A=`find $ETC -maxdepth 1 -type f -name $NAME`
+VA=`find $VETC -maxdepth 1 -type f -name $NAME`
+VOA=`find $OETC -maxdepth 1 -type f -name $NAME`
+VAA=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
+VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
 if [ "$A" ]; then
   cp -f $A $MODETC
 fi
@@ -73,18 +64,17 @@ if [ "$VA" ]; then
   cp -f $VA $MODVETC
 fi
 if [ "$VOA" ]; then
-  cp -f $VOA $MODVOETC
+  cp -f $VOA $MODOETC
 fi
 if [ "$VAA" ]; then
-  cp -f $VAA $MODVOETC/audio
+  cp -f $VAA $MODOETC/audio
 fi
 if [ "$VBA" ]; then
   cp -f $VBA $MODVETC/audio/"$PROP"
 fi
 if [ "$SKU" ]; then
   for SKUS in $SKU; do
-    VSA=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name *audio*effects*.conf -o -name *audio*effects*.xml\
-         -o -name *audio*policy*.conf -o -name *stage*policy*.conf -o -name *audio*policy*.xml`
+    VSA=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME`
     if [ "$VSA" ]; then
       cp -f $VSA $MODVETC/audio/$SKUS
     fi
@@ -107,6 +97,7 @@ chcon -R u:object_r:vendor_configs_file:s0 $DIR
 
 # media codecs
 NAME=media_codecs.xml
+rm -f $MODVETC/$NAME
 DIR=$AML/system/vendor/etc
 if [ -d $AML ] && [ ! -f $AML/disable ]; then
   if [ ! -d $DIR ]; then
@@ -155,13 +146,13 @@ fi
 
 # function
 dolby_manifest() {
-CHECK=@1.0::IDms/default
-if ! grep -r "$CHECK" $MAGISKTMP/mirror/*/etc/vintf\
-&& ! grep -r "$CHECK" $MAGISKTMP/mirror/*/*/etc/vintf\
-&& ! grep -r "$CHECK" /*/etc/vintf\
-&& ! grep -r "$CHECK" /*/*/etc/vintf; then
+NAME=vendor.dolby.hardware.dms@1.0.xml
+FILE=`find $MAGISKTMP/mirror/*/etc/vintf\
+           $MAGISKTMP/mirror/*/*/etc/vintf\
+           /*/etc/vintf /*/*/etc/vintf -type f -name *.xml`
+if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep 1.0; then
   mv -f $MODETC/unused $MODETC/vintf
-  mount -o bind $MODETC/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml /system/etc/vintf/manifest/vendor.dolby.hardware.dms@1.0.xml
+  mount -o bind $MODETC/vintf/manifest/$NAME /system/etc/vintf/manifest/$NAME
   killall hwservicemanager
 else
   mv -f $MODETC/vintf $MODETC/unused
