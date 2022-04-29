@@ -8,13 +8,6 @@ AML=/data/adb/modules/aml
 exec 2>$MODPATH/debug.log
 set -x
 
-# prevent soft reboot
-echo 0 > /proc/sys/kernel/panic
-echo 0 > /proc/sys/kernel/panic_on_oops
-echo 0 > /proc/sys/kernel/panic_on_rcu_stall
-echo 0 > /proc/sys/kernel/panic_on_warn
-echo 0 > /proc/sys/vm/panic_on_oom
-
 # property
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
@@ -54,45 +47,35 @@ resetprop vendor.audio.use.sw.alac.decoder true
 # restart
 killall audioserver
 
-# stop
-NAME=dms-hal-2-0
+# function
+stop_service() {
 if getprop | grep "init.svc.$NAME\]: \[running"; then
   stop $NAME
 fi
-
-# function
+}
 run_service() {
-if getprop | grep "init.svc.$NAME\]: \[stopped"; then
-  start $NAME
-fi
-PID=`pidof $SERV`
-if [ ! "$PID" ]; then
-  $FILE &
-  PID=`pidof $SERV`
-fi
-resetprop init.svc.$NAME running
-resetprop init.svc_debug_pid.$NAME "$PID"
+killall $FILE
+$FILE &
+PID=`pidof $FILE`
 }
 
-# run
+# stop
 NAME=dms-hal-1-0
-SERV=vendor.dolby.hardware.dms@1.0-service
-FILE=/vendor/bin/hw/$SERV
+#dstop_service
+NAME=dms-hal-2-0
+#dstop_service
+NAME=dms-v36-hal-2-0
+#dstop_service
+
+# run
+FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
 #drun_service
 
 # unused
-NAME=idds
-SERV=$NAME
-FILE=$SERV
-#run_service
+FILE=idds
 NAME=vendor.semc.system.idd-1-0
-SERV=vendor.semc.system.idd@1.0-service
-FILE=/vendor/bin/hw/$SERV
-#run_service
-NAME=idd-logreader
-SERV=$NAME
-FILE=/vendor/bin/$SERV
-#run_service
+FILE=/vendor/bin/hw/vendor.semc.system.idd@1.0-service
+FILE=/vendor/bin/idd-logreader
 
 # wait
 sleep 20
@@ -104,35 +87,37 @@ if [ ! -d $AML ] || [ -f $AML/disable ]; then
 else
   DIR=$AML/system/vendor
 fi
-FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name $NAME`
-if [ "`realpath /odm/etc`" != /vendor/odm/etc ] && [ "$FILE" ]; then
-  for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount $j
-    mount -o bind $i $j
-  done
-  killall audioserver
-fi
-if [ ! -d $AML ] || [ -f $AML/disable ]; then
-  DIR=$MODPATH/system
-else
-  DIR=$AML/system
-fi
 FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
+if [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ]; then
+  for i in $FILE; do
+    j="/odm$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
+  done
+fi
 if [ -d /my_product/etc ] && [ "$FILE" ]; then
   for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount /my_product$j
-    mount -o bind $i /my_product$j
+    j="/my_product$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
   done
+fi
+if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
+|| ( [ -d /my_product/etc ] && [ "$FILE" ] ); then
   killall audioserver
+  FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+  #drun_service
 fi
 
-# run
-NAME=dms-hal-1-0
-SERV=vendor.dolby.hardware.dms@1.0-service
-FILE=/vendor/bin/hw/$SERV
-#drun_service
+# aml fix
+DIR=$AML/system/vendor/odm/etc
+if [ -d $DIR ] && [ ! -f $AML/disable ]; then
+  chcon -R u:object_r:vendor_configs_file:s0 $DIR
+fi
 
 # wait
 sleep 40
@@ -158,22 +143,10 @@ if pm list packages | grep $PKG ; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
-  PID=`pidof $PKG`
-  if [ $PID ]; then
-    echo -17 > /proc/$PID/oom_adj
-    echo -1000 > /proc/$PID/oom_score_adj
-  fi
 fi
 
 # special file
 FILE=/dev/sony_hweffect_params
-magiskpolicy --live "type audio_hweffect_device"
-magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
-magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
-magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
-magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
-magiskpolicy --live "dontaudit init audio_hweffect_device dir relabelfrom"
-magiskpolicy --live "allow     init audio_hweffect_device dir relabelfrom"
 if [ ! -e $FILE ]; then
   mknod $FILE c 10 51
   chmod 0660 $FILE
@@ -183,6 +156,9 @@ fi
 
 # file
 DIR=/data/vendor/audio/acdbdata/delta
+if [ ! -d $DIR ]; then
+  mkdir -p $DIR
+fi
 NAME="Sony_ganges_Bluetooth_cal.acdbdelta
       Sony_ganges_General_cal.acdbdelta
       Sony_ganges_Global_cal.acdbdelta

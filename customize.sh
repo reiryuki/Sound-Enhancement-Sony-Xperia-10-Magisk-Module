@@ -68,30 +68,6 @@ fi
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
-# function
-conflict() {
-for NAMES in $NAME; do
-  DIR=/data/adb/modules_update/$NAMES
-  if [ -f $DIR/uninstall.sh ]; then
-    sh $DIR/uninstall.sh
-  fi
-  rm -rf $DIR
-  DIR=/data/adb/modules/$NAMES
-  rm -f $DIR/update
-  touch $DIR/remove
-  FILE=/data/adb/modules/$NAMES/uninstall.sh
-  if [ -f $FILE ]; then
-    sh $FILE
-    rm -f $FILE
-  fi
-  rm -rf /metadata/magisk/$NAMES
-  rm -rf /mnt/vendor/persist/magisk/$NAMES
-  rm -rf /persist/magisk/$NAMES
-  rm -rf /data/unencrypted/magisk/$NAMES
-  rm -rf /cache/magisk/$NAMES
-done
-}
-
 # mod ui
 if getprop | grep -Eq "mod.ui\]: \[1"; then
   APP=SoundEnhancement
@@ -127,14 +103,34 @@ rm -rf /mnt/vendor/persist/magisk/$MODID
 rm -rf /persist/magisk/$MODID
 rm -rf /data/unencrypted/magisk/$MODID
 rm -rf /cache/magisk/$MODID
-if [ $DOLBY == true ]; then
-  PKG2="com.dolby.daxappui com.dolby.daxservice"
-  if [ "$BOOTMODE" == true ]; then
-    for PKG2S in $PKG2; do
-      RES=`pm uninstall $PKG2S`
-    done
+ui_print " "
+
+# function
+conflict() {
+for NAMES in $NAME; do
+  DIR=/data/adb/modules_update/$NAMES
+  if [ -f $DIR/uninstall.sh ]; then
+    sh $DIR/uninstall.sh
   fi
-  rm -f /data/vendor/dolby/dax_sqlite3.db
+  rm -rf $DIR
+  DIR=/data/adb/modules/$NAMES
+  rm -f $DIR/update
+  touch $DIR/remove
+  FILE=/data/adb/modules/$NAMES/uninstall.sh
+  if [ -f $FILE ]; then
+    sh $FILE
+    rm -f $FILE
+  fi
+  rm -rf /metadata/magisk/$NAMES
+  rm -rf /mnt/vendor/persist/magisk/$NAMES
+  rm -rf /persist/magisk/$NAMES
+  rm -rf /data/unencrypted/magisk/$NAMES
+  rm -rf /cache/magisk/$NAMES
+done
+}
+
+# conflict
+if [ $DOLBY == true ]; then
   NAME="dolbyatmos
         DolbyAudio
         DolbyAtmos
@@ -142,8 +138,12 @@ if [ $DOLBY == true ]; then
         dsplus
         Dolby"
   conflict
+  NAME=MiSound
+  FILE=/data/adb/modules/$NAME/module.prop
+  if grep -Eq 'Mi Sound and Dolby Atmos' $FILE; then
+    conflict
+  fi
 fi
-ui_print " "
 
 # function
 cleanup() {
@@ -177,9 +177,11 @@ if [ "$SELINUX" == Enforcing ]; then
   setenforce 0
   SELINUX=`getenforce`
   if [ "$SELINUX" == Enforcing ]; then
-    ui_print "  ! Unsupported Dolby Atmos."
-    ui_print "    Your device can't be turned to Permissive state."
-    DOLBY=false
+    ui_print "  ! Your device can't be turned to Permissive state."
+    if [ $DOLBY == true ]; then
+      ui_print "    Unsupported Dolby Atmos."
+      DOLBY=false
+    fi
   fi
   setenforce 1
 fi
@@ -312,6 +314,16 @@ vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
   fi
 fi
 }
+restore() {
+for FILES in $FILE; do
+  if [ -f $FILES.orig ]; then
+    mv -f $FILES.orig $FILES
+  fi
+  if [ -f $FILES.bak ]; then
+    mv -f $FILES.bak $FILES
+  fi
+done
+}
 
 # permissive
 if getprop | grep -Eq "permissive.mode\]: \[1"; then
@@ -322,6 +334,67 @@ if getprop | grep -Eq "permissive.mode\]: \[1"; then
 elif getprop | grep -Eq "permissive.mode\]: \[2"; then
   ui_print "- Using both permissive and SE policy patch"
   permissive
+  ui_print " "
+fi
+
+# dolby
+if [ $DOLBY == true ]; then
+  sed -i 's/#d//g' $MODPATH/.aml.sh
+  sed -i 's/#d//g' $MODPATH/*.sh
+  cp -rf $MODPATH/system_dolby/* $MODPATH/system
+  PKG="com.dolby.daxappui com.dolby.daxservice"
+  if [ "$BOOTMODE" == true ]; then
+    for PKGS in $PKG; do
+      RES=`pm uninstall $PKGS`
+    done
+  fi
+  rm -f /data/vendor/dolby/dax_sqlite3.db
+else
+  MODNAME2='Sound Enhancement Sony Xperia 10'
+  sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
+fi
+rm -rf $MODPATH/system_dolby
+
+# mod ui
+if [ $DOLBY == true ] && getprop | grep -Eq "mod.ui\]: \[1"; then
+  APP=DaxUI
+  FILE=/sdcard/$APP.apk
+  DIR=`find $MODPATH/system -type d -name $APP`
+  ui_print "- Using modified Dolby UI apk..."
+  if [ -f $FILE ]; then
+    cp -f $FILE $DIR
+    chmod 0644 $DIR/$APP.apk
+    ui_print "  Applied"
+  else
+    ui_print "  ! There is no $FILE file."
+    ui_print "    Please place the apk to your internal storage first"
+    ui_print "    and reflash!"
+  fi
+  ui_print " "
+fi
+
+# cleaning
+APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
+for APPS in $APP; do
+  rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
+done
+
+# power save
+PROP=`getprop power.save`
+FILE=$MODPATH/system/etc/sysconfig/*
+if [ "$PROP" == 1 ]; then
+  ui_print "- $MODNAME will not be allowed in power save."
+  ui_print "  It may save your battery but decreasing $MODNAME performance."
+  for PKGS in $PKG; do
+    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
+    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
+  done
+  if [ $DOLBY == true ]; then
+    for PKGS2 in $PKG2; do
+      sed -i "s/<allow-in-power-save package=\"$PKGS2\"\/>//g" $FILE
+      sed -i "s/<allow-in-power-save package=\"$PKGS2\" \/>//g" $FILE
+    done
+  fi
   ui_print " "
 fi
 
@@ -389,6 +462,19 @@ if [ $DOLBY == true ]; then
     patch_manifest
   fi
   if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -Eq 1.0; then
+    FILE=`find $MAGISKTMP/mirror/system\
+               $MAGISKTMP/mirror/system_ext\
+               $MAGISKTMP/mirror/vendor\
+               $MAGISKTMP/mirror/system_root/system\
+               $MAGISKTMP/mirror/system_root/system_ext\
+               $MAGISKTMP/mirror/system_root/vendor\
+               /system\
+               /system_ext\
+               /vendor\
+               /system_root/system\
+               /system_root/system_ext\
+               /system_root/vendor -type f -name manifest.xml`
+    restore
     ui_print "- Using systemless manifest.xml patch."
     ui_print "  On some ROMs, it's buggy or even makes bootloop"
     ui_print "  because not allowed to restart hwservicemanager."
@@ -445,60 +531,6 @@ if [ "$BOOTMODE" == true ] && [ $DOLBY == true ]; then
   mount -o ro,remount /system_root
   mount -o ro,remount /system_ext
   mount -o ro,remount /vendor
-fi
-
-# dolby
-if [ $DOLBY == true ]; then
-  sed -i 's/#d//g' $MODPATH/.aml.sh
-  sed -i 's/#d//g' $MODPATH/*.sh
-  cp -rf $MODPATH/system_dolby/* $MODPATH/system
-else
-  MODNAME2='Sound Enhancement Sony Xperia 10'
-  sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
-fi
-rm -rf $MODPATH/system_dolby
-
-# mod ui
-if [ $DOLBY == true ] && getprop | grep -Eq "mod.ui\]: \[1"; then
-  APP=DaxUI
-  FILE=/sdcard/$APP.apk
-  DIR=`find $MODPATH/system -type d -name $APP`
-  ui_print "- Using modified Dolby UI apk..."
-  if [ -f $FILE ]; then
-    cp -f $FILE $DIR
-    chmod 0644 $DIR/$APP.apk
-    ui_print "  Applied"
-  else
-    ui_print "  ! There is no $FILE file."
-    ui_print "    Please place the apk to your internal storage first"
-    ui_print "    and reflash!"
-  fi
-  ui_print " "
-fi
-
-# cleaning
-APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
-for APPS in $APP; do
-  rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
-done
-
-# power save
-PROP=`getprop power.save`
-FILE=$MODPATH/system/etc/sysconfig/*
-if [ "$PROP" == 1 ]; then
-  ui_print "- $MODNAME will not be allowed in power save."
-  ui_print "  It may save your battery but decreasing $MODNAME performance."
-  for PKGS in $PKG; do
-    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
-    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
-  done
-  if [ $DOLBY == true ]; then
-    for PKGS2 in $PKG2; do
-      sed -i "s/<allow-in-power-save package=\"$PKGS2\"\/>//g" $FILE
-      sed -i "s/<allow-in-power-save package=\"$PKGS2\" \/>//g" $FILE
-    done
-  fi
-  ui_print " "
 fi
 
 # function
@@ -613,41 +645,40 @@ fi
 
 # hide
 hide_oat
-APP=MusicFX
+APP="MusicFX AudioFX"
 for APPS in $APP; do
   hide_app
 done
 if [ $DOLBY == true ]; then
-  APP="MotoDolbyV3 OPSoundTuner DolbyAtmos"
-else
-  APP=AudioFX
+  APP="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos"
+  for APPS in $APP; do
+    hide_app
+  done
 fi
-for APPS in $APP; do
-  hide_app
-done
-if getprop | grep -Eq "disable.dirac\]: \[1" || getprop | grep -Eq "disable.misoundfx\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0" || getprop | grep -Eq "disable.misoundfx\]: \[1"; then
   APP=MiSound
   for APPS in $APP; do
     hide_app
   done
 fi
-if getprop | grep -Eq "disable.dirac\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0"; then
   APP=DiracAudioControlService
   for APPS in $APP; do
     hide_app
   done
 fi
 
-# dirac
+# dirac & misoundfx
 FILE=$MODPATH/.aml.sh
 APP="XiaomiParts
      ZenfoneParts
      ZenParts
      GalaxyParts
-     KharaMeParts"
+     KharaMeParts
+     DeviceParts"
 NAME='dirac soundfx'
 UUID=e069d9e0-8329-11df-9168-0002a5d5c51b
-if getprop | grep -Eq "disable.dirac\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0"; then
   ui_print "- $NAME will be disabled"
   sed -i 's/#2//g' $FILE
   check_app
@@ -655,8 +686,6 @@ if getprop | grep -Eq "disable.dirac\]: \[1"; then
 else
   detect_soundfx
 fi
-
-# misoundfx
 FILE=$MODPATH/.aml.sh
 NAME=misoundfx
 UUID=5b8e36a5-144a-4c38-b1d7-0002a5d5c51b
@@ -673,7 +702,7 @@ fi
 FILE=$MODPATH/.aml.sh
 NAME='dirac_controller soundfx'
 UUID=b437f4de-da28-449b-9673-667f8b964304
-if getprop | grep -Eq "disable.dirac\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0"; then
   ui_print "- $NAME will be disabled"
   ui_print " "
 else
@@ -684,7 +713,7 @@ fi
 FILE=$MODPATH/.aml.sh
 NAME='dirac_music soundfx'
 UUID=b437f4de-da28-449b-9673-667f8b9643fe
-if getprop | grep -Eq "disable.dirac\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0"; then
   ui_print "- $NAME will be disabled"
   ui_print " "
 else
@@ -695,7 +724,7 @@ fi
 FILE=$MODPATH/.aml.sh
 NAME='dirac_gef soundfx'
 UUID=3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D
-if getprop | grep -Eq "disable.dirac\]: \[1"; then
+if ! getprop | grep -Eq "disable.dirac\]: \[0"; then
   ui_print "- $NAME will be disabled"
   ui_print " "
 else
@@ -715,10 +744,6 @@ if [ $DOLBY == true ]; then
     ui_print "  for Dolby Atmos global effect"
     sed -i 's/persist.sony.effect.dolby_atmos false/persist.sony.effect.dolby_atmos true/g' $MODPATH/service.sh
     sed -i 's/persist.sony.effect.ahc true/persist.sony.effect.ahc false/g' $MODPATH/service.sh
-    APP=AudioFX
-    for APPS in $APP; do
-      hide_app
-    done
     ui_print " "
   fi
   if echo "$PROP" | grep -Eq r; then
@@ -752,7 +777,7 @@ fi
 # settings
 if [ $DOLBY == true ]; then
   FILE=$MODPATH/system/vendor/etc/dolby/dax-default.xml
-  PROP=`getprop se.bass`
+  PROP=`getprop dolby.bass`
   if [ "$PROP" ] && [ "$PROP" -gt 0 ]; then
     ui_print "- Enable bass enhancer for all profiles..."
     sed -i 's/bass-enhancer-enable value="false"/bass-enhancer-enable value="true"/g' $FILE
@@ -775,16 +800,16 @@ if [ $DOLBY == true ]; then
     ui_print "- Disable bass enhancer for all profiles..."
     sed -i 's/bass-enhancer-enable value="true"/bass-enhancer-enable value="false"/g' $FILE
   fi
-  if getprop | grep -Eq "se.virtualizer\]: \[1"; then
+  if getprop | grep -Eq "dolby.virtualizer\]: \[1"; then
     ui_print "- Enable virtualizer for all profiles..."
     sed -i 's/virtualizer-enable value="false"/virtualizer-enable value="true"/g' $FILE
-  elif getprop | grep -Eq "se.virtualizer\]: \[0"; then
+  elif getprop | grep -Eq "dolby.virtualizer\]: \[0"; then
     ui_print "- Disable virtualizer for all profiles..."
     sed -i 's/virtualizer-enable value="true"/virtualizer-enable value="false"/g' $FILE
   fi
-  if getprop | grep -Eq "se.volumeleveler\]: \[1"; then
+  if getprop | grep -Eq "dolby.volumeleveler\]: \[1"; then
     ui_print "- Using default volume leveler settings"
-  elif getprop | grep -Eq "se.volumeleveler\]: \[2"; then
+  elif getprop | grep -Eq "dolby.volumeleveler\]: \[2"; then
     ui_print "- Enable volume leveler for all profiles..."
     sed -i 's/volume-leveler-enable value="false"/volume-leveler-enable value="true"/g' $FILE
   else
@@ -844,7 +869,7 @@ else
 fi
 if grep -Eq "$NAME" $FILE ; then
   ui_print "- Detected DSEEHX support in"
-  ui_print "  $FILE"
+  ui_print "$FILE"
   sed -i 's/ro.somc.dseehx.supported true/ro.somc.dseehx.supported false/g' $MODPATH/service.sh
   ui_print " "
 fi
@@ -881,13 +906,13 @@ for NAMES in $NAME; do
   fi
   if [ -f $FILE64 ]; then
     ui_print "- Detected"
-    ui_print "  $FILE64"
+    ui_print "$FILE64"
     rm -f $MODPATH/system/vendor/lib64/$NAMES
     ui_print " "
   fi
   if [ -f $FILE ]; then
     ui_print "- Detected"
-    ui_print "  $FILE"
+    ui_print "$FILE"
     rm -f $MODPATH/system/vendor/lib/$NAMES
     ui_print " "
   fi

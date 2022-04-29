@@ -49,6 +49,7 @@ if [ "$MODAEC" ]; then
   sed -i "/^        fens {/ {;N s/        fens {\n        }//}" $MODAEC
   sed -i "/^        lmfv {/ {;N s/        lmfv {\n        }//}" $MODAEC
   sed -i "/^        dirac {/ {;N s/        dirac {\n        }//}" $MODAEC
+  sed -i "/^        dtsaudio {/ {;N s/        dtsaudio {\n        }//}" $MODAEC
   if ! grep -Eq '^output_session_processing {' $MODAEC; then
     sed -i -e '$a\
 output_session_processing {\
@@ -125,6 +126,7 @@ if [ "$MODAEX" ]; then
   sed -i 's/<apply effect="fens"\/>//g' $MODAEX
   sed -i 's/<apply effect="lmfv"\/>//g' $MODAEX
   sed -i 's/<apply effect="dirac"\/>//g' $MODAEX
+  sed -i 's/<apply effect="dtsaudio"\/>//g' $MODAEX
   if ! grep -Eq '<postprocess>' $MODAEX || grep -Eq '<!-- Audio post processor' $MODAEX; then
     sed -i '/<\/effects>/a\
     <postprocess>\
@@ -233,37 +235,37 @@ if [ "$MODAEX" ]; then
 fi
 
 # store
-LIBSW=libsonysweffect.so
+LIB=libsonysweffect.so
 LIBHW=libsonypostprocbundle.so
-NAMESW=sonyeffect_sw
-NAMEHW=sonyeffect_hw
+LIBNAME=sonyeffect_sw
+LIBNAMEHW=sonyeffect_hw
 NAME=sonyeffect
-UUIDSW=50786e95-da76-4557-976b-7981bdf6feb9
+UUID=50786e95-da76-4557-976b-7981bdf6feb9
 UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
-UUID=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
-RMV="$LIBSW $LIBHW $NAMESW $NAMEHW $NAME $UUIDSW $UUIDHW $UUID"
+UUIDPROXY=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
+RMV="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID $UUIDHW $UUIDPROXY"
 
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
   sed -i "/^libraries {/a\  proxy {\n    path $LIBPATH\/libeffectproxy.so\n  }" $MODAEC
-  sed -i "/^libraries {/a\  $NAMEHW {\n    path $LIBPATH\/$LIBHW\n  }" $MODAEC
-  sed -i "/^libraries {/a\  $NAMESW {\n    path $LIBPATH\/$LIBSW\n  }" $MODAEC
-  sed -i "/^effects {/a\  $NAME {\n    library proxy\n    uuid $UUID\n  }" $MODAEC
-  sed -i "/^    uuid $UUID/a\    libhw {\n      library $NAMEHW\n      uuid $UUIDHW\n    }" $MODAEC
-  sed -i "/^    uuid $UUID/a\    libsw {\n      library $NAMESW\n      uuid $UUIDSW\n    }" $MODAEC
+  sed -i "/^libraries {/a\  $LIBNAMEHW {\n    path $LIBPATH\/$LIBHW\n  }" $MODAEC
+  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
+  sed -i "/^effects {/a\  $NAME {\n    library proxy\n    uuid $UUIDPROXY\n  }" $MODAEC
+  sed -i "/^    uuid $UUIDPROXY/a\    libhw {\n      library $LIBNAMEHW\n      uuid $UUIDHW\n    }" $MODAEC
+  sed -i "/^    uuid $UUIDPROXY/a\    libsw {\n      library $LIBNAME\n      uuid $UUID\n    }" $MODAEC
 fi
 
 # patch audio effects xml
 if [ "$MODAEX" ]; then
   remove_xml
   sed -i "/<libraries>/a\        <library name=\"proxy\" path=\"libeffectproxy.so\"\/>" $MODAEX
-  sed -i "/<libraries>/a\        <library name=\"$NAMEHW\" path=\"$LIBHW\"\/>" $MODAEX
-  sed -i "/<libraries>/a\        <library name=\"$NAMESW\" path=\"$LIBSW\"\/>" $MODAEX
+  sed -i "/<libraries>/a\        <library name=\"$LIBNAMEHW\" path=\"$LIBHW\"\/>" $MODAEX
+  sed -i "/<libraries>/a\        <library name=\"$LIBNAME\" path=\"$LIB\"\/>" $MODAEX
   sed -i "/<effects>/a\        <\/effectProxy>" $MODAEX
-  sed -i "/<effects>/a\            <libhw library=\"$NAMEHW\" uuid=\"$UUIDHW\"\/>" $MODAEX
-  sed -i "/<effects>/a\            <libsw library=\"$NAMESW\" uuid=\"$UUIDSW\"\/>" $MODAEX
-  sed -i "/<effects>/a\        <effectProxy name=\"$NAME\" library=\"proxy\" uuid=\"$UUID\">" $MODAEX
+  sed -i "/<effects>/a\            <libhw library=\"$LIBNAMEHW\" uuid=\"$UUIDHW\"\/>" $MODAEX
+  sed -i "/<effects>/a\            <libsw library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
+  sed -i "/<effects>/a\        <effectProxy name=\"$NAME\" library=\"proxy\" uuid=\"$UUIDPROXY\">" $MODAEX
 fi
 
 # patch audio policy
