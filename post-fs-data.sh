@@ -1,5 +1,3 @@
-(
-
 mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
@@ -139,7 +137,5 @@ fi
 
 # manifest
 #ddolby_manifest
-
-) 2>/dev/null
 
 

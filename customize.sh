@@ -170,6 +170,26 @@ elif [ -d $DIR ] && ! grep -Eq "$MODNAME" $FILE; then
   ui_print " "
 fi
 
+# check
+NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
+if [ "$BOOTMODE" == true ]; then
+  DIR=`realpath $MAGISKTMP/mirror/system`
+else
+  DIR=`realpath /system`
+fi
+if [ $DOLBY == true ]; then
+  ui_print "- Checking"
+  ui_print "$NAME"
+  ui_print "  function"
+  ui_print "  Please wait..."
+  if ! grep -Eq $NAME `find $DIR/lib64 -type f -name *audio*.so`; then
+    ui_print "  ! Function not found."
+    ui_print "  Unsupported ROM."
+    DOLBY=false
+  fi
+  ui_print " "
+fi
+
 # function
 permissive() {
 SELINUX=`getenforce`

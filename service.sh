@@ -1,5 +1,3 @@
-(
-
 MODPATH=${0%/*}
 API=`getprop ro.build.version.sdk`
 AML=/data/adb/modules/aml
@@ -173,7 +171,5 @@ for NAMES in $NAME; do
     chown 1041.1005 $DIR/$NAMES
   fi
 done
-
-) 2>/dev/null
 
 
