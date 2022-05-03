@@ -1,7 +1,7 @@
 id=SoundEnhancement
 name=Sound Enhancement Sony Xperia 10
-version=v6.4
-versionCode=54
+version=v6.5-beta.1
+versionCode=55
 author=Rei Ryuki the Fixer
 description=An EQ ported from Sony Xperia 10 for any Android 10 and up.
 # Source: https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys

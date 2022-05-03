@@ -1,4 +1,3 @@
-mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
 AML=/data/adb/modules/aml
@@ -137,5 +136,20 @@ fi
 
 # manifest
 #ddolby_manifest
+
+# function
+hide_app() {
+if [ -f /my_product/app/AudioEffectCenter/AudioEffectCenter.apk ]; then
+  mkdir $MODPATH/AudioEffectCenter
+  mount -o bind $MODPATH/AudioEffectCenter /my_product/app/AudioEffectCenter
+fi
+if [ -f /my_product/priv-app/AudioEffectCenter/AudioEffectCenter.apk ]; then
+  mkdir $MODPATH/AudioEffectCenter
+  mount -o bind $MODPATH/AudioEffectCenter /my_product/priv-app/AudioEffectCenter
+fi
+}
+
+# hide
+#dhide_app
 
 

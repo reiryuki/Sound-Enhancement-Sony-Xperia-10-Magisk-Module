@@ -184,7 +184,7 @@ if [ $DOLBY == true ]; then
   ui_print "  Please wait..."
   if ! grep -Eq $NAME `find $DIR/lib64 -type f -name *audio*.so`; then
     ui_print "  ! Function not found."
-    ui_print "  Unsupported ROM."
+    ui_print "  Unsupported Dolby Atmos."
     DOLBY=false
   fi
   ui_print " "
@@ -653,13 +653,17 @@ if [ "$BOOTMODE" == true ]; then
 fi
 }
 detect_soundfx() {
-if [ "$BOOTMODE" == true ]; then
-  if dumpsys media.audio_flinger | grep -Eq $UUID; then
-    ui_print "- $NAME is detected"
-    ui_print "  It may conflicting with this module"
-    ui_print "  Read Github Troubleshootings to disable it"
-    ui_print " "
-  fi
+if [ "$BOOTMODE" == true ]\
+&& dumpsys media.audio_flinger | grep -Eq $UUID; then
+  ui_print "- $NAME is detected."
+  ui_print "  It may be conflicting with this module."
+  ui_print "  You can run terminal:"
+  ui_print " "
+  ui_print "  su"
+  ui_print "  setprop disable.dirac 1"
+  ui_print " "
+  ui_print "  and reinstall this module if you want to disable it."
+  ui_print " "
 fi
 }
 
@@ -670,7 +674,7 @@ for APPS in $APP; do
   hide_app
 done
 if [ $DOLBY == true ]; then
-  APP="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos"
+  APP="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos AudioEffectCenter"
   for APPS in $APP; do
     hide_app
   done
@@ -715,7 +719,18 @@ if getprop | grep -Eq "disable.misoundfx\]: \[1"; then
   check_app
   ui_print " "
 else
-  detect_soundfx
+  if [ "$BOOTMODE" == true ]\
+  && dumpsys media.audio_flinger | grep -Eq $UUID; then
+    ui_print "- $NAME is detected."
+    ui_print "  It may be conflicting with this module."
+    ui_print "  You can run terminal:"
+    ui_print " "
+    ui_print "  su"
+    ui_print "  setprop disable.misoundfx 1"
+    ui_print " "
+    ui_print "  and reinstall this module if you want to disable it."
+    ui_print " "
+  fi
 fi
 
 # dirac_controller

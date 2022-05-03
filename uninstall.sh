@@ -1,6 +1,3 @@
-(
-
-mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
 MODID=`echo "$MODPATH" | sed -n -e 's/\/data\/adb\/modules\///p'`
@@ -29,8 +26,7 @@ resetprop -p --delete persist.sony.effect.clear_audio_plus
 
 # function
 cleaning() {
-PKG="com.dolby.daxappui
-     com.dolby.daxservice"
+PKG="com.dolby.daxappui com.dolby.daxservice"
 for PKGS in $PKG; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$PKGS*`
   rm -rf /data/user/*/$PKGS
@@ -146,9 +142,5 @@ fi
 
 # remount
 #dremount_ro
-
-) 2>/dev/null
-
-
 
 

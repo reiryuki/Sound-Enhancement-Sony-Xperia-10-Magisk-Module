@@ -1,3 +1,5 @@
+## Dolby
+
 # type
 magiskpolicy --live "type system_lib_file"
 magiskpolicy --live "type vendor_file"
@@ -6,20 +8,12 @@ magiskpolicy --live "type vendor_data_file"
 magiskpolicy --live "type vendor_media_data_file"
 magiskpolicy --live "type same_process_hal_file"
 magiskpolicy --live "type hal_dms_default_exec"
-magiskpolicy --live "type mediacodec_exec"
-magiskpolicy --live "type audio_hweffect_device"
 
 # debug
 magiskpolicy --live "dontaudit system_server system_file file write"
 magiskpolicy --live "allow     system_server system_file file write"
 
 # chcon
-magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
-magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
-magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
-magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
-magiskpolicy --live "dontaudit init audio_hweffect_device dir relabelfrom"
-magiskpolicy --live "allow     init audio_hweffect_device dir relabelfrom"
 magiskpolicy --live "dontaudit vendor_data_file labeledfs filesystem associate"
 magiskpolicy --live "allow     vendor_data_file labeledfs filesystem associate"
 magiskpolicy --live "dontaudit init vendor_data_file dir relabelfrom"
@@ -90,5 +84,19 @@ magiskpolicy --live "dontaudit mtk_hal_audio mtk_hal_audio capability2 block_sus
 magiskpolicy --live "allow     mtk_hal_audio mtk_hal_audio capability2 block_suspend"
 magiskpolicy --live "dontaudit audioserver audioserver capability2 block_suspend"
 magiskpolicy --live "allow     audioserver audioserver capability2 block_suspend"
+
+
+## Sound Enhancement
+
+# type
+magiskpolicy --live "type audio_hweffect_device"
+
+# chcon
+magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
+magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
+magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
+magiskpolicy --live "allow     init audio_hweffect_device file relabelfrom"
+magiskpolicy --live "dontaudit init audio_hweffect_device dir relabelfrom"
+magiskpolicy --live "allow     init audio_hweffect_device dir relabelfrom"
 
 

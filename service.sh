@@ -66,17 +66,23 @@ NAME=dms-v36-hal-2-0
 #dstop_service
 
 # run
-FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
 #drun_service
 
 # unused
 FILE=idds
 NAME=vendor.semc.system.idd-1-0
-FILE=/vendor/bin/hw/vendor.semc.system.idd@1.0-service
-FILE=/vendor/bin/idd-logreader
+FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
+FILE=`realpath /vendor`/bin/idd-logreader
 
 # wait
 sleep 20
+
+# aml fix
+DIR=$AML/system/vendor/odm/etc
+if [ -d $DIR ] && [ ! -f $AML/disable ]; then
+  chcon -R u:object_r:vendor_configs_file:s0 $DIR
+fi
 
 # mount
 NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
@@ -107,14 +113,8 @@ fi
 if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
 || ( [ -d /my_product/etc ] && [ "$FILE" ] ); then
   killall audioserver
-  FILE=/vendor/bin/hw/vendor.dolby.hardware.dms@1.0-service
+  FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
   #drun_service
-fi
-
-# aml fix
-DIR=$AML/system/vendor/odm/etc
-if [ -d $DIR ] && [ ! -f $AML/disable ]; then
-  chcon -R u:object_r:vendor_configs_file:s0 $DIR
 fi
 
 # wait
