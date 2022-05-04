@@ -69,6 +69,10 @@ NAME=dms-v36-hal-2-0
 FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
 #drun_service
 
+# restart
+VIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
+#d[ "$VIBRATOR" ] && killall $VIBRATOR
+
 # unused
 FILE=idds
 NAME=vendor.semc.system.idd-1-0
@@ -115,6 +119,7 @@ if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
   killall audioserver
   FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
   #drun_service
+  #d[ "$VIBRATOR" ] && killall $VIBRATOR
 fi
 
 # wait
