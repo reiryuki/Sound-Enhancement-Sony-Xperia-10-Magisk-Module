@@ -24,7 +24,7 @@
 ## Tested
 - CrDroid ROM Android 10
 - DotOS ROM Android 11
-- Ancient OS ROM Android 12
+- AncientOS ROM Android 12
 
 ## Installation Guide
 - Don't use ACDB module!
