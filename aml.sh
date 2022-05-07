@@ -30,6 +30,11 @@ sed -i 's/<effect name="removed" library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<libsw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<libhw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<apply effect="removed"\/>//g' $MODAEX
+sed -i 's/<library name="removed" path="removed" \/>//g' $MODAEX
+sed -i 's/<effect name="removed" library="removed" uuid="removed" \/>//g' $MODAEX
+sed -i 's/<libsw library="removed" uuid="removed" \/>//g' $MODAEX
+sed -i 's/<libhw library="removed" uuid="removed" \/>//g' $MODAEX
+sed -i 's/<apply effect="removed" \/>//g' $MODAEX
 }
 
 # setup audio effects conf
