@@ -13,6 +13,9 @@ if [ -f $FILE ]; then
   sh $FILE
 fi
 
+# context
+#dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
+
 # etc
 if [ -d /sbin/.magisk ]; then
   MAGISKTMP=/sbin/.magisk
@@ -75,6 +78,7 @@ if [ "$SKU" ]; then
     fi
   done
 fi
+rm -f `find $MODPATH/system -type f -name *policy*volumes*.xml`
 
 # media codecs
 NAME=media_codecs.xml

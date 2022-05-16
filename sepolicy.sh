@@ -1,31 +1,33 @@
 ## Dolby
 
-# type
-magiskpolicy --live "type system_lib_file"
-magiskpolicy --live "type vendor_file"
-magiskpolicy --live "type vendor_configs_file"
-magiskpolicy --live "type vendor_data_file"
-magiskpolicy --live "type vendor_media_data_file"
-magiskpolicy --live "type same_process_hal_file"
-magiskpolicy --live "type hal_dms_default_exec"
-
 # debug
 magiskpolicy --live "dontaudit system_server system_file file write"
 magiskpolicy --live "allow     system_server system_file file write"
 
-# chcon
+# context
+magiskpolicy --live "type system_lib_file"
+magiskpolicy --live "type vendor_file"
+magiskpolicy --live "type same_process_hal_file"
+magiskpolicy --live "type hal_dms_default_exec"
+magiskpolicy --live "dontaudit hal_dms_default_exec labeledfs filesystem associate"
+magiskpolicy --live "allow     hal_dms_default_exec labeledfs filesystem associate"
+magiskpolicy --live "dontaudit init hal_dms_default_exec file relabelfrom"
+magiskpolicy --live "allow     init hal_dms_default_exec file relabelfrom"
+magiskpolicy --live "type vendor_data_file"
 magiskpolicy --live "dontaudit vendor_data_file labeledfs filesystem associate"
 magiskpolicy --live "allow     vendor_data_file labeledfs filesystem associate"
 magiskpolicy --live "dontaudit init vendor_data_file dir relabelfrom"
 magiskpolicy --live "allow     init vendor_data_file dir relabelfrom"
 magiskpolicy --live "dontaudit init vendor_data_file file relabelfrom"
 magiskpolicy --live "allow     init vendor_data_file file relabelfrom"
+magiskpolicy --live "type vendor_media_data_file"
 magiskpolicy --live "dontaudit vendor_media_data_file labeledfs filesystem associate"
 magiskpolicy --live "allow     vendor_media_data_file labeledfs filesystem associate"
 magiskpolicy --live "dontaudit init vendor_media_data_file dir relabelfrom"
 magiskpolicy --live "allow     init vendor_media_data_file dir relabelfrom"
 magiskpolicy --live "dontaudit init vendor_media_data_file file relabelfrom"
 magiskpolicy --live "allow     init vendor_media_data_file file relabelfrom"
+magiskpolicy --live "type vendor_configs_file"
 magiskpolicy --live "dontaudit vendor_configs_file labeledfs filesystem associate"
 magiskpolicy --live "allow     vendor_configs_file labeledfs filesystem associate"
 magiskpolicy --live "dontaudit init vendor_configs_file dir relabelfrom"
@@ -34,7 +36,7 @@ magiskpolicy --live "dontaudit init vendor_configs_file file relabelfrom"
 magiskpolicy --live "allow     init vendor_configs_file file relabelfrom"
 
 # hwservice_manager
-magiskpolicy --live "allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app hal_audio_default mtk_hal_audio audioserver } { default_android_hwservice hal_dms_hwservice } hwservice_manager find"
+magiskpolicy --live "allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app hal_audio_default mtk_hal_audio audioserver } { default_android_hwservice hal_dms_hwservice dms_hwservice } hwservice_manager find"
 
 # service_manager
 magiskpolicy --live "allow daxservice_app permission_checker_service service_manager find"
@@ -50,6 +52,8 @@ magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_
 magiskpolicy --live "allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map"
 magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }"
 magiskpolicy --live "allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }"
+magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }"
+magiskpolicy --live "allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }"
 magiskpolicy --live "dontaudit { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }"
 magiskpolicy --live "allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }"
 magiskpolicy --live "dontaudit zygote { device unlabeled } file write"
@@ -88,10 +92,8 @@ magiskpolicy --live "allow     audioserver audioserver capability2 block_suspend
 
 ## Sound Enhancement
 
-# type
+# context
 magiskpolicy --live "type audio_hweffect_device"
-
-# chcon
 magiskpolicy --live "dontaudit audio_hweffect_device tmpfs filesystem associate"
 magiskpolicy --live "allow     audio_hweffect_device tmpfs filesystem associate"
 magiskpolicy --live "dontaudit init audio_hweffect_device file relabelfrom"
