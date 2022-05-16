@@ -1,9 +1,9 @@
 id=SoundEnhancement
 name=Sound Enhancement Sony Xperia 10
-version=v6.5
-versionCode=55
+version=v6.6-beta.1
+versionCode=56
 author=Rei Ryuki the Fixer
-description=An EQ post process type soundfx (Sound Enhancement) and global type soundfx (Dolby Atmos) ported from Sony Xperia 10 for any Android 10 and up.
+description=An EQ post process type soundfx ported from Sony Xperia 10 and an EQ global type soundfx ported from Sony Xperia 1 II for any Android 10 and up.
 # Source: https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys
 # libhscomp_jni.so & libhscomp.so source: https://dumps.tadiphone.dev/dumps/sony/akari akari-user-9-TAMA2-2.0.1-191021-1837-1-dev-keys
 # Dolby Atmos source: https://dumps.tadiphone.dev/dumps/sony/xq-at51 qssi-user-10-58.0.A.3.31-058000A003003102854466984-release-keys
