@@ -21,10 +21,13 @@
   - Android 10 and up
   - Magisk installed
 
-## Tested
+## Tested on
 - CrDroid ROM Android 10
 - DotOS ROM Android 11
 - AncientOS ROM Android 12
+
+## WARNING!!!
+- Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos.
 
 ## Installation Guide
 - Don't use ACDB module!
