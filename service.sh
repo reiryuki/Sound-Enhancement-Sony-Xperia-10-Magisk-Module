@@ -118,8 +118,7 @@ done
 #d[ "$VIBRATOR" ] && killall $VIBRATOR
 #dPOWER=`realpath /*/bin/hw/vendor.mediatek.hardware.mtkpower@*-service`
 #d[ "$POWER" ] && killall $POWER
-#dSENSORS=`realpath /*/bin/hw/android.hardware.sensors@*-service*mediatek`
-#d[ "$SENSORS" ] && killall $SENSORS
+#dkillall android.hardware.sensors@2.0-service-mediatek
 #dkillall [chre_kthread] [scp_power_reset]
 #dkillall [charger_in] [charger_thread] [tcpc_power_off]
 #dkillall android.hardware.light-service.mt6768
