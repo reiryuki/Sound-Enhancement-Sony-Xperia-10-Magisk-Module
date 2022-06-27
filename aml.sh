@@ -27,11 +27,13 @@ for RMVS in $RMV; do
 done
 sed -i 's/<library name="removed" path="removed"\/>//g' $MODAEX
 sed -i 's/<effect name="removed" library="removed" uuid="removed"\/>//g' $MODAEX
+sed -i 's/<effect name="removed" uuid="removed" library="removed"\/>//g' $MODAEX
 sed -i 's/<libsw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<libhw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<apply effect="removed"\/>//g' $MODAEX
 sed -i 's/<library name="removed" path="removed" \/>//g' $MODAEX
 sed -i 's/<effect name="removed" library="removed" uuid="removed" \/>//g' $MODAEX
+sed -i 's/<effect name="removed" uuid="removed" library="removed" \/>//g' $MODAEX
 sed -i 's/<libsw library="removed" uuid="removed" \/>//g' $MODAEX
 sed -i 's/<libhw library="removed" uuid="removed" \/>//g' $MODAEX
 sed -i 's/<apply effect="removed" \/>//g' $MODAEX
@@ -317,42 +319,50 @@ if [ -f $MODMC ]; then
     <Include href="media_codecs_somc.xml"/>' $MODMC
 fi
 
+## function
+dolby_atmos() {
+
 # store
-#dLIB=libswdap.so
-#dLIBNAME=dap
-#dNAME=dap
-#dUUID=9d4921da-8225-4f29-aefa-39537a04bcaa
-#dRMV="$LIB $LIBNAME $NAME $UUID"
+LIB=libswdap.so
+LIBNAME=dap
+NAME=dap
+UUID=9d4921da-8225-4f29-aefa-39537a04bcaa
+RMV="$LIB $LIBNAME $NAME $UUID"
 
 # patch audio effects conf
-#dif [ "$MODAEC" ]; then
-#d  remove_conf
-#d  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
-#d  sed -i "/^effects {/a\  $NAME {\n    library $LIBNAME\n    uuid $UUID\n  }" $MODAEC
-#d#m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
-#d#r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC
-#d#a  sed -i "/^    alarm {/a\        $NAME {\n        }" $MODAEC
-#d#v  sed -i "/^    voice_call {/a\        $NAME {\n        }" $MODAEC
-#d#n  sed -i "/^    notification {/a\        $NAME {\n        }" $MODAEC
-#dfi
+if [ "$MODAEC" ]; then
+  remove_conf
+  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
+  sed -i "/^effects {/a\  $NAME {\n    library $LIBNAME\n    uuid $UUID\n  }" $MODAEC
+#m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
+#r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC
+#a  sed -i "/^    alarm {/a\        $NAME {\n        }" $MODAEC
+#v  sed -i "/^    voice_call {/a\        $NAME {\n        }" $MODAEC
+#n  sed -i "/^    notification {/a\        $NAME {\n        }" $MODAEC
+fi
 
 # patch effects xml
-#dif [ "$MODAEX" ]; then
-#d  remove_xml
-#d  sed -i "/<libraries>/a\        <library name=\"$LIBNAME\" path=\"$LIB\"\/>" $MODAEX
-#d  sed -i "/<effects>/a\        <effect name=\"$NAME\" library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
-#d#m  sed -i "/<stream type=\"music\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#d#r  sed -i "/<stream type=\"ring\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#d#a  sed -i "/<stream type=\"alarm\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#d#v  sed -i "/<stream type=\"voice_call\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#d#n  sed -i "/<stream type=\"notification\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#dfi
+if [ "$MODAEX" ]; then
+  remove_xml
+  sed -i "/<libraries>/a\        <library name=\"$LIBNAME\" path=\"$LIB\"\/>" $MODAEX
+  sed -i "/<effects>/a\        <effect name=\"$NAME\" library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
+#m  sed -i "/<stream type=\"music\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+#r  sed -i "/<stream type=\"ring\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+#a  sed -i "/<stream type=\"alarm\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+#v  sed -i "/<stream type=\"voice_call\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+#n  sed -i "/<stream type=\"notification\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+fi
 
 # patch media codecs
-#dif [ -f $MODMC ]; then
-#d  sed -i '/<MediaCodecs>/a\
-#d    <Include href="media_codecs_dolby_audio.xml"/>' $MODMC
-#dfi
+if [ -f $MODMC ]; then
+  sed -i '/<MediaCodecs>/a\
+    <Include href="media_codecs_dolby_audio.xml"/>' $MODMC
+fi
+
+}
+
+# dolby atmos
+#ddolby_atmos
 
 
 

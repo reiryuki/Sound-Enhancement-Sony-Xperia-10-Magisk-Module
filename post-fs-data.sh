@@ -14,6 +14,10 @@ if [ -f $FILE ]; then
 fi
 
 # context
+chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
+chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
+chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
+chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
 #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
 
 # etc

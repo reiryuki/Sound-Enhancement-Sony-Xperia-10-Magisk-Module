@@ -42,43 +42,6 @@ resetprop vendor.audio.use.sw.alac.decoder true
 #resetprop vendor.dolby.dap.param.tee false
 #resetprop vendor.dolby.mi.metadata.log false
 
-# restart
-killall audioserver
-
-# function
-stop_service() {
-if getprop | grep "init.svc.$NAME\]: \[running"; then
-  stop $NAME
-fi
-}
-run_service() {
-killall $FILE
-$FILE &
-PID=`pidof $FILE`
-}
-
-# stop
-NAME=dms-hal-1-0
-#dstop_service
-NAME=dms-hal-2-0
-#dstop_service
-NAME=dms-v36-hal-2-0
-#dstop_service
-
-# run
-FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
-#drun_service
-
-# restart
-VIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
-#d[ "$VIBRATOR" ] && killall $VIBRATOR
-
-# unused
-FILE=idds
-NAME=vendor.semc.system.idd-1-0
-FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
-FILE=`realpath /vendor`/bin/idd-logreader
-
 # wait
 sleep 20
 
@@ -115,13 +78,53 @@ if [ -d /my_product/etc ] && [ "$FILE" ]; then
     fi
   done
 fi
-if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
-|| ( [ -d /my_product/etc ] && [ "$FILE" ] ); then
-  killall audioserver
-  FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
-  #drun_service
-  #d[ "$VIBRATOR" ] && killall $VIBRATOR
-fi
+
+# restart
+killall audioserver
+
+# function
+stop_service() {
+for NAMES in $NAME; do
+  if getprop | grep "init.svc.$NAMES\]: \[running"; then
+    stop $NAMES
+  fi
+done
+}
+run_service() {
+for FILES in $FILE; do
+  killall $FILES
+  $FILES &
+  PID=`pidof $FILES`
+done
+}
+
+# stop
+#dNAME="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
+#dstop_service
+
+# run
+#dFILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
+#drun_service
+
+# unused
+#FILE=idds
+#NAME=vendor.semc.system.idd-1-0
+#FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
+#FILE=`realpath /vendor`/bin/idd-logreader
+
+# restart
+#dkillall com.dolby.daxservice
+#dVIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
+#d[ "$VIBRATOR" ] && killall $VIBRATOR
+#dPOWER=`realpath /*/bin/hw/vendor.mediatek.hardware.mtkpower@*-service`
+#d[ "$POWER" ] && killall $POWER
+#dSENSORS=`realpath /*/bin/hw/android.hardware.sensors@*-service*mediatek`
+#d[ "$SENSORS" ] && killall $SENSORS
+#dkillall [chre_kthread] [scp_power_reset]
+#dkillall [charger_in] [charger_thread] [tcpc_power_off]
+#dkillall android.hardware.light-service.mt6768
+#dCAMERA=`realpath /*/bin/hw/android.hardware.camera.provider@*-service_64`
+#d[ "$CAMERA" ] && killall $CAMERA
 
 # wait
 sleep 40
