@@ -942,14 +942,15 @@ for NAMES in $NAME; do
     FILE64=/vendor/lib64/$NAMES
     FILE=/vendor/lib/$NAMES
   fi
-  if [ -f $FILE64 ]; then
-    ui_print "- Detected"
-    ui_print "$FILE64"
+  FILE64_2=/odm/lib64/$NAMES
+  FILE_2=/odm/lib/$NAMES
+  if [ -f $FILE64 ] || [ -f $FILE64_2 ]; then
+    ui_print "- Detected $NAMES"
     rm -f $MODPATH/system/vendor/lib64/$NAMES
     ui_print " "
   fi
-  if [ -f $FILE ]; then
-    ui_print "- Detected"
+  if [ -f $FILE ] || [ -f $FILE_2 ]; then
+    ui_print "- Detected $NAMES"
     ui_print "$FILE"
     rm -f $MODPATH/system/vendor/lib/$NAMES
     ui_print " "
