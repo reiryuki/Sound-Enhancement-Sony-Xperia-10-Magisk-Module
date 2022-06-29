@@ -6,6 +6,7 @@
 - Dolby Atmos from Sony Xperia 1 II (READ Optionals to activate!)
 - Sound Enhancement is a post process type soundfx
 - Dolby Atmos is a global type soundfx (READ Optionals to activate!)
+- Sources: https://github.com/reiryuki/Sound-Enhancement-Sony-Xperia-10-Magisk-Module/blob/main/module.prop
 - Sound Enhancement FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy
 - Sound Enhancement FX deactivates any global type soundfx while turned on
