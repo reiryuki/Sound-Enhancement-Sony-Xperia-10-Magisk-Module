@@ -120,8 +120,6 @@ done
 #d[ "$POWER" ] && killall $POWER
 #dkillall android.hardware.usb@1.0-service
 #dkillall android.hardware.sensors@2.0-service-mediatek
-#dkillall [chre_kthread] [scp_power_reset]
-#dkillall [charger_in] [charger_thread] [tcpc_power_off]
 #dkillall android.hardware.light-service.mt6768
 #dCAMERA=`realpath /*/bin/hw/android.hardware.camera.provider@*-service_64`
 #d[ "$CAMERA" ] && killall $CAMERA

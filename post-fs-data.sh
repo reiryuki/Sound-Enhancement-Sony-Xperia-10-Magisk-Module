@@ -130,9 +130,12 @@ fi
 # function
 dolby_manifest() {
 NAME=vendor.dolby.hardware.dms@1.0.xml
-FILE=`find $MAGISKTMP/mirror/*/etc/vintf\
-           $MAGISKTMP/mirror/*/*/etc/vintf\
-           /*/etc/vintf /*/*/etc/vintf -type f -name *.xml`
+FILE="$MAGISKTMP/mirror/*/etc/vintf/manifest.xml
+      $MAGISKTMP/mirror/*/*/etc/vintf/manifest.xml
+      /*/etc/vintf/manifest.xml /*/*/etc/vintf/manifest.xml
+      $MAGISKTMP/mirror/*/etc/vintf/manifest/*.xml
+      $MAGISKTMP/mirror/*/*/etc/vintf/manifest/*.xml
+      /*/etc/vintf/manifest/*.xml /*/*/etc/vintf/manifest/*.xml"
 if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep 1.0; then
   mv -f $MODETC/unused $MODETC/vintf
   mount -o bind $MODETC/vintf/manifest/$NAME /system/etc/vintf/manifest/$NAME
