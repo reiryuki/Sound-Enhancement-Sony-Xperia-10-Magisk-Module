@@ -770,7 +770,7 @@ if [ $DOLBY == true ]; then
     ui_print " "
   fi
 fi
-if [ "`grep_prop se.znr $OPTIONALS`" != 0 ]; then
+if [ "`grep_prop se.znr $OPTIONALS`" == 1 ]; then
   ui_print "- Activating Sony Zoom Noise Reduction for camcorder, mic,"
   ui_print "  and voice recognition stream..."
   sed -i 's/#c//g' $FILE
