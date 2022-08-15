@@ -21,6 +21,7 @@
   - 64 bit architecture
   - Android 10 and up
   - Magisk installed
+  - Recommended to use Magisk Delta for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
 
 ## Tested on
 - CrDroid ROM Android 10
@@ -32,8 +33,9 @@
 - Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos.
 
 ## Installation Guide
+- You can enable Dolby Atmos, disabling dirac and misoundfx, and many optional commands before installing. Read Optionals bellow!
+- Recommended to use Magisk Delta if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
 - Don't use ACDB module!
-- You can enable Dolby Atmos, disabling dirac and misoundfx, and many optional commands before installing. Read Optionals bellow.
 - Install the module via Magisk Manager or Recovery
 - Install AML Magisk Module only if using any other audio mod module https://zackptg5.com/android.php#aml
 - Reboot
