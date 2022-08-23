@@ -1,5 +1,9 @@
 # Sound Enhancement Sony Xperia 10 Magisk Module
 
+## DISCLAIMER
+- Some Dolby & Sony apps and blobs are owned by Dolby™ and Sony™.
+- The MIT license specified here is for the Magisk Module, not for Dolby nor Sony apps and blobs.
+
 ## Descriptions
 - An equalizer ported from Sony Xperia 10 (I4113)
 - Sony ZNR (Zoom Noise Reduction) for enhance audio quality on video/audio recordings
