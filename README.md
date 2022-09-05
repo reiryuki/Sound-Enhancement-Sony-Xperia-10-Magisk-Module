@@ -29,7 +29,7 @@
   - 64 bit architecture
   - Android 10 and up
   - Magisk installed
-  - Recommended to use Magisk Delta for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
+  - Recommended to use Magisk Delta of your ROM is Read-Only for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
 
 ## WARNING!!!
 - Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta.
