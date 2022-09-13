@@ -39,24 +39,21 @@ sed -i 's/<libhw library="removed" uuid="removed" \/>//g' $MODAEX
 sed -i 's/<apply effect="removed" \/>//g' $MODAEX
 }
 
+# store
+RMV="ring_helper alarm_helper music_helper voice_helper
+     notification_helper ma_ring_helper ma_alarm_helper
+     ma_music_helper ma_voice_helper ma_system_helper
+     ma_notification_helper sa3d fens lmfv dirac dtsaudio
+     dlb_music_listener dlb_ring_listener dlb_alarm_listener
+     dlb_system_listener dlb_notification_listener"
+
 # setup audio effects conf
 if [ "$MODAEC" ]; then
-  sed -i "/^        ring_helper {/ {;N s/        ring_helper {\n        }//}" $MODAEC
-  sed -i "/^        alarm_helper {/ {;N s/        alarm_helper {\n        }//}" $MODAEC
-  sed -i "/^        music_helper {/ {;N s/        music_helper {\n        }//}" $MODAEC
-  sed -i "/^        voice_helper {/ {;N s/        voice_helper {\n        }//}" $MODAEC
-  sed -i "/^        notification_helper {/ {;N s/        notification_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_ring_helper {/ {;N s/        ma_ring_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_alarm_helper {/ {;N s/        ma_alarm_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_music_helper {/ {;N s/        ma_music_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_voice_helper {/ {;N s/        ma_voice_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_system_helper {/ {;N s/        ma_system_helper {\n        }//}" $MODAEC
-  sed -i "/^        ma_notification_helper {/ {;N s/        ma_notification_helper {\n        }//}" $MODAEC
-  sed -i "/^        sa3d {/ {;N s/        sa3d {\n        }//}" $MODAEC
-  sed -i "/^        fens {/ {;N s/        fens {\n        }//}" $MODAEC
-  sed -i "/^        lmfv {/ {;N s/        lmfv {\n        }//}" $MODAEC
-  sed -i "/^        dirac {/ {;N s/        dirac {\n        }//}" $MODAEC
-  sed -i "/^        dtsaudio {/ {;N s/        dtsaudio {\n        }//}" $MODAEC
+  for RMVS in $RMV; do
+    sed -i "/^        $RMVS {/ {;N s/        $RMVS {\n        }//}" $MODAEC
+    sed -i "s/$RMVS { }//g" $MODAEC
+    sed -i "s/$RMVS {}//g" $MODAEC
+  done
   if ! grep -Eq '^output_session_processing {' $MODAEC; then
     sed -i -e '$a\
 output_session_processing {\
@@ -65,6 +62,8 @@ output_session_processing {\
     ring {\
     }\
     alarm {\
+    }\
+    system {\
     }\
     voice_call {\
     }\
@@ -77,6 +76,9 @@ output_session_processing {\
     fi
     if ! grep -Eq '^    voice_call {' $MODAEC; then
       sed -i "/^output_session_processing {/a\    voice_call {\n    }" $MODAEC
+    fi
+    if ! grep -Eq '^    system {' $MODAEC; then
+      sed -i "/^output_session_processing {/a\    system {\n    }" $MODAEC
     fi
     if ! grep -Eq '^    alarm {' $MODAEC; then
       sed -i "/^output_session_processing {/a\    alarm {\n    }" $MODAEC
@@ -118,38 +120,10 @@ fi
 
 # setup audio effects xml
 if [ "$MODAEX" ]; then
-  sed -i 's/<apply effect="ring_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="alarm_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="music_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="voice_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="notification_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_ring_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_alarm_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_music_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_voice_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_system_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_notification_helper"\/>//g' $MODAEX
-  sed -i 's/<apply effect="sa3d"\/>//g' $MODAEX
-  sed -i 's/<apply effect="fens"\/>//g' $MODAEX
-  sed -i 's/<apply effect="lmfv"\/>//g' $MODAEX
-  sed -i 's/<apply effect="dirac"\/>//g' $MODAEX
-  sed -i 's/<apply effect="dtsaudio"\/>//g' $MODAEX
-  sed -i 's/<apply effect="ring_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="alarm_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="music_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="voice_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="notification_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_ring_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_alarm_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_music_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_voice_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_system_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="ma_notification_helper" \/>//g' $MODAEX
-  sed -i 's/<apply effect="sa3d" \/>//g' $MODAEX
-  sed -i 's/<apply effect="fens" \/>//g' $MODAEX
-  sed -i 's/<apply effect="lmfv" \/>//g' $MODAEX
-  sed -i 's/<apply effect="dirac" \/>//g' $MODAEX
-  sed -i 's/<apply effect="dtsaudio" \/>//g' $MODAEX
+  for RMVS in $RMV; do
+    sed -i "s/<apply effect=\"$RMVS\"\/>//g" $MODAEX
+    sed -i "s/<apply effect=\"$RMVS\" \/>//g" $MODAEX
+  done
   if ! grep -Eq '<postprocess>' $MODAEX || grep -Eq '<!-- Audio post processor' $MODAEX; then
     sed -i '/<\/effects>/a\
     <postprocess>\
@@ -158,6 +132,8 @@ if [ "$MODAEX" ]; then
         <stream type="ring">\
         <\/stream>\
         <stream type="alarm">\
+        <\/stream>\
+        <stream type="system">\
         <\/stream>\
         <stream type="voice_call">\
         <\/stream>\
@@ -170,6 +146,9 @@ if [ "$MODAEX" ]; then
     fi
     if ! grep -Eq '<stream type="voice_call">' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"voice_call\">\n        <\/stream>" $MODAEX
+    fi
+    if ! grep -Eq '<stream type="system">' $MODAEX; then
+      sed -i "/<postprocess>/a\        <stream type=\"system\">\n        <\/stream>" $MODAEX
     fi
     if ! grep -Eq '<stream type="alarm">' $MODAEX || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"alarm\">\n        <\/stream>" $MODAEX
@@ -337,6 +316,7 @@ if [ "$MODAEC" ]; then
 #m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
 #r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC
 #a  sed -i "/^    alarm {/a\        $NAME {\n        }" $MODAEC
+#s  sed -i "/^    system {/a\        $NAME {\n        }" $MODAEC
 #v  sed -i "/^    voice_call {/a\        $NAME {\n        }" $MODAEC
 #n  sed -i "/^    notification {/a\        $NAME {\n        }" $MODAEC
 fi
@@ -349,6 +329,7 @@ if [ "$MODAEX" ]; then
 #m  sed -i "/<stream type=\"music\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #r  sed -i "/<stream type=\"ring\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #a  sed -i "/<stream type=\"alarm\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
+#s  sed -i "/<stream type=\"system\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #v  sed -i "/<stream type=\"voice_call\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #n  sed -i "/<stream type=\"notification\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 fi

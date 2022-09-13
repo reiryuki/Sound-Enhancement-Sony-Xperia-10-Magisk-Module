@@ -1,15 +1,16 @@
 # Sound Enhancement Sony Xperia 10 Magisk Module
 
 ## DISCLAIMER
-- Some Dolby & Sony apps and blobs are owned by Dolby™ and Sony™.
+- Dolby & Sony apps and blobs are owned by Dolby™ and Sony™.
 - The MIT license specified here is for the Magisk Module, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
-- Soundfx equalizer ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
+- Equalizer soundfx ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Sony ZNR (Zoom Noise Reduction) for enhance audio quality on video/audio recordings (READ Optionals to activate!)
-- Dolby Atmos from Sony Xperia 1 II (READ Optionals to activate!)
+- Dolby Atmos from Sony Xperia 1 II (XQ-AT51) (READ Optionals to activate!)
 - Sound Enhancement is a post process type soundfx
 - Dolby Atmos is a global type soundfx (READ Optionals to activate!)
+- The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality
 - Sound Enhancement FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy
 - Sound Enhancement FX deactivates any global type soundfx while turned on
