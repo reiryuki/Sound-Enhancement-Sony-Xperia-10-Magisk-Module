@@ -6,6 +6,13 @@ PKG="com.sonyericsson.soundenhancement
      com.soundenhancement.launcher
      com.sonymobile.audioutil"
 
+# boot mode
+if [ ! "$BOOTMODE" ]; then
+  [ -z $BOOTMODE ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
+  [ -z $BOOTMODE ] && ps -A | grep zygote | grep -qv grep && BOOTMODE=true
+  [ -z $BOOTMODE ] && BOOTMODE=false
+fi
+
 # cleaning
 for PKGS in $PKG; do
   rm -rf /data/user/*/$PKGS
@@ -34,17 +41,16 @@ for PKGS in $PKG; do
 done
 rm -rf /data/vendor/dolby
 resetprop -p --delete persist.vendor.dolby.loglevel
+if [ "$BOOTMODE" != true ]; then
+  rm -rf `find /metadata/early-mount.d\
+  /mnt/vendor/persist/early-mount.d /persist/early-mount.d\
+  /data/unencrypted/early-mount.d /cache/early-mount.d\
+  /data/adb/modules/early-mount.d -type f -name manifest.xml`
+fi
 }
 
 # cleaning
 #dcleaning
-
-# boot mode
-if [ ! "$BOOTMODE" ]; then
-  [ -z $BOOTMODE ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
-  [ -z $BOOTMODE ] && ps -A | grep zygote | grep -qv grep && BOOTMODE=true
-  [ -z $BOOTMODE ] && BOOTMODE=false
-fi
 
 # magisk
 if [ ! "$MAGISKTMP" ]; then

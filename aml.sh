@@ -124,7 +124,8 @@ if [ "$MODAEX" ]; then
     sed -i "s/<apply effect=\"$RMVS\"\/>//g" $MODAEX
     sed -i "s/<apply effect=\"$RMVS\" \/>//g" $MODAEX
   done
-  if ! grep -Eq '<postprocess>' $MODAEX || grep -Eq '<!-- Audio post processor' $MODAEX; then
+  if ! grep -Eq '<postprocess>' $MODAEX\
+  || grep -Eq '<!-- Audio post processor' $MODAEX; then
     sed -i '/<\/effects>/a\
     <postprocess>\
         <stream type="music">\
@@ -141,7 +142,9 @@ if [ "$MODAEX" ]; then
         <\/stream>\
     <\/postprocess>' $MODAEX
   else
-    if ! grep -Eq '<stream type="notification">' $MODAEX || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX; then
+    if ! grep -Eq '<stream type="notification">' $MODAEX\
+    || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
+    || grep -Eq '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"notification\">\n        <\/stream>" $MODAEX
     fi
     if ! grep -Eq '<stream type="voice_call">' $MODAEX; then
@@ -150,13 +153,19 @@ if [ "$MODAEX" ]; then
     if ! grep -Eq '<stream type="system">' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"system\">\n        <\/stream>" $MODAEX
     fi
-    if ! grep -Eq '<stream type="alarm">' $MODAEX || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX; then
+    if ! grep -Eq '<stream type="alarm">' $MODAEX\
+    || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
+    || grep -Eq '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"alarm\">\n        <\/stream>" $MODAEX
     fi
-    if ! grep -Eq '<stream type="ring">' $MODAEX || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX; then
+    if ! grep -Eq '<stream type="ring">' $MODAEX\
+    || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
+    || grep -Eq '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"ring\">\n        <\/stream>" $MODAEX
     fi
-    if ! grep -Eq '<stream type="music">' $MODAEX || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX; then
+    if ! grep -Eq '<stream type="music">' $MODAEX\
+    || grep -Eq '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
+    || grep -Eq '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"music\">\n        <\/stream>" $MODAEX
     fi
   fi
@@ -274,13 +283,9 @@ fi
 if [ "$MODAP" ]; then
   sed -i 's/COMPRESS_OFFLOAD/NONE/g' $MODAP
   sed -i 's/,compressed_offload//g' $MODAP
-fi
-
-# patch audio policy
-#uif [ "$MODAP" ]; then
 #u  sed -i 's/RAW/NONE/g' $MODAP
 #u  sed -i 's/,raw//g' $MODAP
-#ufi
+fi
 
 # patch audio policy xml
 if [ "$MODAPX" ]; then
@@ -298,16 +303,14 @@ if [ -f $MODMC ]; then
     <Include href="media_codecs_somc.xml"/>' $MODMC
 fi
 
-## function
+# function
 dolby_atmos() {
-
 # store
 LIB=libswdap.so
 LIBNAME=dap
 NAME=dap
 UUID=9d4921da-8225-4f29-aefa-39537a04bcaa
 RMV="$LIB $LIBNAME $NAME $UUID"
-
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
@@ -320,7 +323,6 @@ if [ "$MODAEC" ]; then
 #v  sed -i "/^    voice_call {/a\        $NAME {\n        }" $MODAEC
 #n  sed -i "/^    notification {/a\        $NAME {\n        }" $MODAEC
 fi
-
 # patch effects xml
 if [ "$MODAEX" ]; then
   remove_xml
@@ -333,13 +335,11 @@ if [ "$MODAEX" ]; then
 #v  sed -i "/<stream type=\"voice_call\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 #n  sed -i "/<stream type=\"notification\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 fi
-
 # patch media codecs
 if [ -f $MODMC ]; then
   sed -i '/<MediaCodecs>/a\
     <Include href="media_codecs_dolby_audio.xml"/>' $MODMC
 fi
-
 }
 
 # dolby atmos

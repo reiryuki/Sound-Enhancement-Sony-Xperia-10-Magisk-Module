@@ -290,17 +290,23 @@ if echo $MAGISK_VER | grep -Eq delta; then
   if [ -L $ACTIVEEIMDIR ]; then
     EIMDIR=$(readlink $ACTIVEEIMDIR)
     [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MAGISKTMP/mirror/$EIMDIR"
-  elif ! $ISENCRYPTED; then
+  elif ! $ISENCRYPTED\
+  && [ -d $NVBASE/modules/early-mount.d ]; then
     EIMDIR=$NVBASE/modules/early-mount.d
-  elif [ -d /data/unencrypted ] && ! grep ' /data ' /proc/mounts | grep -qE 'dm-|f2fs'; then
+  elif [ -d /data/unencrypted/early-mount.d ]\
+  && ! grep ' /data ' /proc/mounts | grep -qE 'dm-|f2fs'; then
     EIMDIR=/data/unencrypted/early-mount.d
-  elif grep ' /cache ' /proc/mounts | grep -q 'ext4' ; then
+  elif grep ' /cache ' /proc/mounts | grep -q 'ext4'\
+  && [ -d /cache/early-mount.d ]; then
     EIMDIR=/cache/early-mount.d
-  elif grep ' /metadata ' /proc/mounts | grep -q 'ext4' ; then
+  elif grep ' /metadata ' /proc/mounts | grep -q 'ext4'\
+  && [ -d /metadata/early-mount.d ]; then
     EIMDIR=/metadata/early-mount.d
-  elif grep ' /persist ' /proc/mounts | grep -q 'ext4' ; then
+  elif grep ' /persist ' /proc/mounts | grep -q 'ext4'\
+  && [ -d /persist/early-mount.d ]; then
     EIMDIR=/persist/early-mount.d
-  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4' ; then
+  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4'\
+  && [ -d /mnt/vendor/persist/early-mount.d ]; then
     EIMDIR=/mnt/vendor/persist/early-mount.d
   else
     EIM=false
@@ -372,41 +378,21 @@ for NAMES in $NAME; do
       && [ ! -f $DES ]; then
         ui_print "  ! $DES"
         ui_print "    installation failed."
-        if echo $MAGISK_VER | grep -Eq delta; then
-          ui_print "    Installing $NAMES systemlessly using early init mount..."
-          mkdir -p $EIMDIR/system/lib
-          cp $MODPATH/system_support/lib/$NAMES $EIMDIR/system/lib
-        fi
       fi
       if [ -f $MODPATH/system_support/lib64/$NAMES ]\
       && [ ! -f $DES2 ]; then
         ui_print "  ! $DES2"
         ui_print "    installation failed."
-        if echo $MAGISK_VER | grep -Eq delta; then
-          ui_print "    Installing $NAMES systemlessly using early init mount..."
-          mkdir -p $EIMDIR/system/lib64
-          cp $MODPATH/system_support/lib64/$NAMES $EIMDIR/system/lib64
-        fi
       fi
       if [ -f $MODPATH/system_support/vendor/lib/$NAMES ]\
       && [ ! -f $DES3 ]; then
         ui_print "  ! $DES3"
         ui_print "    installation failed."
-        if echo $MAGISK_VER | grep -Eq delta; then
-          ui_print "    Installing $NAMES systemlessly using early init mount..."
-          mkdir -p $EIMDIR/system/vendor/lib
-          cp $MODPATH/system_support/vendor/lib/$NAMES $EIMDIR/system/vendor/lib
-        fi
       fi
       if [ -f $MODPATH/system_support/vendor/lib64/$NAMES ]\
       && [ ! -f $DES4 ]; then
         ui_print "  ! $DES4"
         ui_print "    installation failed."
-        if echo $MAGISK_VER | grep -Eq delta; then
-          ui_print "    Installing $NAMES systemlessly using early init mount..."
-          mkdir -p $EIMDIR/system/vendor/lib64
-          cp $MODPATH/system_support/vendor/lib64/$NAMES $EIMDIR/system/vendor/lib64
-        fi
       fi
       ui_print " "
     else
@@ -567,7 +553,7 @@ early_init_mount_dir
 
 # find
 chcon -R u:object_r:system_lib_file:s0 $MODPATH/system_support/lib*
-chcon -R u:object_r:same_process_hal_file:s0 $MODPATH/system/vendor/lib*
+chcon -R u:object_r:same_process_hal_file:s0 $MODPATH/system_support/vendor/lib*
 NAME=`ls $MODPATH/system_support/vendor/lib`
 if [ $DOLBY == true ]; then
   find_file
@@ -1010,8 +996,8 @@ if [ $DOLBY == true ]; then
     sed -i 's/frequency="11250"/frequency="9000"/g' $FILE
     sed -i 's/frequency="13875"/frequency="11250"/g' $FILE
     sed -i 's/frequency="19688"/frequency="13875"/g' $FILE
-    ui_print " "
   fi
+  ui_print " "
 fi
 
 # check
@@ -1130,13 +1116,15 @@ fi
 
 # permission
 ui_print "- Setting permission..."
-chmod 0751 $MODPATH/system/bin
-FILE=`find $MODPATH/system/bin $MODPATH/system/vendor/bin -type f`
+FILE=`find $MODPATH/system/bin $MODPATH/system/vendor/bin $MODPATH/system/vendor/odm/bin -type f`
 for FILES in $FILE; do
   chmod 0755 $FILES
 done
+chmod 0751 $MODPATH/system/bin
 chmod 0751 $MODPATH/system/vendor/bin
 chmod 0751 $MODPATH/system/vendor/bin/hw
+chmod 0755 $MODPATH/system/vendor/odm/bin
+chmod 0755 $MODPATH/system/vendor/odm/bin/hw
 chown -R 0.2000 $MODPATH/system/bin
 DIR=`find $MODPATH/system/vendor -type d`
 for DIRS in $DIR; do
