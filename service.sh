@@ -120,6 +120,7 @@ done
 #d[ "$POWER" ] && killall $POWER
 #dkillall android.hardware.usb@1.0-service
 #dkillall android.hardware.usb@1.0-service.basic
+#dkillall android.hardware.sensors@1.0-service
 #dkillall android.hardware.sensors@2.0-service-mediatek
 #dkillall android.hardware.light-service.mt6768
 #dkillall android.hardware.lights-service.xiaomi_mithorium
