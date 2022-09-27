@@ -5,5 +5,3 @@
     <allow-implicit-broadcast action="com.sonyericsson.soundenhancement.AHC_USER_SWAP"/>
     <allow-implicit-broadcast action="dolby_dap_params_update"/>
 </config>
-
-
