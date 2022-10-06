@@ -4,4 +4,5 @@
     <allow-in-power-save package="com.sonyericsson.soundenhancement"/>
     <allow-implicit-broadcast action="com.sonyericsson.soundenhancement.AHC_USER_SWAP"/>
     <allow-implicit-broadcast action="dolby_dap_params_update"/>
+    <allow-implicit-broadcast action="android.media.AUDIO_BECOMING_NOISY"/>
 </config>
