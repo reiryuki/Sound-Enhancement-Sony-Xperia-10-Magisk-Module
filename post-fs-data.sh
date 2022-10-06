@@ -149,24 +149,4 @@ fi
 # manifest
 #ddolby_manifest
 
-# function
-mount_file() {
-DIR=/odm/bin/hw
-FILE=$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
-if [ "`realpath $DIR`" == $DIR ] && [ -f $FILE ]; then
-  mount -o bind $MODPATH/system/vendor/$FILE $FILE
-fi
-if [ -f /my_product/app/AudioEffectCenter/AudioEffectCenter.apk ]; then
-  mkdir $MODPATH/AudioEffectCenter
-  mount -o bind $MODPATH/AudioEffectCenter /my_product/app/AudioEffectCenter
-fi
-if [ -f /my_product/priv-app/AudioEffectCenter/AudioEffectCenter.apk ]; then
-  mkdir $MODPATH/AudioEffectCenter
-  mount -o bind $MODPATH/AudioEffectCenter /my_product/priv-app/AudioEffectCenter
-fi
-}
-
-# hide
-#dmount_file
-
 

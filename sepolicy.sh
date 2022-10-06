@@ -42,8 +42,8 @@ magiskpolicy --live "dontaudit { hal_audio_default mtk_hal_audio audioserver } s
 magiskpolicy --live "allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }"
 magiskpolicy --live "dontaudit zygote { device unlabeled } file write"
 magiskpolicy --live "allow     zygote { device unlabeled } file write"
-magiskpolicy --live "dontaudit init system_file file mounton
-magiskpolicy --live "allow     init system_file file mounton
+magiskpolicy --live "dontaudit init system_file file mounton"
+magiskpolicy --live "allow     init system_file file mounton"
 
 # chr_file
 magiskpolicy --live "dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } device chr_file { read write open getattr ioctl }"

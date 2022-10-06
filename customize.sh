@@ -55,11 +55,15 @@ else
   ui_print " "
 fi
 
-# sepolicy.rule
+# mount
 if [ "$BOOTMODE" != true ]; then
+  mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
+  mount -o rw -t auto /dev/block/bootdevice/by-name/vendor /vendor
   mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
   mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
 fi
+
+# sepolicy.rule
 FILE=$MODPATH/sepolicy.sh
 DES=$MODPATH/sepolicy.rule
 if [ -f $FILE ] && [ "`grep_prop sepolicy.sh $OPTIONALS`" != 1 ]; then
@@ -411,7 +415,11 @@ done
 patch_manifest_overlay_d() {
 if [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]\
 && echo $MAGISK_VER | grep -Eq delta; then
-  SRC=$MAGISKTMP/mirror/system/etc/vintf/manifest.xml
+  if [ "$BOOTMODE" == true ]; then
+    SRC=$MAGISKTMP/mirror/system/etc/vintf/manifest.xml
+  else
+    SRC=/system/etc/vintf/manifest.xml
+  fi
   if [ -f $SRC ]; then
     DIR=$EIMDIR/system/etc/vintf
     DES=$DIR/manifest.xml
@@ -446,7 +454,11 @@ fi
 patch_hwservice_overlay_d() {
 if [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]\
 && echo $MAGISK_VER | grep -Eq delta; then
-  SRC=$MAGISKTMP/mirror/system/etc/selinux/plat_hwservice_contexts
+  if [ "$BOOTMODE" == true ]; then
+    SRC=$MAGISKTMP/mirror/system/etc/selinux/plat_hwservice_contexts
+  else
+    SRC=/system/etc/selinux/plat_hwservice_contexts
+  fi
   if [ -f $SRC ]; then
     DIR=$EIMDIR/system/etc/selinux
     DES=$DIR/plat_hwservice_contexts
@@ -715,6 +727,20 @@ if [ "$BOOTMODE" == true ]; then
   DIR=$MAGISKTMP/mirror/product/priv-app/$APPS
 else
   DIR=/product/priv-app/$APPS
+fi
+MODDIR=$MODPATH/system/product/priv-app/$APPS
+replace_dir
+if [ "$BOOTMODE" == true ]; then
+  DIR=/mnt/vendor/my_product/app/$APPS
+else
+  DIR=/my_product/app/$APPS
+fi
+MODDIR=$MODPATH/system/product/app/$APPS
+replace_dir
+if [ "$BOOTMODE" == true ]; then
+  DIR=/mnt/vendor/my_product/priv-app/$APPS
+else
+  DIR=/my_product/priv-app/$APPS
 fi
 MODDIR=$MODPATH/system/product/priv-app/$APPS
 replace_dir
@@ -1148,11 +1174,13 @@ fi
 
 # uninstaller
 NAME=DolbyUninstaller.zip
-cp -f $MODPATH/$NAME /sdcard
+if [ $DOLBY == true ]; then
+  cp -f $MODPATH/$NAME /sdcard
+  ui_print "- Flash /sdcard/$NAME"
+  ui_print "  via recovery if you got bootloop"
+  ui_print " "
+fi
 rm -f $MODPATH/$NAME
-ui_print "- Flash /sdcard/$NAME"
-ui_print "  via recovery if you got bootloop"
-ui_print " "
 
 
 

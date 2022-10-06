@@ -56,10 +56,11 @@
 - If you don't do above, issues will be closed immediately
 
 ## Tested on
-- CrDroid ROM Android 10
-- DotOS ROM Android 11
-- AncientOS ROM Android 12
-- Nusantara ROM Android 12.1
+- Android 10 CrDroid ROM
+- Android 11 DotOS ROM
+- Android 12 AncientOS ROM
+- Android 12.1 Nusantara ROM
+- Android 13 AOSP ROM
 
 ## Credits and contributors
 - https://t.me/viperatmos

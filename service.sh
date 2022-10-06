@@ -6,7 +6,23 @@ AML=/data/adb/modules/aml
 exec 2>$MODPATH/debug.log
 set -x
 
+# function
+dolby_prop() {
+resetprop ro.odm.build.SomcCntrl.manufacture Sony
+resetprop ro.odm.build.SomcCntrl.Brand Sony
+resetprop ro.odm.build.SomcCntrl.Model Pdx203
+resetprop ro.odm.build.SomcCntrl.device pdx203
+resetprop ro.product.manufacturer Sony
+resetprop vendor.audio.dolby.ds2.enabled false
+resetprop vendor.audio.dolby.ds2.hardbypass false
+#resetprop -p --delete persist.vendor.dolby.loglevel
+#resetprop -n persist.vendor.dolby.loglevel 0
+#resetprop vendor.dolby.dap.param.tee false
+#resetprop vendor.dolby.mi.metadata.log false
+}
+
 # property
+#ddolby_prop
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
 resetprop ro.semc.version.fs GENERIC
@@ -30,17 +46,58 @@ resetprop -n persist.sony.enable.dolby_auto_mode true
 resetprop -p --delete persist.sony.effect.clear_audio_plus
 resetprop -n persist.sony.effect.clear_audio_plus true
 resetprop vendor.audio.use.sw.alac.decoder true
-#dresetprop ro.odm.build.SomcCntrl.manufacture Sony
-#dresetprop ro.odm.build.SomcCntrl.Brand Sony
-#dresetprop ro.odm.build.SomcCntrl.Model Pdx203
-#dresetprop ro.odm.build.SomcCntrl.device pdx203
-#dresetprop ro.product.manufacturer Sony
-#dresetprop vendor.audio.dolby.ds2.enabled false
-#dresetprop vendor.audio.dolby.ds2.hardbypass false
-#resetprop -p --delete persist.vendor.dolby.loglevel
-#resetprop -n persist.vendor.dolby.loglevel 0
-#resetprop vendor.dolby.dap.param.tee false
-#resetprop vendor.dolby.mi.metadata.log false
+
+# function
+stop_service() {
+for NAMES in $NAME; do
+  if getprop | grep "init.svc.$NAMES\]: \[running"; then
+    stop $NAMES
+  fi
+done
+}
+run_service() {
+for FILES in $FILE; do
+  killall $FILES
+  $FILES &
+  PID=`pidof $FILES`
+done
+}
+dolby_service() {
+# stop
+NAME="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
+stop_service
+# mount
+DIR=/odm/bin/hw
+FILE=$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
+if [ "`realpath $DIR`" == $DIR ] && [ -f $FILE ]; then
+  mount -o bind $MODPATH/system/vendor/$FILE $FILE
+fi
+# run
+FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
+run_service
+# restart
+VIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
+[ "$VIBRATOR" ] && killall $VIBRATOR
+POWER=`realpath /*/bin/hw/vendor.mediatek.hardware.mtkpower@*-service`
+[ "$POWER" ] && killall $POWER
+killall android.hardware.usb@1.0-service
+killall android.hardware.usb@1.0-service.basic
+killall android.hardware.sensors@1.0-service
+killall android.hardware.sensors@2.0-service-mediatek
+killall android.hardware.light-service.mt6768
+killall android.hardware.lights-service.xiaomi_mithorium
+CAMERA=`realpath /*/bin/hw/android.hardware.camera.provider@*-service_64`
+[ "$CAMERA" ] && killall $CAMERA
+}
+
+# dolby
+#ddolby_service
+
+# unused
+#FILE=idds
+#NAME=vendor.semc.system.idd-1-0
+#FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
+#FILE=`realpath /vendor`/bin/idd-logreader
 
 # wait
 sleep 20
@@ -80,55 +137,22 @@ if [ -d /my_product/etc ] && [ "$FILE" ]; then
 fi
 
 # restart
-killall audioserver
-
-# function
-stop_service() {
-for NAMES in $NAME; do
-  if getprop | grep "init.svc.$NAMES\]: \[running"; then
-    stop $NAMES
-  fi
-done
-}
-run_service() {
-for FILES in $FILE; do
-  killall $FILES
-  $FILES &
-  PID=`pidof $FILES`
-done
-}
-
-# stop
-#dNAME="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
-#dstop_service
-
-# run
-#dFILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
-#drun_service
-
-# unused
-#FILE=idds
-#NAME=vendor.semc.system.idd-1-0
-#FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
-#FILE=`realpath /vendor`/bin/idd-logreader
-
-# restart
-#dkillall com.dolby.daxservice
-#dVIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
-#d[ "$VIBRATOR" ] && killall $VIBRATOR
-#dPOWER=`realpath /*/bin/hw/vendor.mediatek.hardware.mtkpower@*-service`
-#d[ "$POWER" ] && killall $POWER
-#dkillall android.hardware.usb@1.0-service
-#dkillall android.hardware.usb@1.0-service.basic
-#dkillall android.hardware.sensors@1.0-service
-#dkillall android.hardware.sensors@2.0-service-mediatek
-#dkillall android.hardware.light-service.mt6768
-#dkillall android.hardware.lights-service.xiaomi_mithorium
-#dCAMERA=`realpath /*/bin/hw/android.hardware.camera.provider@*-service_64`
-#d[ "$CAMERA" ] && killall $CAMERA
+PID=`pidof audioserver`
+if [ "$PID" ]; then
+  killall audioserver
+fi
 
 # wait
 sleep 40
+
+# allow
+PKG=com.dolby.daxservice
+if pm list packages | grep $PKG ; then
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
+  killall $PKG
+fi
 
 # grant
 PKG=com.sonyericsson.soundenhancement
@@ -139,14 +163,6 @@ fi
 
 # allow
 PKG=com.dolby.daxappui
-if pm list packages | grep $PKG ; then
-  if [ "$API" -ge 30 ]; then
-    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
-  fi
-fi
-
-# allow
-PKG=com.dolby.daxservice
 if pm list packages | grep $PKG ; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore

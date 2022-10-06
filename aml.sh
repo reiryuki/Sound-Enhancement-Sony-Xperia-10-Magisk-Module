@@ -26,12 +26,14 @@ for RMVS in $RMV; do
   sed -i "s/\"$RMVS\"/\"removed\"/g" $MODAEX
 done
 sed -i 's/<library name="removed" path="removed"\/>//g' $MODAEX
+sed -i 's/<library name="proxy" path="removed"\/>//g' $MODAEX
 sed -i 's/<effect name="removed" library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<effect name="removed" uuid="removed" library="removed"\/>//g' $MODAEX
 sed -i 's/<libsw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<libhw library="removed" uuid="removed"\/>//g' $MODAEX
 sed -i 's/<apply effect="removed"\/>//g' $MODAEX
 sed -i 's/<library name="removed" path="removed" \/>//g' $MODAEX
+sed -i 's/<library name="proxy" path="removed" \/>//g' $MODAEX
 sed -i 's/<effect name="removed" library="removed" uuid="removed" \/>//g' $MODAEX
 sed -i 's/<effect name="removed" uuid="removed" library="removed" \/>//g' $MODAEX
 sed -i 's/<libsw library="removed" uuid="removed" \/>//g' $MODAEX
