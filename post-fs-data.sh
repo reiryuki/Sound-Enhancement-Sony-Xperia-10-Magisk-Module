@@ -10,7 +10,7 @@ set -x
 # run
 FILE=$MODPATH/sepolicy.sh
 if [ -f $FILE ]; then
-  sh $FILE
+  . $FILE
 fi
 
 # context
@@ -18,21 +18,35 @@ chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
 chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
+chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/odm/etc
+#dchcon u:object_r:same_process_hal_file:s0 $MODPATH/system/vendor/lib*/libhidltransport.so
+#dchcon u:object_r:same_process_hal_file:s0 $MODPATH/system/vendor/lib*/libhwbinder.so
 #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
 #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby_v3_6.hardware.dms360@2.0-service
 
-# etc
+# magisk
 if [ -d /sbin/.magisk ]; then
   MAGISKTMP=/sbin/.magisk
 else
-  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
+  MAGISKTMP=`realpath /dev/*/.magisk`
 fi
-ETC=$MAGISKTMP/mirror/system/etc
-VETC=$MAGISKTMP/mirror/system/vendor/etc
-VOETC=$MAGISKTMP/mirror/system/vendor/odm/etc
+
+# path
+MIRROR=$MAGISKTMP/mirror
+SYSTEM=`realpath $MIRROR/system`
+VENDOR=`realpath $MIRROR/vendor`
+ODM=`realpath $MIRROR/odm`
+MY_PRODUCT=`realpath $MIRROR/my_product`
+ETC=$SYSTEM/etc
+VETC=$VENDOR/etc
+VOETC=$VENDOR/odm/etc
+OETC=$ODM/etc
+MPETC=$MY_PRODUCT/etc
 MODETC=$MODPATH/system/etc
 MODVETC=$MODPATH/system/vendor/etc
 MODVOETC=$MODPATH/system/vendor/odm/etc
+MODOETC=$MODPATH/system/odm/etc
+MODMPETC=$MODPATH/system/my_product/etc
 
 # conflict
 if [ -d $AML ] && [ ! -f $AML/disable ]\
@@ -56,10 +70,16 @@ fi
 NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
 rm -f `find $MODPATH/system -type f -name $NAME`
 A=`find $ETC -maxdepth 1 -type f -name $NAME`
-VA=`find $VETC -maxdepth 1 -type f -name $NAME`
+if [ -d $ODM ] || [ -d $MY_PRODUCT ]; then
+  VA=`find $VETC -maxdepth 1 -type f -name $NAME`
+else
+  VA=`find $VETC /odm/etc /my_product/etc -maxdepth 1 -type f -name $NAME`
+fi
 VOA=`find $VOETC -maxdepth 1 -type f -name $NAME`
 VAA=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
 VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
+OA=`find $OETC -maxdepth 1 -type f -name $NAME`
+MPA=`find $MPETC -maxdepth 1 -type f -name $NAME`
 if [ "$A" ]; then
   cp -f $A $MODETC
 fi
@@ -83,6 +103,12 @@ if [ "$SKU" ]; then
     fi
   done
 fi
+if [ "$OA" ]; then
+  cp -f $OA $MODOETC
+fi
+if [ "$MPA" ]; then
+  cp -f $MPA $MODMPETC
+fi
 rm -f `find $MODPATH/system -type f -name *policy*volume*.xml -o -name *audio*effects*spatializer*.xml`
 
 # media codecs
@@ -99,7 +125,7 @@ else
 fi
 
 # run
-sh $MODPATH/.aml.sh
+. $MODPATH/.aml.sh
 
 # directory
 DIR=/data/mediaserver
@@ -124,7 +150,7 @@ chcon u:object_r:vendor_data_file:s0 $DIR
 # cleaning
 FILE=$MODPATH/cleaner.sh
 if [ -f $FILE ]; then
-  sh $FILE
+  . $FILE
   rm -f $FILE
 fi
 

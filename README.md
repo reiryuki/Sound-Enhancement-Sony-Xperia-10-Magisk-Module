@@ -6,12 +6,11 @@
 
 ## Descriptions
 - Equalizer soundfx ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
-- Sony ZNR (Zoom Noise Reduction) for enhance audio quality on video/audio recordings (READ Optionals to activate!)
 - Dolby Atmos from Sony Xperia 1 II (XQ-AT51) (READ Optionals to activate!)
 - Sound Enhancement is a post process type soundfx
 - Dolby Atmos is a global type soundfx (READ Optionals to activate!)
 - The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality
-- Sound Enhancement FX can only be applied with Music apps that has external EQ option such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
+- Sound Enhancement FX can only be applied with Music apps that uses external EQ such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
 - Doesn't support ACDB module because using effect proxy
 - Sound Enhancement FX deactivates any global type soundfx while turned on
 - Will take about 3 minutes after device boot until Sound Enhancement FX is started
@@ -41,7 +40,7 @@
 - Remove any other Dolby module with different name (no need to remove if it's the same name)
 - Reboot
 - Install this module https://www.pling.com/p/1531791/ via Magisk Manager or Recovery
-- Install AML Magisk Module https://zackptg5.com/android.php#aml only if using any other audio mod module
+- Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
 

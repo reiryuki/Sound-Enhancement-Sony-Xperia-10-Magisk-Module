@@ -1,6 +1,6 @@
 mount -o rw,remount /data
 MODPATH=${0%/*}
-MODID=`echo "$MODPATH" | sed -n -e 's/\/data\/adb\/modules\///p'`
+MODID=`echo "$MODPATH" | sed 's|/data/adb/modules/||'`
 APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
 PKG="com.sonyericsson.soundenhancement
      com.soundenhancement.launcher
@@ -39,13 +39,14 @@ for PKGS in $PKG; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$PKGS*`
   rm -rf /data/user/*/$PKGS
 done
-rm -rf /data/vendor/dolby
+rm -f /data/vendor/dolby/dax_sqlite3.db
 resetprop -p --delete persist.vendor.dolby.loglevel
 if [ "$BOOTMODE" != true ]; then
   rm -rf `find /metadata/early-mount.d\
   /mnt/vendor/persist/early-mount.d /persist/early-mount.d\
   /data/unencrypted/early-mount.d /cache/early-mount.d\
-  /data/adb/modules/early-mount.d -type f -name manifest.xml`
+  /data/adb/modules/early-mount.d -type f -name manifest.xml\
+  -o -name libhidlbase.so`
 fi
 }
 

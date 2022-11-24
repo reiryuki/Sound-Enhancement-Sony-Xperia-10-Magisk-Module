@@ -92,32 +92,6 @@ output_session_processing {\
       sed -i "/^output_session_processing {/a\    music {\n    }" $MODAEC
     fi
   fi
-  if ! grep -Eq '^pre_processing {' $MODAEC; then
-    sed -i -e '$a\
-pre_processing {\
-  mic {\
-  }\
-  camcorder {\
-  }\
-  voice_recognition {\
-  }\
-  voice_communication {\
-  }\
-}\' $MODAEC
-  else
-    if ! grep -Eq '^  voice_communication {' $MODAEC; then
-      sed -i "/^pre_processing {/a\  voice_communication {\n  }" $MODAEC
-    fi
-    if ! grep -Eq '^  voice_recognition {' $MODAEC; then
-      sed -i "/^pre_processing {/a\  voice_recognition {\n  }" $MODAEC
-    fi
-    if ! grep -Eq '^  camcorder {' $MODAEC; then
-      sed -i "/^pre_processing {/a\  camcorder {\n  }" $MODAEC
-    fi
-    if ! grep -Eq '^  mic {' $MODAEC; then
-      sed -i "/^pre_processing {/a\  mic {\n  }" $MODAEC
-    fi
-  fi
 fi
 
 # setup audio effects xml
@@ -171,39 +145,15 @@ if [ "$MODAEX" ]; then
       sed -i "/<postprocess>/a\        <stream type=\"music\">\n        <\/stream>" $MODAEX
     fi
   fi
-  if ! grep -Eq '<preprocess>' $MODAEX; then
-    sed -i '/<\/effects>/a\
-    <preprocess>\
-        <stream type="mic">\
-        <\/stream>\
-        <stream type="camcorder">\
-        <\/stream>\
-        <stream type="voice_recognition">\
-        <\/stream>\
-        <stream type="voice_communication">\
-        <\/stream>\
-    <\/preprocess>' $MODAEX
-  else
-    if ! grep -Eq '<stream type="voice_communication">' $MODAEX; then
-      sed -i "/<preprocess>/a\        <stream type=\"voice_communication\">\n        <\/stream>" $MODAEX
-    fi
-    if ! grep -Eq '<stream type="voice_recognition">' $MODAEX; then
-      sed -i "/<preprocess>/a\        <stream type=\"voice_recognition\">\n        <\/stream>" $MODAEX
-    fi
-    if ! grep -Eq '<stream type="camcorder">' $MODAEX; then
-      sed -i "/<preprocess>/a\        <stream type=\"camcorder\">\n        <\/stream>" $MODAEX
-    fi
-    if ! grep -Eq '<stream type="mic">' $MODAEX; then
-      sed -i "/<preprocess>/a\        <stream type=\"mic\">\n        <\/stream>" $MODAEX
-    fi
-  fi
 fi
 
 # dirac
 #2RMV="libdiraceffect.so dirac_gef 3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D
-#2      libdirac.so dirac_controller b437f4de-da28-449b-9673-667f8b9643fe
-#2      dirac_music b437f4de-da28-449b-9673-667f8b964304
-#2      dirac e069d9e0-8329-11df-9168-0002a5d5c51b"
+#2     dirac_afm 743539F8-1076-451F-8395-84ACFAB0FAC7
+#2     dirac_controller 128B9BA2-D0C9-47C6-AFF3-9F761CD0E228
+#2     libdirac.so b437f4de-da28-449b-9673-667f8b9643fe
+#2     dirac_music b437f4de-da28-449b-9673-667f8b964304
+#2     dirac e069d9e0-8329-11df-9168-0002a5d5c51b"
 #2if [ "$MODAEC" ]; then
 #2  remove_conf
 #2fi
@@ -221,33 +171,6 @@ fi
 #3fi
 
 # store
-LIB=libznrwrapper.so
-LIBNAME=znrwrapper
-NAME=ZNR
-UUID=b8a031e0-6bbf-11e5-b9ef-0002a5d5c51b
-RMV="$LIB $LIBNAME $NAME $UUID"
-
-# patch audio effects conf
-if [ "$MODAEC" ]; then
-  remove_conf
-  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
-  sed -i "/^effects {/a\  $NAME {\n    library $LIBNAME\n    uuid $UUID\n  }" $MODAEC
-#c  sed -i "/^  camcorder {/a\    $NAME {\n    }" $MODAEC
-#c  sed -i "/^  mic {/a\    $NAME {\n    }" $MODAEC
-#c  sed -i "/^  voice_recognition {/a\    $NAME {\n    }" $MODAEC
-fi
-
-# patch audio effects xml
-if [ "$MODAEX" ]; then
-  remove_xml
-  sed -i "/<libraries>/a\        <library name=\"$LIBNAME\" path=\"$LIB\"\/>" $MODAEX
-  sed -i "/<effects>/a\        <effect name=\"$NAME\" library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
-#c  sed -i "/<stream type=\"camcorder\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#c  sed -i "/<stream type=\"mic\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#c  sed -i "/<stream type=\"voice_recognition\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-fi
-
-# store
 LIB=libsonysweffect.so
 LIBHW=libsonypostprocbundle.so
 LIBNAME=sonyeffect_sw
@@ -256,7 +179,8 @@ NAME=sonyeffect
 UUID=50786e95-da76-4557-976b-7981bdf6feb9
 UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
 UUIDPROXY=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
-RMV="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID $UUIDHW $UUIDPROXY"
+RMV="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID
+     $UUIDHW $UUIDPROXY libeffectproxy.so"
 
 # patch audio effects conf
 if [ "$MODAEC" ]; then

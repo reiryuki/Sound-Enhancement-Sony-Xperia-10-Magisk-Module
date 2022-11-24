@@ -108,16 +108,33 @@ if [ -d $DIR ] && [ ! -f $AML/disable ]; then
   chcon -R u:object_r:vendor_configs_file:s0 $DIR
 fi
 
-# mount
-NAME="*audio*effects*.conf -o -name *audio*effects*.xml"
-#pNAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
-if [ ! -d $AML ] || [ -f $AML/disable ]; then
-  DIR=$MODPATH/system/vendor
+# magisk
+if [ -d /sbin/.magisk ]; then
+  MAGISKTMP=/sbin/.magisk
 else
+  MAGISKTMP=`realpath /dev/*/.magisk`
+fi
+
+# path
+MIRROR=$MAGISKTMP/mirror
+SYSTEM=`realpath $MIRROR/system`
+VENDOR=`realpath $MIRROR/vendor`
+ODM=`realpath $MIRROR/odm`
+MY_PRODUCT=`realpath $MIRROR/my_product`
+
+# mount
+NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
+if [ -d $AML ] && [ ! -f $AML/disable ]\
+&& find $AML/system/vendor -type f -name $NAME; then
+  NAME="*audio*effects*.conf -o -name *audio*effects*.xml"
+#p  NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
   DIR=$AML/system/vendor
+else
+  DIR=$MODPATH/system/vendor
 fi
 FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
-if [ "`realpath /odm/etc`" == /odm/etc ] && [ "$FILE" ]; then
+if [ ! -d $ODM ] && [ "`realpath /odm/etc`" == /odm/etc ]\
+&& [ "$FILE" ]; then
   for i in $FILE; do
     j="/odm$(echo $i | sed "s|$DIR||")"
     if [ -f $j ]; then
@@ -126,7 +143,8 @@ if [ "`realpath /odm/etc`" == /odm/etc ] && [ "$FILE" ]; then
     fi
   done
 fi
-if [ -d /my_product/etc ] && [ "$FILE" ]; then
+if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]\
+&& [ "$FILE" ]; then
   for i in $FILE; do
     j="/my_product$(echo $i | sed "s|$DIR||")"
     if [ -f $j ]; then
@@ -160,6 +178,7 @@ pm grant $PKG android.permission.RECORD_AUDIO
 if [ "$API" -ge 30 ]; then
   appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
 fi
+#dkillall $PKG
 
 # allow
 PKG=com.dolby.daxappui
@@ -177,25 +196,5 @@ if [ ! -e $FILE ]; then
   chown 1000.1005 $FILE
   chcon u:object_r:audio_hweffect_device:s0 $FILE
 fi
-
-# file
-DIR=/data/vendor/audio/acdbdata/delta
-if [ ! -d $DIR ]; then
-  mkdir -p $DIR
-fi
-NAME="Sony_ganges_Bluetooth_cal.acdbdelta
-      Sony_ganges_General_cal.acdbdelta
-      Sony_ganges_Global_cal.acdbdelta
-      Sony_ganges_Handset_cal.acdbdelta
-      Sony_ganges_Hdmi_cal.acdbdelta
-      Sony_ganges_Headset_cal.acdbdelta
-      Sony_ganges_Speaker_cal.acdbdelta"
-for NAMES in $NAME; do
-  if [ ! -f $DIR/$NAMES ]; then
-    touch $DIR/$NAMES
-    chmod 0600 $DIR/$NAMES
-    chown 1041.1005 $DIR/$NAMES
-  fi
-done
 
 
