@@ -22,12 +22,12 @@
 
 ## Requirements
 - Sound Enhancement:
-  - Android 10 and up
+  - Android 9 and up
   - Magisk installed
 
 - Dolby Atmos (READ Optionals to activate!):
   - 64 bit architecture
-  - Android 10 and up
+  - Android 9 and up
   - Magisk installed
   - Recommended to use Magisk Delta of your ROM is Read-Only for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
 

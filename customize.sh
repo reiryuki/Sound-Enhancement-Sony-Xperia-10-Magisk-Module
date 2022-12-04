@@ -45,7 +45,7 @@ ui_print " MagiskVersionCode=$MAGISK_VER_CODE"
 ui_print " "
 
 # sdk
-NUM=29
+NUM=28
 if [ "$API" -lt $NUM ]; then
   ui_print "! Unsupported SDK $API. You have to upgrade your"
   ui_print "  Android version at least SDK API $NUM to use this module."
@@ -337,35 +337,31 @@ if echo $MAGISK_VER | grep -Eq delta\
   if [ -L $ACTIVEEIMDIR ]; then
     EIMDIR=$(readlink $ACTIVEEIMDIR)
     [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MAGISKTMP/mirror/$EIMDIR"
-  elif ! $ISENCRYPTED\
-  && [ -d /data/adb/modules/early-mount.d ]; then
-    EIMDIR=/data/adb/modules/early-mount.d
-  elif [ -d /data/unencrypted/early-mount.d ]\
+  elif ! $ISENCRYPTED; then
+    EIMDIR=/data/adb/early-mount.d
+  elif [ -d /data/unencrypted ]\
   && ! grep ' /data ' /proc/mounts | grep -qE 'dm-|f2fs'; then
     EIMDIR=/data/unencrypted/early-mount.d
-  elif grep ' /cache ' /proc/mounts | grep -q 'ext4'\
-  && [ -d /cache/early-mount.d ]; then
+  elif grep ' /cache ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/cache/early-mount.d
-  elif grep ' /metadata ' /proc/mounts | grep -q 'ext4'\
-  && [ -d /metadata/early-mount.d ]; then
+  elif grep ' /metadata ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/metadata/early-mount.d
-  elif grep ' /persist ' /proc/mounts | grep -q 'ext4'\
-  && [ -d /persist/early-mount.d ]; then
+  elif grep ' /persist ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/persist/early-mount.d
-  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4'\
-  && [ -d /mnt/vendor/persist/early-mount.d ]; then
+  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/mnt/vendor/persist/early-mount.d
   else
     EIM=false
     ui_print "- Unable to find early init mount directory"
+    ui_print " "
   fi
   if [ -d ${EIMDIR%/early-mount.d} ]; then
+    mkdir -p $EIMDIR
     ui_print "- Your early init mount directory is"
     ui_print "  $EIMDIR"
     ui_print " "
     ui_print "  Any file stored to this directory will not be deleted even"
-    ui_print "  you have uninstalled this module. You can delete it"
-    ui_print "  manually using any root file manager."
+    ui_print "  you have uninstalled this module."
   else
     EIM=false
     ui_print "- Unable to find early init mount directory ${EIMDIR%/early-mount.d}"

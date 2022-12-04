@@ -165,7 +165,7 @@ sleep 40
 
 # allow
 PKG=com.dolby.daxservice
-if pm list packages | grep $PKG ; then
+if pm list packages | grep $PKG; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
@@ -182,10 +182,11 @@ fi
 
 # allow
 PKG=com.dolby.daxappui
-if pm list packages | grep $PKG ; then
+if pm list packages | grep $PKG; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
+  killall $PKG
 fi
 
 # special file

@@ -70,11 +70,7 @@ fi
 NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
 rm -f `find $MODPATH/system -type f -name $NAME`
 A=`find $ETC -maxdepth 1 -type f -name $NAME`
-if [ -d $ODM ] || [ -d $MY_PRODUCT ]; then
-  VA=`find $VETC -maxdepth 1 -type f -name $NAME`
-else
-  VA=`find $VETC /odm/etc /my_product/etc -maxdepth 1 -type f -name $NAME`
-fi
+VA=`find $VETC -maxdepth 1 -type f -name $NAME`
 VOA=`find $VOETC -maxdepth 1 -type f -name $NAME`
 VAA=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
 VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
@@ -108,6 +104,19 @@ if [ "$OA" ]; then
 fi
 if [ "$MPA" ]; then
   cp -f $MPA $MODMPETC
+fi
+if [ ! -d $ODM ]\
+&& [ "`realpath /odm/etc`" == /odm/etc ]; then
+  OA=`find /odm/etc -maxdepth 1 -type f -name $NAME`
+  if [ "$OA" ]; then
+    cp -f $OA $MODVETC
+  fi
+fi
+if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]; then
+  MPA=`find /my_product/etc -maxdepth 1 -type f -name $NAME`
+  if [ "$MPA" ]; then
+    cp -f $MPA $MODVETC
+  fi
 fi
 rm -f `find $MODPATH/system -type f -name *policy*volume*.xml -o -name *audio*effects*spatializer*.xml`
 
