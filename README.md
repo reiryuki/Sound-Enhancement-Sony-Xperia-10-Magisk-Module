@@ -5,15 +5,9 @@
 - The MIT license specified here is for the Magisk Module, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
-- Equalizer soundfx ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
-- Dolby Atmos from Sony Xperia 1 II (XQ-AT51) (READ Optionals to activate!)
-- Sound Enhancement is a post process type soundfx
-- Dolby Atmos is a global type soundfx (READ Optionals to activate!)
-- The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality
-- Sound Enhancement FX can only be applied with Music apps that uses external EQ such as Xperia Music, Youtube Music, and Spotify. Not working with SoundCloud or Youtube app.
+- Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk.
+- The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality (READ Optionals bellow to activate!)
 - Doesn't support ACDB module because using effect proxy
-- Sound Enhancement FX deactivates any global type soundfx while turned on
-- Will take about 3 minutes after device boot until Sound Enhancement FX is started
 
 ## Sources
 - https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys
@@ -25,8 +19,8 @@
   - Android 9 and up
   - Magisk installed
 
-- Dolby Atmos (READ Optionals to activate!):
-  - 64 bit architecture
+- Dolby Atmos (READ Optionals bellow to activate!):
+  - Architecture 64 bit
   - Android 9 and up
   - Magisk installed
   - Recommended to use Magisk Delta of your ROM is Read-Only for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
@@ -39,10 +33,12 @@
 - Don't use ACDB Magisk Module!
 - Remove any other Dolby module with different name (no need to remove if it's the same name)
 - Reboot
-- Install this module https://www.pling.com/p/1531791/ via Magisk Manager or Recovery
+- Install this module https://www.pling.com/p/1531791/ via Magisk app or Recovery
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
+- Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
+- Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
 
 ## Optionals & Troubleshootings
 - https://t.me/androidryukimodsdiscussions/29836

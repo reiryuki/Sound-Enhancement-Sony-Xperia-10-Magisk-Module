@@ -8,9 +8,9 @@ exec 2>$MODPATH/debug-pfsd.log
 set -x
 
 # run
-FILE=$MODPATH/sepolicy.sh
+FILE=$MODPATH/sepolicy.pfsd
 if [ -f $FILE ]; then
-  . $FILE
+  magiskpolicy --live --apply $FILE
 fi
 
 # context
@@ -120,7 +120,8 @@ if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]; then
 fi
 rm -f `find $MODPATH/system -type f -name *policy*volume*.xml -o -name *audio*effects*spatializer*.xml`
 
-# media codecs
+# function
+media_codecs() {
 NAME=media_codecs.xml
 rm -f $MODVETC/$NAME
 DIR=$AML/system/vendor/etc
@@ -132,6 +133,7 @@ if [ -d $AML ] && [ ! -f $AML/disable ]; then
 else
   cp -f $VETC/$NAME $MODVETC
 fi
+}
 
 # run
 . $MODPATH/.aml.sh

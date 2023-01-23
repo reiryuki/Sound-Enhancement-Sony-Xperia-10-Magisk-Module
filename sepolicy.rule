@@ -1,0 +1,121 @@
+## Dolby
+
+# debug
+dontaudit system_server system_file file write
+allow     system_server system_file file write
+
+# context
+type system_lib_file
+type vendor_file
+type vendor_configs_file
+type hal_dms_default_exec
+type vendor_data_file
+type vendor_media_data_file
+type same_process_hal_file
+dontaudit { system_lib_file vendor_file vendor_configs_file hal_dms_default_exec vendor_data_file vendor_media_data_file same_process_hal_file } labeledfs filesystem associate
+allow     { system_lib_file vendor_file vendor_configs_file hal_dms_default_exec vendor_data_file vendor_media_data_file same_process_hal_file } labeledfs filesystem associate
+dontaudit init { system_lib_file vendor_file vendor_configs_file vendor_data_file vendor_media_data_file } dir relabelfrom
+allow     init { system_lib_file vendor_file vendor_configs_file vendor_data_file vendor_media_data_file } dir relabelfrom
+dontaudit init { system_lib_file vendor_file vendor_configs_file hal_dms_default_exec vendor_data_file vendor_media_data_file same_process_hal_file } file relabelfrom
+allow     init { system_lib_file vendor_file vendor_configs_file hal_dms_default_exec vendor_data_file vendor_media_data_file same_process_hal_file } file relabelfrom
+
+# hwservice_manager
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app hal_audio_default mtk_hal_audio audioserver } { default_android_hwservice hal_dms_hwservice dms_hwservice } hwservice_manager find
+
+# service_manager
+allow daxservice_app { permission_checker_service game_service netstats_service content_capture_service } service_manager find
+
+# binder
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } hal_dms_default binder call
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } hal_dms_default binder call
+
+# file
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { hal_dms_default_exec vendor_displayfeature_prop } file getattr
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { hal_dms_default_exec vendor_displayfeature_prop } file getattr
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
+allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
+dontaudit zygote { device unlabeled } file write
+allow     zygote { device unlabeled } file write
+dontaudit init system_file file mounton
+allow     init system_file file mounton
+dontaudit daxservice_app default_prop file read
+allow     daxservice_app default_prop file read
+
+# chr_file
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } device chr_file { read write open getattr ioctl }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } device chr_file { read write open getattr ioctl }
+
+# dir
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_file dir search
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_file dir search
+
+# unix_stream_socket
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } zygote unix_stream_socket getopt
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } zygote unix_stream_socket getopt
+
+# additional
+allow { hal_audio_default mtk_hal_audio audioserver } system_suspend_hwservice hwservice_manager find
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop } file { read open getattr map }
+allow     { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop } file { read open getattr map }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { mnt_vendor_file system_prop } file { read open getattr }
+allow     { hal_audio_default mtk_hal_audio audioserver } { mnt_vendor_file system_prop } file { read open getattr }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } audio_prop file { read open getattr }
+allow     { hal_audio_default mtk_hal_audio audioserver } audio_prop file { read open getattr }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } radio_prop file read
+allow     { hal_audio_default mtk_hal_audio audioserver } radio_prop file read
+dontaudit { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file { write open }
+allow     { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file { write open }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } vendor_default_prop file { read open }
+allow     { hal_audio_default mtk_hal_audio audioserver } vendor_default_prop file { read open }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { sysfs_net sysfs } dir { read open }
+allow     { hal_audio_default mtk_hal_audio audioserver } { sysfs_net sysfs } dir { read open }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } logd_socket sock_file write
+allow     { hal_audio_default mtk_hal_audio audioserver } logd_socket sock_file write
+dontaudit { hal_audio_default mtk_hal_audio audioserver } logd unix_stream_socket connectto
+allow     { hal_audio_default mtk_hal_audio audioserver } logd unix_stream_socket connectto
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { diag_device vendor_diag_device } chr_file { read write open ioctl getattr }
+allow     { hal_audio_default mtk_hal_audio audioserver } { diag_device vendor_diag_device } chr_file { read write open ioctl getattr }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } device chr_file { read write }
+allow     { hal_audio_default mtk_hal_audio audioserver } device chr_file { read write }
+dontaudit hal_audio_default hal_audio_default capability2 block_suspend
+allow     hal_audio_default hal_audio_default capability2 block_suspend
+dontaudit mtk_hal_audio mtk_hal_audio capability2 block_suspend
+allow     mtk_hal_audio mtk_hal_audio capability2 block_suspend
+dontaudit audioserver audioserver capability2 block_suspend
+allow     audioserver audioserver capability2 block_suspend
+
+
+## Sound Enhancement
+
+# context
+type audio_hweffect_device
+dontaudit audio_hweffect_device tmpfs filesystem associate
+allow     audio_hweffect_device tmpfs filesystem associate
+dontaudit init audio_hweffect_device chr_file relabelfrom
+allow     init audio_hweffect_device chr_file relabelfrom
+
+# service_manager
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } default_android_service service_manager find
+
+# chr_file
+dontaudit { hal_audio_default mtk_hal_audio audioserver } audio_hweffect_device chr_file { read write }
+allow     { hal_audio_default mtk_hal_audio audioserver } audio_hweffect_device chr_file { read write }
+
+
+
+
+
+
+
+
+
+
+
+
+

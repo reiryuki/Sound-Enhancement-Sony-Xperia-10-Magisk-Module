@@ -47,10 +47,31 @@ resetprop -p --delete persist.sony.effect.clear_audio_plus
 resetprop -n persist.sony.effect.clear_audio_plus true
 resetprop vendor.audio.use.sw.alac.decoder true
 
+# special file
+FILE=/dev/sony_hweffect_params
+if [ ! -e $FILE ]; then
+  mknod $FILE c 10 51
+  chmod 0660 $FILE
+  chown 1000.1005 $FILE
+  chcon u:object_r:audio_hweffect_device:s0 $FILE
+fi
+
+# restart
+if [ "$API" -ge 24 ]; then
+  SVC=audioserver
+else
+  SVC=mediaserver
+fi
+PID=`pidof $SVC`
+if [ "$PID" ]; then
+  killall $SVC
+fi
+
 # function
 stop_service() {
 for NAMES in $NAME; do
-  if getprop | grep "init.svc.$NAMES\]: \[running"; then
+  if [ "`getprop init.svc.$NAMES`" == running ]\
+  || [ "`getprop init.svc.$NAMES`" == restarting ]; then
     stop $NAMES
   fi
 done
@@ -154,23 +175,10 @@ if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]\
   done
 fi
 
-# restart
-PID=`pidof audioserver`
-if [ "$PID" ]; then
-  killall audioserver
-fi
-
 # wait
-sleep 40
-
-# allow
-PKG=com.dolby.daxservice
-if pm list packages | grep $PKG; then
-  if [ "$API" -ge 30 ]; then
-    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
-  fi
-  killall $PKG
-fi
+until [ "`getprop sys.boot_completed`" == "1" ]; do
+  sleep 10
+done
 
 # grant
 PKG=com.sonyericsson.soundenhancement
@@ -178,7 +186,6 @@ pm grant $PKG android.permission.RECORD_AUDIO
 if [ "$API" -ge 30 ]; then
   appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
 fi
-#dkillall $PKG
 
 # allow
 PKG=com.dolby.daxappui
@@ -186,16 +193,62 @@ if pm list packages | grep $PKG; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
-  killall $PKG
 fi
 
-# special file
-FILE=/dev/sony_hweffect_params
-if [ ! -e $FILE ]; then
-  mknod $FILE c 10 51
-  chmod 0660 $FILE
-  chown 1000.1005 $FILE
-  chcon u:object_r:audio_hweffect_device:s0 $FILE
+# allow
+PKG=com.dolby.daxservice
+if pm list packages | grep $PKG; then
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
 fi
+
+# function
+stop_log() {
+FILE=$MODPATH/debug.log
+SIZE=`du $FILE | sed "s|$FILE||"`
+if [ "$LOG" != stopped ] && [ "$SIZE" -gt 50 ]; then
+  exec 2>/dev/null
+  LOG=stopped
+fi
+}
+check_audioserver() {
+if [ "$NEXTPID" ]; then
+  PID=$NEXTPID
+else
+  PID=`pidof $SVC`
+fi
+sleep 10
+stop_log
+NEXTPID=`pidof $SVC`
+if [ "`getprop init.svc.$SVC`" != stopped ]; then
+  until [ "$PID" != "$NEXTPID" ]; do
+    check_audioserver
+  done
+  killall $PROC
+  check_audioserver
+else
+  start $SVC
+  check_audioserver
+fi
+}
+
+# check
+if [ "$API" -ge 24 ]; then
+  SVC=audioserver
+else
+  SVC=mediaserver
+fi
+PROC=com.sonyericsson.soundenhancement
+#dPROC="com.sonyericsson.soundenhancement com.dolby.daxservice com.dolby.daxappui"
+check_audioserver
+
+
+
+
+
+
+
+
 
 

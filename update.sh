@@ -48,8 +48,9 @@ elif [ "$PROP" == mips ]; then
 fi
 
 PKG=com.sonyericsson.soundenhancement
-NAME="libhscomp_jni.so libhscomp.so
-      libsonydseehxwrapper.so"
+NAME="libhscomp_jni.so libhscomp.so"
 copy_library
+
+
 
 

@@ -1,8 +1,8 @@
 id=SoundEnhancement
 name=Sound Enhancement Sony Xperia 10
-version=v6.13
-versionCode=63
+version=v6.14
+versionCode=64
 author=Rei Ryuki the Fixer
-description=An EQ post process type soundfx ported from Sony Xperia 10 (I4113) and an EQ global type soundfx ported from Sony Xperia 1 II (XQ-AT51) for any Android 9 and up.
+description=EQ global type soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) for any Android 9 and up.
 
 
