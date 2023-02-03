@@ -22,8 +22,7 @@
 - Dolby Atmos (READ Optionals bellow to activate!):
   - Architecture 64 bit
   - Android 9 and up
-  - Magisk installed
-  - Recommended to use Magisk Delta of your ROM is Read-Only for the systemless early init mount manifest.xml https://t.me/androidryukimodsdiscussions/100091
+  - Magisk installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
 ## WARNING!!!
 - Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta.
@@ -31,7 +30,7 @@
 ## Installation Guide & Download Link
 - Recommended to use Magisk Delta if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
 - Don't use ACDB Magisk Module!
-- Remove any other Dolby module with different name (no need to remove if it's the same name)
+- Remove any other Dolby module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot
 - Install this module https://www.pling.com/p/1531791/ via Magisk app or Recovery
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module

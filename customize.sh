@@ -154,14 +154,14 @@ fi
 ui_print "- Cleaning..."
 if [ $DOLBY == true ]; then
   PKG="com.sonyericsson.soundenhancement
-       com.soundenhancement.launcher
+       com.reiryuki.soundenhancementlauncher
        com.sonymobile.audioutil
        com.dolby.daxappui
        com.dolby.daxservice"
    rm -f /data/vendor/dolby/dax_sqlite3.db
 else
   PKG="com.sonyericsson.soundenhancement
-       com.soundenhancement.launcher
+       com.reiryuki.soundenhancementlauncher
        com.sonymobile.audioutil"
 fi
 if [ "$BOOTMODE" == true ]; then

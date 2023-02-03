@@ -20,10 +20,10 @@ for APPS in $APP; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
 done
 PKG="com.sonyericsson.soundenhancement
-     com.soundenhancement.launcher
+     com.reiryuki.soundenhancementlauncher
      com.sonymobile.audioutil"
 for PKGS in $PKG; do
-  rm -rf /data/user/*/$PKGS
+  rm -rf /data/user*/*/$PKGS
 done
 rm -rf /metadata/magisk/"$MODID"
 rm -rf /mnt/vendor/persist/magisk/"$MODID"
@@ -41,7 +41,7 @@ cleaning() {
 PKG="com.dolby.daxappui com.dolby.daxservice"
 for PKGS in $PKG; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$PKGS*`
-  rm -rf /data/user/*/$PKGS
+  rm -rf /data/user*/*/$PKGS
 done
 rm -f /data/vendor/dolby/dax_sqlite3.db
 resetprop -p --delete persist.vendor.dolby.loglevel

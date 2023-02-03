@@ -1,7 +1,7 @@
 # function
 cleanup() {
   for PKGS in $PKG; do
-    rm -rf /data/user/*/$PKGS/cache/*
+    rm -rf /data/user*/*/$PKGS/cache/*
   done
 }
 
@@ -15,7 +15,7 @@ done
 PKG="com.sonyericsson.soundenhancement
      com.sonymobile.audioutil"
 cleanup
-rm -rf /data/user/*/com.soundenhancement.launcher/*
+rm -rf /data/user*/*/com.reiryuki.soundenhancementlauncher/*
 #dPKG="com.dolby.daxappui com.dolby.daxservice"
 #dcleanup
 
