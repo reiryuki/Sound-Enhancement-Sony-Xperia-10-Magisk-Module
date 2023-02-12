@@ -5,7 +5,8 @@
 - The MIT license specified here is for the Magisk Module, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
-- Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk.
+- Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
+- Global type soundfx
 - The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality (READ Optionals bellow to activate!)
 - Doesn't support ACDB module because using effect proxy
 
@@ -36,7 +37,7 @@
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
-- Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
+- Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud (except you are enabling music stream mode option) but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
 - Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
 
 ## Optionals & Troubleshootings

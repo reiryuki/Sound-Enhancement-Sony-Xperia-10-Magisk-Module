@@ -132,6 +132,15 @@ fi
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
+# stream mode
+PROP=`grep_prop stream.mode $OPTIONALS`
+if echo "$PROP" | grep -Eq m; then
+  ui_print "- Using Sound Enhancement post process music stream..."
+  cp -rf $MODPATH/system_post_process/* $MODPATH/system
+  ui_print " "
+fi
+rm -rf $MODPATH/system_post_process
+
 # mod ui
 if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   APP=SoundEnhancement
@@ -978,7 +987,7 @@ NAME=DolbyUninstaller.zip
 if [ $DOLBY == true ]; then
   cp -f $MODPATH/$NAME /sdcard
   ui_print "- Flash /sdcard/$NAME"
-  ui_print "  via recovery if you got bootloop"
+  ui_print "  via recovery only if you got bootloop"
   ui_print " "
 fi
 rm -f $MODPATH/$NAME

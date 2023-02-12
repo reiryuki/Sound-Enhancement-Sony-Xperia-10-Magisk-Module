@@ -58,35 +58,25 @@ fi
 
 # restart
 if [ "$API" -ge 24 ]; then
-  SVC=audioserver
+  SERVER=audioserver
 else
-  SVC=mediaserver
+  SERVER=mediaserver
 fi
-PID=`pidof $SVC`
+PID=`pidof $SERVER`
 if [ "$PID" ]; then
-  killall $SVC
+  killall $SERVER
 fi
 
 # function
-stop_service() {
-for NAMES in $NAME; do
-  if [ "`getprop init.svc.$NAMES`" == running ]\
-  || [ "`getprop init.svc.$NAMES`" == restarting ]; then
-    stop $NAMES
-  fi
-done
-}
-run_service() {
-for FILES in $FILE; do
-  killall $FILES
-  $FILES &
-  PID=`pidof $FILES`
-done
-}
 dolby_service() {
 # stop
-NAME="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
-stop_service
+NAMES="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
+for NAME in $NAMES; do
+  if [ "`getprop init.svc.$NAME`" == running ]\
+  || [ "`getprop init.svc.$NAME`" == restarting ]; then
+    stop $NAME
+  fi
+done
 # mount
 DIR=/odm/bin/hw
 FILE=$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
@@ -94,8 +84,12 @@ if [ "`realpath $DIR`" == $DIR ] && [ -f $FILE ]; then
   mount -o bind $MODPATH/system/vendor/$FILE $FILE
 fi
 # run
-FILE=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
-run_service
+SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
+for SERVICE in $SERVICES; do
+  killall $SERVICE
+  $SERVICE &
+  PID=`pidof $SERVICE`
+done
 # restart
 VIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
 [ "$VIBRATOR" ] && killall $VIBRATOR
@@ -154,24 +148,24 @@ if [ -d $AML ] && [ ! -f $AML/disable ]\
 else
   DIR=$MODPATH/system/vendor
 fi
-FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
+FILES=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
 if [ ! -d $ODM ] && [ "`realpath /odm/etc`" == /odm/etc ]\
-&& [ "$FILE" ]; then
-  for i in $FILE; do
-    j="/odm$(echo $i | sed "s|$DIR||")"
-    if [ -f $j ]; then
-      umount $j
-      mount -o bind $i $j
+&& [ "$FILES" ]; then
+  for FILE in $FILES; do
+    DES="/odm$(echo $FILE | sed "s|$DIR||")"
+    if [ -f $DES ]; then
+      umount $DES
+      mount -o bind $FILE $DES
     fi
   done
 fi
 if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]\
-&& [ "$FILE" ]; then
-  for i in $FILE; do
-    j="/my_product$(echo $i | sed "s|$DIR||")"
-    if [ -f $j ]; then
-      umount $j
-      mount -o bind $i $j
+&& [ "$FILES" ]; then
+  for FILE in $FILES; do
+    DES="/my_product$(echo $FILE | sed "s|$DIR||")"
+    if [ -f $DES ]; then
+      umount $DES
+      mount -o bind $FILE $DES
     fi
   done
 fi
@@ -217,29 +211,33 @@ check_audioserver() {
 if [ "$NEXTPID" ]; then
   PID=$NEXTPID
 else
-  PID=`pidof $SVC`
+  PID=`pidof $SERVER`
 fi
 sleep 10
 stop_log
-NEXTPID=`pidof $SVC`
-if [ "`getprop init.svc.$SVC`" != stopped ]; then
+NEXTPID=`pidof $SERVER`
+if [ "`getprop init.svc.$SERVER`" != stopped ]; then
   until [ "$PID" != "$NEXTPID" ]; do
     check_audioserver
   done
   killall $PROC
   check_audioserver
 else
-  start $SVC
+  start $SERVER
   check_audioserver
 fi
 }
+check_service() {
+for SERVICE in $SERVICES; do
+  if ! pidof $SERVICE; then
+    $SERVICE &
+    PID=`pidof $SERVICE`
+  fi
+done
+}
 
 # check
-if [ "$API" -ge 24 ]; then
-  SVC=audioserver
-else
-  SVC=mediaserver
-fi
+#dcheck_service
 PROC=com.sonyericsson.soundenhancement
 #dPROC="com.sonyericsson.soundenhancement com.dolby.daxservice com.dolby.daxappui"
 killall $PROC

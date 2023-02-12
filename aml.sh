@@ -168,12 +168,6 @@ if [ "$MODAEC" ]; then
   sed -i "/^effects {/a\  $NAME {\n    library proxy\n    uuid $UUIDPROXY\n  }" $MODAEC
   sed -i "/^    uuid $UUIDPROXY/a\    libhw {\n      library $LIBNAMEHW\n      uuid $UUIDHW\n    }" $MODAEC
   sed -i "/^    uuid $UUIDPROXY/a\    libsw {\n      library $LIBNAME\n      uuid $UUID\n    }" $MODAEC
-#m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
-#r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC
-#a  sed -i "/^    alarm {/a\        $NAME {\n        }" $MODAEC
-#s  sed -i "/^    system {/a\        $NAME {\n        }" $MODAEC
-#v  sed -i "/^    voice_call {/a\        $NAME {\n        }" $MODAEC
-#n  sed -i "/^    notification {/a\        $NAME {\n        }" $MODAEC
 fi
 
 # patch audio effects xml
@@ -186,12 +180,6 @@ if [ "$MODAEX" ]; then
   sed -i "/<effects>/a\            <libhw library=\"$LIBNAMEHW\" uuid=\"$UUIDHW\"\/>" $MODAEX
   sed -i "/<effects>/a\            <libsw library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
   sed -i "/<effects>/a\        <effectProxy name=\"$NAME\" library=\"proxy\" uuid=\"$UUIDPROXY\">" $MODAEX
-#m  sed -i "/<stream type=\"music\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#r  sed -i "/<stream type=\"ring\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#a  sed -i "/<stream type=\"alarm\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#s  sed -i "/<stream type=\"system\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#v  sed -i "/<stream type=\"voice_call\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
-#n  sed -i "/<stream type=\"notification\">/a\            <apply effect=\"$NAME\"\/>" $MODAEX
 fi
 
 # patch audio policy
