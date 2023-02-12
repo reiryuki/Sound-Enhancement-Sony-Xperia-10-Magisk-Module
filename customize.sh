@@ -58,6 +58,9 @@ else
   ui_print " "
 fi
 
+# .aml.sh
+mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
+
 # bit
 if [ "$IS64BIT" == true ]; then
   ui_print "- 64 bit"
@@ -128,9 +131,6 @@ if [ "`grep_prop sepolicy.sh $OPTIONALS`" == 1 ]\
 && [ -f $FILE ]; then
   mv -f $FILE $DES
 fi
-
-# .aml.sh
-mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
 # stream mode
 PROP=`grep_prop stream.mode $OPTIONALS`
