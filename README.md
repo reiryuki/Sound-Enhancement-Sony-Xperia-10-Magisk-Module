@@ -15,6 +15,9 @@
 - libhscomp_jni.so & libhscomp.so: https://dumps.tadiphone.dev/dumps/sony/akari akari-user-9-TAMA2-2.0.1-191021-1837-1-dev-keys
 - system_dolby: https://dumps.tadiphone.dev/dumps/sony/xq-at51 qssi-user-10-58.0.A.3.31-058000A003003102854466984-release-keys
 
+## Screenshots
+- https://t.me/androidryukimodsdiscussions/144433
+
 ## Requirements
 - Sound Enhancement:
   - Android 9 and up
