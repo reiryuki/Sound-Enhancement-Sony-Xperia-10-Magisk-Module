@@ -61,34 +61,6 @@ fi
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
-# bit
-if [ "$IS64BIT" == true ]; then
-  ui_print "- 64 bit"
-  ui_print " "
-  if [ "`grep_prop se.dolby $OPTIONALS`" == 1 ]; then
-    ui_print "- Activating Dolby Atmos..."
-    DOLBY=true
-    MODNAME2='Sound Enhancement Xperia 10 and Dolby Atmos Xperia 1 II'
-    sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
-    MODNAME=$MODNAME2
-    sed -i 's/#d//g' $MODPATH/.aml.sh
-    sed -i 's/#d//g' $MODPATH/*.sh
-    cp -rf $MODPATH/system_dolby/* $MODPATH/system
-    ui_print " "
-  else
-    DOLBY=false
-  fi
-else
-  ui_print "- 32 bit"
-  rm -rf `find $MODPATH/system -type d -name *64`
-  DOLBY=false
-  if [ "`grep_prop se.dolby $OPTIONALS`" == 1 ]; then
-    ui_print "  ! Unsupported Dolby Atmos."
-  fi
-  ui_print " "
-fi
-rm -rf $MODPATH/system_dolby
-
 # mount
 if [ "$BOOTMODE" != true ]; then
   mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
@@ -106,23 +78,52 @@ ui_print "$FILE"
 ui_print "  Please wait..."
 if ! grep -Eq $NAME $FILE; then
   ui_print "  ! Function not found."
-  ui_print "    Unsupported ROM."
-  abort
+  ui_print "    Unsupported Dolby Atmos."
+  DOLBY=false
+else
+  DOLBY=true
 fi
 ui_print " "
 }
 
-# check
-if [ $DOLBY == true ]; then
-  NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
-  TARGET=vendor.dolby.hardware.dms@1.0.so
-  LIST=`strings $MODPATH/system/vendor/lib64/$TARGET | grep lib | grep .so`
-  FILE=`for LISTS in $LIST; do echo $SYSTEM/lib64/$LISTS; done`
-  check_function
-  LIST=`strings $MODPATH/system/vendor/lib/$TARGET | grep lib | grep .so`
-  FILE=`for LISTS in $LIST; do echo $SYSTEM/lib/$LISTS; done`
-  check_function
+# bit
+if [ "$IS64BIT" == true ]; then
+  ui_print "- 64 bit"
+  ui_print " "
+  if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
+    ui_print "- Activating Dolby Atmos..."
+    ui_print " "
+    NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
+    TARGET=vendor.dolby.hardware.dms@1.0.so
+    LISTS=`strings $MODPATH/system_dolby/vendor/lib64/$TARGET | grep ^lib | grep .so`
+    FILE=`for LIST in $LISTS; do echo $SYSTEM/lib64/$LIST; done`
+    check_function
+    if [ $DOLBY == true ]; then
+      LISTS=`strings $MODPATH/system_dolby/vendor/lib/$TARGET | grep ^lib | grep .so`
+      FILE=`for LIST in $LISTS; do echo $SYSTEM/lib/$LIST; done`
+      check_function
+    fi
+    if [ $DOLBY == true ]; then
+      MODNAME2='Sound Enhancement Xperia 10 and Dolby Atmos Xperia 1 II'
+      sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
+      MODNAME=$MODNAME2
+      sed -i 's/#d//g' $MODPATH/.aml.sh
+      sed -i 's/#d//g' $MODPATH/*.sh
+      cp -rf $MODPATH/system_dolby/* $MODPATH/system
+    fi
+  else
+    DOLBY=false
+  fi
+else
+  ui_print "- 32 bit"
+  rm -rf `find $MODPATH/system -type d -name *64`
+  DOLBY=false
+  if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
+    ui_print "  ! Unsupported Dolby Atmos."
+  fi
+  ui_print " "
 fi
+rm -rf $MODPATH/system_dolby
 
 # sepolicy
 FILE=$MODPATH/sepolicy.rule

@@ -38,6 +38,10 @@ dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 u
 allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }
 dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
 allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } qemu_hw_prop file read
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } qemu_hw_prop file read
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } audio_config_prop file { read open getattr }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } audio_config_prop file { read open getattr }
 dontaudit { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
 allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
 dontaudit zygote { device unlabeled } file write
@@ -61,12 +65,10 @@ allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 u
 
 # additional
 allow { hal_audio_default mtk_hal_audio audioserver } system_suspend_hwservice hwservice_manager find
-dontaudit { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop } file { read open getattr map }
-allow     { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop } file { read open getattr map }
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop audio_prop } file { read open getattr map }
+allow     { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop audio_prop } file { read open getattr map }
 dontaudit { hal_audio_default mtk_hal_audio audioserver } { mnt_vendor_file system_prop } file { read open getattr }
 allow     { hal_audio_default mtk_hal_audio audioserver } { mnt_vendor_file system_prop } file { read open getattr }
-dontaudit { hal_audio_default mtk_hal_audio audioserver } audio_prop file { read open getattr map }
-allow     { hal_audio_default mtk_hal_audio audioserver } audio_prop file { read open getattr map }
 dontaudit { hal_audio_default mtk_hal_audio audioserver } radio_prop file read
 allow     { hal_audio_default mtk_hal_audio audioserver } radio_prop file read
 dontaudit { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file { write open }

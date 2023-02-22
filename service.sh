@@ -91,19 +91,18 @@ for SERVICE in $SERVICES; do
   PID=`pidof $SERVICE`
 done
 # restart
-VIBRATOR=`realpath /*/bin/hw/vendor.qti.hardware.vibrator.service*`
-[ "$VIBRATOR" ] && killall $VIBRATOR
-POWER=`realpath /*/bin/hw/vendor.mediatek.hardware.mtkpower@*-service`
-[ "$POWER" ] && killall $POWER
+killall vendor.qti.hardware.vibrator.service
+killall vendor.qti.hardware.vibrator.service.oneplus9
+killall android.hardware.camera.provider@2.4-service_64
+killall vendor.mediatek.hardware.mtkpower@1.0-service
 killall android.hardware.usb@1.0-service
 killall android.hardware.usb@1.0-service.basic
-killall android.hardware.sensors@1.0-service
-killall android.hardware.sensors@2.0-service-mediatek
 killall android.hardware.light-service.mt6768
 killall android.hardware.lights-service.xiaomi_mithorium
 killall vendor.samsung.hardware.light-service
-CAMERA=`realpath /*/bin/hw/android.hardware.camera.provider@*-service_64`
-[ "$CAMERA" ] && killall $CAMERA
+killall android.hardware.sensors@1.0-service
+killall android.hardware.sensors@2.0-service-mediatek
+killall android.hardware.sensors@2.0-service.multihal
 }
 
 # dolby
