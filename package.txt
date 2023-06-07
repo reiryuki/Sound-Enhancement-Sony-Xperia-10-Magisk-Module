@@ -1,0 +1,3 @@
+com.sonyericsson.soundenhancement
+com.sonymobile.audioutil
+com.reiryuki.soundenhancementlauncher

@@ -21,12 +21,12 @@
 ## Requirements
 - Sound Enhancement:
   - Android 9 and up
-  - Magisk installed
+  - Magisk or KernelSU installed
 
 - Dolby Atmos:
   - Architecture 64 bit
   - Android 9 and up
-  - Magisk installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
+  - Magisk or KernelSU installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
 ## WARNING!!!
 - Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta.
@@ -36,10 +36,11 @@
 - Don't use ACDB Magisk Module!
 - Remove any other Dolby module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot
-- Install this module https://www.pling.com/p/1531791/ via Magisk app or Recovery
+- Install this module https://www.pling.com/p/1531791/ via Magisk app or KernelSU app or Recovery (unless you are using KernelSU)
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
+- If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt and reboot after
 - Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud (except you are enabling music stream mode option) but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
 - Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
 

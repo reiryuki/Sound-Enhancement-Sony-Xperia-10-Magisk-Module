@@ -1,7 +1,5 @@
 mount -o rw,remount /data
 MODPATH=${0%/*}
-AML=/data/adb/modules/aml
-ACDB=/data/adb/modules/acdb
 
 # debug
 exec 2>$MODPATH/debug-pfsd.log
@@ -13,129 +11,30 @@ if [ -f $FILE ]; then
   magiskpolicy --live --apply $FILE
 fi
 
-# context
-chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
-chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
-chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
-chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
-chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/odm/etc
-#dchcon u:object_r:same_process_hal_file:s0 $MODPATH/system/vendor/lib*/libhidltransport.so
-#dchcon u:object_r:same_process_hal_file:s0 $MODPATH/system/vendor/lib*/libhwbinder.so
-#dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
-#dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby_v3_6.hardware.dms360@2.0-service
-
-# magisk
-if [ -d /sbin/.magisk ]; then
-  MAGISKTMP=/sbin/.magisk
+# list
+(
+PKGS=`cat $MODPATH/package.txt`
+#dPKGS=`cat $MODPATH/package-dolby.txt`
+for PKG in $PKGS; do
+  magisk --denylist rm $PKG
+  magisk --sulist add $PKG
+done
+FILE=$MODPATH/tmp_file
+magisk --hide sulist 2>$FILE
+if [ "`cat $FILE`" == 'SuList is enforced' ]; then
+  for PKG in $PKGS; do
+    magisk --hide add $PKG
+  done
 else
-  MAGISKTMP=`realpath /dev/*/.magisk`
-fi
-
-# path
-MIRROR=$MAGISKTMP/mirror
-SYSTEM=`realpath $MIRROR/system`
-VENDOR=`realpath $MIRROR/vendor`
-ODM=`realpath $MIRROR/odm`
-MY_PRODUCT=`realpath $MIRROR/my_product`
-ETC=$SYSTEM/etc
-VETC=$VENDOR/etc
-VOETC=$VENDOR/odm/etc
-OETC=$ODM/etc
-MPETC=$MY_PRODUCT/etc
-MODETC=$MODPATH/system/etc
-MODVETC=$MODPATH/system/vendor/etc
-MODVOETC=$MODPATH/system/vendor/odm/etc
-MODOETC=$MODPATH/system/odm/etc
-MODMPETC=$MODPATH/system/my_product/etc
-
-# conflict
-if [ -d $AML ] && [ ! -f $AML/disable ]\
-&& [ -d $ACDB ] && [ ! -f $ACDB/disable ]; then
-  touch $ACDB/disable
-fi
-
-# directory
-SKU=`ls $VETC/audio | grep sku_`
-if [ "$SKU" ]; then
-  for SKUS in $SKU; do
-    mkdir -p $MODVETC/audio/$SKUS
+  for PKG in $PKGS; do
+    magisk --hide rm $PKG
   done
 fi
-PROP=`getprop ro.build.product`
-if [ -d $VETC/audio/"$PROP" ]; then
-  mkdir -p $MODVETC/audio/"$PROP"
-fi
-
-# audio files
-NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
-rm -f `find $MODPATH/system -type f -name $NAME`
-A=`find $ETC -maxdepth 1 -type f -name $NAME`
-VA=`find $VETC -maxdepth 1 -type f -name $NAME`
-VOA=`find $VOETC -maxdepth 1 -type f -name $NAME`
-VAA=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
-VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
-OA=`find $OETC -maxdepth 1 -type f -name $NAME`
-MPA=`find $MPETC -maxdepth 1 -type f -name $NAME`
-if [ "$A" ]; then
-  cp -f $A $MODETC
-fi
-if [ "$VA" ]; then
-  cp -f $VA $MODVETC
-fi
-if [ "$VOA" ]; then
-  cp -f $VOA $MODVOETC
-fi
-if [ "$VAA" ]; then
-  cp -f $VAA $MODVETC/audio
-fi
-if [ "$VBA" ]; then
-  cp -f $VBA $MODVETC/audio/"$PROP"
-fi
-if [ "$SKU" ]; then
-  for SKUS in $SKU; do
-    VSA=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME`
-    if [ "$VSA" ]; then
-      cp -f $VSA $MODVETC/audio/$SKUS
-    fi
-  done
-fi
-if [ "$OA" ]; then
-  cp -f $OA $MODOETC
-fi
-if [ "$MPA" ]; then
-  cp -f $MPA $MODMPETC
-fi
-if [ ! -d $ODM ]\
-&& [ "`realpath /odm/etc`" == /odm/etc ]; then
-  OA=`find /odm/etc -maxdepth 1 -type f -name $NAME`
-  if [ "$OA" ]; then
-    cp -f $OA $MODVETC
-  fi
-fi
-if [ ! -d $MY_PRODUCT ] && [ -d /my_product/etc ]; then
-  MPA=`find /my_product/etc -maxdepth 1 -type f -name $NAME`
-  if [ "$MPA" ]; then
-    cp -f $MPA $MODVETC
-  fi
-fi
-rm -f `find $MODPATH/system -type f -name *policy*volume*.xml -o -name *audio*effects*spatializer*.xml`
-
-# function
-media_codecs() {
-NAME=media_codecs.xml
-rm -f $MODVETC/$NAME
-DIR=$AML/system/vendor/etc
-if [ -d $AML ] && [ ! -f $AML/disable ]; then
-  if [ ! -d $DIR ]; then
-    mkdir -p $DIR
-  fi
-  cp -f $VETC/$NAME $DIR
-else
-  cp -f $VETC/$NAME $MODVETC
-fi
-}
+rm -f $FILE
+) 2>/dev/null
 
 # run
+. $MODPATH/copy.sh
 . $MODPATH/.aml.sh
 
 # directory
@@ -165,25 +64,121 @@ if [ -f $FILE ]; then
   rm -f $FILE
 fi
 
+# permission
+chmod 0751 $MODPATH/system/bin
+FILES=`find $MODPATH/system/bin\
+            $MODPATH/vendor/bin\
+            $MODPATH/vendor/odm/bin\
+            $MODPATH/system/vendor/bin\
+            $MODPATH/system/vendor/odm/bin -type f`
+for FILE in $FILES; do
+  chmod 0755 $FILE
+done
+chown -R 0.2000 $MODPATH/system/bin
+DIRS=`find $MODPATH/vendor\
+           $MODPATH/system/vendor -type d`
+for DIR in $DIRS; do
+  chown 0.2000 $DIR
+done
+FILES=`find $MODPATH/vendor/bin\
+            $MODPATH/vendor/odm/bin\
+            $MODPATH/system/vendor/bin\
+            $MODPATH/system/vendor/odm/bin -type f`
+for FILE in $FILES; do
+  chown 0.2000 $FILE
+done
+chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
+chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/odm/etc
+if [ -L $MODPATH/system/vendor ]\
+&& [ -d $MODPATH/vendor ]; then
+  chmod 0751 $MODPATH/vendor/bin
+  chmod 0751 $MODPATH/vendor/bin/hw
+  chmod 0755 $MODPATH/vendor/odm/bin
+  chmod 0755 $MODPATH/vendor/odm/bin/hw
+  chcon -R u:object_r:vendor_file:s0 $MODPATH/vendor
+  chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/etc
+  chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/odm/etc
+  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
+  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby_v3_6.hardware.dms360@2.0-service
+else
+  chmod 0751 $MODPATH/system/vendor/bin
+  chmod 0751 $MODPATH/system/vendor/bin/hw
+  chmod 0755 $MODPATH/system/vendor/odm/bin
+  chmod 0755 $MODPATH/system/vendor/odm/bin/hw
+  chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
+  chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
+  chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
+  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
+  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby_v3_6.hardware.dms360@2.0-service
+fi
+
+# function
+mount_helper() {
+if [ -d /odm ]\
+&& [ "`realpath /odm/etc`" == /odm/etc ]; then
+  DIR=$MODPATH/system/odm
+  FILES=`find $DIR -type f -name $AUD`
+  for FILE in $FILES; do
+    DES=/odm`echo $FILE | sed "s|$DIR||g"`
+    umount $DES
+    mount -o bind $FILE $DES
+  done
+fi
+if [ -d /my_product ]; then
+  DIR=$MODPATH/system/my_product
+  FILES=`find $DIR -type f -name $AUD`
+  for FILE in $FILES; do
+    DES=/my_product`echo $FILE | sed "s|$DIR||g"`
+    umount $DES
+    mount -o bind $FILE $DES
+  done
+fi
+}
+
+# mount
+if ! grep delta /data/adb/magisk/util_functions.sh; then
+  mount_helper
+fi
+
 # function
 dolby_manifest() {
-NAME=vendor.dolby.hardware.dms@1.0.xml
-FILE="$MAGISKTMP/mirror/*/etc/vintf/manifest.xml
-      $MAGISKTMP/mirror/*/*/etc/vintf/manifest.xml
-      /*/etc/vintf/manifest.xml /*/*/etc/vintf/manifest.xml
-      $MAGISKTMP/mirror/*/etc/vintf/manifest/*.xml
-      $MAGISKTMP/mirror/*/*/etc/vintf/manifest/*.xml
+M=/system/etc/vintf/manifest.xml
+rm -f $MODPATH$M
+FILE="/*/etc/vintf/manifest.xml /*/*/etc/vintf/manifest.xml
       /*/etc/vintf/manifest/*.xml /*/*/etc/vintf/manifest/*.xml"
 if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep 1.0; then
-  mv -f $MODETC/unused $MODETC/vintf
-  mount -o bind $MODETC/vintf/manifest/$NAME /system/etc/vintf/manifest/$NAME
-  killall hwservicemanager
-else
-  mv -f $MODETC/vintf $MODETC/unused
+  cp -af $M $MODPATH$M
+  if [ -f $MODPATH$M ]; then
+    sed -i '/<manifest/a\
+    <hal format="hidl">\
+        <name>vendor.dolby.hardware.dms</name>\
+        <transport>hwbinder</transport>\
+        <version>1.0</version>\
+        <interface>\
+            <name>IDms</name>\
+            <instance>default</instance>\
+        </interface>\
+        <fqname>@1.0::IDms/default</fqname>\
+    </hal>' $MODPATH$M
+    mount -o bind $MODPATH$M $M
+    killall hwservicemanager
+  fi
 fi
 }
 
 # manifest
 #ddolby_manifest
+
+
+
+
+
+
+
+
+
+
+
+
 
 

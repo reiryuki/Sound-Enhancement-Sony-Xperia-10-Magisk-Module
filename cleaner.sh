@@ -1,22 +1,18 @@
-# function
-cleanup() {
-  for PKGS in $PKG; do
-    rm -rf /data/user*/*/$PKGS/cache/*
-  done
-}
+[ -z $MODPATH ] && MODPATH=${0%/*}
 
 # cleaning
-MODPATH=${0%/*}
-APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
-for APPS in $APP; do
-  rm -f `find /data/system/package_cache -type f -name *$APPS*`
-  rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
+APPS="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
+for APP in $APPS; do
+  rm -f `find /data/system/package_cache -type f -name *$APP*`
+  rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APP*.apk`
 done
-PKG="com.sonyericsson.soundenhancement
-     com.sonymobile.audioutil"
-cleanup
-rm -rf /data/user*/*/com.reiryuki.soundenhancementlauncher/*
-#dPKG="com.dolby.daxappui com.dolby.daxservice"
-#dcleanup
+PKGS=`cat $MODPATH/package.txt`
+#dPKGS=`cat $MODPATH/package-dolby.txt`
+for PKG in $PKGS; do
+  rm -rf /data/user*/*/$PKG/cache
+done
+
+
+
 
 
