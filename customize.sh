@@ -907,46 +907,96 @@ if [ $DOLBY == true ]; then
   done
 fi
 
-# stream mode
+# function
+stream_mode() {
 FILE=$MODPATH/.aml.sh
 PROP=`grep_prop stream.mode $OPTIONALS`
+if echo "$PROP" | grep -q m; then
+  ui_print "- Activating music stream..."
+  sed -i 's|#m||g' $FILE
+  ui_print " "
+# else
+#   ui_print "- Sound Enhancement post process effect is disabled"
+#   ui_print "  for Dolby Atmos global effect"
+#   sed -i 's/persist.sony.effect.dolby_atmos false/persist.sony.effect.dolby_atmos true/g' $MODPATH/service.sh
+#   sed -i 's/persist.sony.effect.ahc true/persist.sony.effect.ahc false/g' $MODPATH/service.sh
+#   ui_print " "
+fi
+if echo "$PROP" | grep -q r; then
+  ui_print "- Activating ring stream..."
+  sed -i 's|#r||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q a; then
+  ui_print "- Activating alarm stream..."
+  sed -i 's|#a||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q s; then
+  ui_print "- Activating system stream..."
+  sed -i 's|#s||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q v; then
+  ui_print "- Activating voice_call stream..."
+  sed -i 's|#v||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q n; then
+  ui_print "- Activating notification stream..."
+  sed -i 's|#n||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q b; then
+  ui_print "- Activating bluetooth_sco stream..."
+  sed -i 's|#b||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q f; then
+  ui_print "- Activating dtmf stream..."
+  sed -i 's|#f||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q e; then
+  ui_print "- Activating enforced_audible stream..."
+  sed -i 's|#e||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q y; then
+  ui_print "- Activating accessibility stream..."
+  sed -i 's|#y||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q t; then
+  ui_print "- Activating tts stream..."
+  sed -i 's|#t||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q i; then
+  ui_print "- Activating assistant stream..."
+  sed -i 's|#i||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q c; then
+  ui_print "- Activating call_assistant stream..."
+  sed -i 's|#c||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q p; then
+  ui_print "- Activating patch stream..."
+  sed -i 's|#p||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q g; then
+  ui_print "- Activating rerouting stream..."
+  sed -i 's|#g||g' $FILE
+  ui_print " "
+fi
+}
+
+# stream mode
 if [ $DOLBY == true ]; then
-  if echo "$PROP" | grep -q m; then
-    ui_print "- Activating Dolby music stream..."
-    sed -i 's/#m//g' $FILE
-    ui_print " "
-#  else
-#    ui_print "- Sound Enhancement post process effect is disabled"
-#    ui_print "  for Dolby Atmos global effect"
-#    sed -i 's/persist.sony.effect.dolby_atmos false/persist.sony.effect.dolby_atmos true/g' $MODPATH/service.sh
-#    sed -i 's/persist.sony.effect.ahc true/persist.sony.effect.ahc false/g' $MODPATH/service.sh
-#    ui_print " "
-  fi
-  if echo "$PROP" | grep -q r; then
-    ui_print "- Activating Dolby ring stream..."
-    sed -i 's/#r//g' $FILE
-    ui_print " "
-  fi
-  if echo "$PROP" | grep -q a; then
-    ui_print "- Activating Dolby alarm stream..."
-    sed -i 's/#a//g' $FILE
-    ui_print " "
-  fi
-  if echo "$PROP" | grep -q s; then
-    ui_print "- Activating Dolby system stream..."
-    sed -i 's/#s//g' $FILE
-    ui_print " "
-  fi
-  if echo "$PROP" | grep -q v; then
-    ui_print "- Activating Dolby voice_call stream..."
-    sed -i 's/#v//g' $FILE
-    ui_print " "
-  fi
-  if echo "$PROP" | grep -q n; then
-    ui_print "- Activating Dolby notification stream..."
-    sed -i 's/#n//g' $FILE
-    ui_print " "
-  fi
+  stream_mode
 fi
 
 # function
