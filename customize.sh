@@ -210,6 +210,10 @@ if [ "$BOOTMODE" != true ]; then
   else
     mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
   fi
+  mount -o rw -t auto /dev/block/bootdevice/by-name/product /product
+  mount -o rw -t auto /dev/block/bootdevice/by-name/system_ext /system_ext
+  mount -o rw -t auto /dev/block/bootdevice/by-name/odm /odm
+  mount -o rw -t auto /dev/block/bootdevice/by-name/my_product /my_product
   mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
   mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
 fi
@@ -317,8 +321,8 @@ rm -rf $MODPATH/system_post_process
 # cleaning
 ui_print "- Cleaning..."
 if [ $DOLBY == true ]; then
-   PKG=`cat $MODPATH/package-dolby.txt`
-   rm -f /data/vendor/dolby/dax_sqlite3.db
+  PKG=`cat $MODPATH/package-dolby.txt`
+  rm -f /data/vendor/dolby/dax_sqlite3.db
 else
   PKG=`cat $MODPATH/package.txt`
 fi
@@ -580,7 +584,7 @@ for NAME in $NAMES; do
     if [ ! "$FILE" ]; then
       if [ "`grep_prop install.hwlib $OPTIONALS`" == 1 ]; then
         ui_print "- Installing $NAME 64 directly to"
-        ui_print "  $SYSTEM/lib64..."
+        ui_print "$SYSTEM/lib64..."
         cp $MODPATH/system_support/lib64/$NAME $SYSTEM/lib64
         DES=$SYSTEM/lib64/$NAME
         if [ -f $MODPATH/system_support/lib64/$NAME ]\
@@ -607,7 +611,7 @@ for NAME in $NAMES; do
   if [ ! "$FILE" ]; then
     if [ "`grep_prop install.hwlib $OPTIONALS`" == 1 ]; then
       ui_print "- Installing $NAME directly to"
-      ui_print "  $SYSTEM/lib..."
+      ui_print "$SYSTEM/lib..."
       cp $MODPATH/system_support/lib/$NAME $SYSTEM/lib
       DES=$SYSTEM/lib/$NAME
       if [ -f $MODPATH/system_support/lib/$NAME ]\
@@ -728,9 +732,9 @@ if [ $DOLBY == true ] && [ "$MOD_UI_DOLBY" != true ]\
 && [ "$PROP" ] && [ "$PROP" -gt 192 ]; then
   ui_print "- Using max/min limit 36 dB for Dolby Atmos"
   cp -rf $MODPATH/system_dolby_36dB/* $MODPATH/system
+  ui_print " "
 fi
 rm -rf $MODPATH/system_dolby_36dB
-ui_print " "
 
 # power save
 FILE=$MODPATH/system/etc/sysconfig/*
