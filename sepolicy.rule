@@ -28,16 +28,12 @@ dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 u
 allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { hal_dms_default_exec vendor_displayfeature_prop } file getattr
 dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
 allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
-dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }
-allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_default_prop file { read open getattr }
-dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
-allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } debug_mtk_gpud_prop file { read open getattr map }
-dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { qemu_hw_prop vendor_displayfeature_prop } file read
-allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { qemu_hw_prop vendor_displayfeature_prop } file read
-dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } audio_config_prop file { read open getattr map }
-allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } audio_config_prop file { read open getattr map }
-dontaudit { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
-allow     { hal_audio_default mtk_hal_audio audioserver } system_file file { read open getattr execute }
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_default_prop qemu_hw_prop } file { read open getattr }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_default_prop qemu_hw_prop } file { read open getattr }
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { debug_mtk_gpud_prop audio_config_prop } file { read open getattr map }
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { debug_mtk_gpud_prop audio_config_prop } file { read open getattr map }
+dontaudit { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_displayfeature_prop file read
+allow     { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_displayfeature_prop file read
 dontaudit zygote { device unlabeled } file write
 allow     zygote { device unlabeled } file write
 dontaudit zygote zygote_tmpfs file { create open }

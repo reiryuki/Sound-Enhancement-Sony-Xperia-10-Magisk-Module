@@ -1,15 +1,49 @@
 mount -o rw,remount /data
 MODPATH=${0%/*}
 
-# debug
+# log
 exec 2>$MODPATH/debug-pfsd.log
 set -x
 
-# run
-FILE=$MODPATH/sepolicy.pfsd
-if [ -f $FILE ]; then
-  magiskpolicy --live --apply $FILE
+# var
+ABI=`getprop ro.product.cpu.abi`
+
+# function
+permissive() {
+if [ "$SELINUX" == Enforcing ]; then
+  if ! setenforce 0; then
+    echo 0 > /sys/fs/selinux/enforce
+  fi
 fi
+}
+magisk_permissive() {
+if [ "$SELINUX" == Enforcing ]; then
+  if [ -x "`command -v magiskpolicy`" ]; then
+	magiskpolicy --live "permissive *"
+  else
+	$MODPATH/$ABI/libmagiskpolicy.so --live "permissive *"
+  fi
+fi
+}
+sepolicy_sh() {
+if [ -f $FILE ]; then
+  if [ -x "`command -v magiskpolicy`" ]; then
+    magiskpolicy --live --apply $FILE 2>/dev/null
+  else
+    $MODPATH/$ABI/libmagiskpolicy.so --live --apply $FILE 2>/dev/null
+  fi
+fi
+}
+
+# selinux
+SELINUX=`getenforce`
+chmod 0755 $MODPATH/*/libmagiskpolicy.so
+#1permissive
+#2magisk_permissive
+#kFILE=$MODPATH/sepolicy.rule
+#ksepolicy_sh
+FILE=$MODPATH/sepolicy.pfsd
+sepolicy_sh
 
 # list
 (
@@ -66,11 +100,7 @@ fi
 
 # permission
 chmod 0751 $MODPATH/system/bin
-FILES=`find $MODPATH/system/bin\
-            $MODPATH/vendor/bin\
-            $MODPATH/vendor/odm/bin\
-            $MODPATH/system/vendor/bin\
-            $MODPATH/system/vendor/odm/bin -type f`
+FILES=`find $MODPATH/system/bin -type f`
 for FILE in $FILES; do
   chmod 0755 $FILE
 done
@@ -80,13 +110,6 @@ DIRS=`find $MODPATH/vendor\
 for DIR in $DIRS; do
   chown 0.2000 $DIR
 done
-FILES=`find $MODPATH/vendor/bin\
-            $MODPATH/vendor/odm/bin\
-            $MODPATH/system/vendor/bin\
-            $MODPATH/system/vendor/odm/bin -type f`
-for FILE in $FILES; do
-  chown 0.2000 $FILE
-done
 chcon -R u:object_r:system_lib_file:s0 $MODPATH/system/lib*
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/odm/etc
 if [ -L $MODPATH/system/vendor ]\
@@ -95,6 +118,12 @@ if [ -L $MODPATH/system/vendor ]\
   chmod 0751 $MODPATH/vendor/bin/hw
   chmod 0755 $MODPATH/vendor/odm/bin
   chmod 0755 $MODPATH/vendor/odm/bin/hw
+  FILES=`find $MODPATH/vendor/bin\
+              $MODPATH/vendor/odm/bin -type f`
+  for FILE in $FILES; do
+    chmod 0755 $FILE
+    chown 0.2000 $FILE
+  done
   chcon -R u:object_r:vendor_file:s0 $MODPATH/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/odm/etc
@@ -105,6 +134,12 @@ else
   chmod 0751 $MODPATH/system/vendor/bin/hw
   chmod 0755 $MODPATH/system/vendor/odm/bin
   chmod 0755 $MODPATH/system/vendor/odm/bin/hw
+  FILES=`find $MODPATH/system/vendor/bin\
+              $MODPATH/system/vendor/odm/bin -type f`
+  for FILE in $FILES; do
+    chmod 0755 $FILE
+    chown 0.2000 $FILE
+  done
   chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc

@@ -1,9 +1,11 @@
 MODPATH=${0%/*}
-API=`getprop ro.build.version.sdk`
 
-# debug
+# log
 exec 2>$MODPATH/debug.log
 set -x
+
+# var
+API=`getprop ro.build.version.sdk`
 
 # function
 dolby_prop() {
@@ -66,6 +68,11 @@ if [ "$PID" ]; then
   killall $SERVER
 fi
 
+# unused
+#NAMES=vendor.semc.system.idd-1-0
+#SERVICES="idds `realpath /vendor`/bin/idd-logreader
+#          `realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service"
+
 # function
 dolby_service() {
 # stop
@@ -106,12 +113,6 @@ killall android.hardware.sensors@2.0-service.multihal
 
 # dolby
 #ddolby_service
-
-# unused
-#FILE=idds
-#NAME=vendor.semc.system.idd-1-0
-#FILE=`realpath /vendor`/bin/hw/vendor.semc.system.idd@1.0-service
-#FILE=`realpath /vendor`/bin/idd-logreader
 
 # wait
 sleep 20

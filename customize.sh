@@ -1,6 +1,17 @@
 # space
 ui_print " "
 
+# log
+if [ "$BOOTMODE" != true ]; then
+  FILE=/sdcard/$MODID\_recovery.log
+  ui_print "- Log will be saved at $FILE"
+  exec 2>$FILE
+  ui_print " "
+fi
+
+# run
+. $MODPATH/function.sh
+
 # info
 MODVER=`grep_prop version $MODPATH/module.prop`
 MODVERCODE=`grep_prop versionCode $MODPATH/module.prop`
@@ -11,146 +22,12 @@ if [ "$KSU" == true ]; then
   ui_print " KSUVersion=$KSU_VER"
   ui_print " KSUVersionCode=$KSU_VER_CODE"
   ui_print " KSUKernelVersionCode=$KSU_KERNEL_VER_CODE"
+  sed -i 's|#k||g' $MODPATH/post-fs-data.sh
 else
   ui_print " MagiskVersion=$MAGISK_VER"
   ui_print " MagiskVersionCode=$MAGISK_VER_CODE"
 fi
 ui_print " "
-
-# huskydg function
-get_device() {
-PAR="$1"
-DEV="`cat /proc/self/mountinfo | awk '{ if ( $5 == "'$PAR'" ) print $3 }' | head -1 | sed 's/:/ /g'`"
-}
-mount_mirror() {
-SRC="$1"
-DES="$2"
-RAN="`head -c6 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9'`"
-while [ -e /dev/$RAN ]; do
-  RAN="`head -c6 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9'`"
-done
-mknod /dev/$RAN b `get_device "$SRC"; echo $DEV`
-if mount -t ext4 -o ro /dev/$RAN "$DES"\
-|| mount -t erofs -o ro /dev/$RAN "$DES"\
-|| mount -t f2fs -o ro /dev/$RAN "$DES"\
-|| mount -t ubifs -o ro /dev/$RAN "$DES"; then
-  blockdev --setrw /dev/$RAN
-  rm -f /dev/$RAN
-  return 0
-fi
-rm -f /dev/$RAN
-return 1
-}
-unmount_mirror() {
-DIRS="$MIRROR/system_root $MIRROR/system $MIRROR/vendor
-      $MIRROR/product $MIRROR/system_ext $MIRROR/odm
-      $MIRROR/my_product $MIRROR"
-for DIR in $DIRS; do
-  umount $DIR
-done
-}
-mount_odm_to_mirror() {
-DIR=/odm
-if [ -d $DIR ]; then
-  ui_print "- Mount $MIRROR$DIR..."
-  mkdir -p $MIRROR$DIR
-  if mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  $MIRROR$DIR mount success"
-  else
-    ui_print "  ! $MIRROR$DIR mount failed"
-    rm -rf $MIRROR$DIR
-    if [ -d $MIRROR/system_root$DIR ]; then
-      ln -sf $MIRROR/system_root$DIR $MIRROR
-    fi
-  fi
-  ui_print " "
-fi
-}
-mount_my_product_to_mirror() {
-DIR=/my_product
-if [ -d $DIR ]; then
-  ui_print "- Mount $MIRROR$DIR..."
-  mkdir -p $MIRROR$DIR
-  if mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  $MIRROR$DIR mount success"
-  else
-    ui_print "  ! $MIRROR$DIR mount failed"
-    rm -rf $MIRROR$DIR
-    if [ -d $MIRROR/system_root$DIR ]; then
-      ln -sf $MIRROR/system_root$DIR $MIRROR
-    fi
-  fi
-  ui_print " "
-fi
-}
-mount_partitions_to_mirror() {
-unmount_mirror
-# mount system
-if [ "$SYSTEM_ROOT" == true ]; then
-  DIR=/system_root
-  ui_print "- Mount $MIRROR$DIR..."
-  mkdir -p $MIRROR$DIR
-  if mount_mirror / $MIRROR$DIR; then
-    ui_print "  $MIRROR$DIR mount success"
-    rm -rf $MIRROR/system
-    ln -sf $MIRROR$DIR/system $MIRROR
-  else
-    ui_print "  ! $MIRROR$DIR mount failed"
-    rm -rf $MIRROR$DIR
-  fi
-else
-  DIR=/system
-  ui_print "- Mount $MIRROR$DIR..."
-  mkdir -p $MIRROR$DIR
-  if mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  $MIRROR$DIR mount success"
-  else
-    ui_print "  ! $MIRROR$DIR mount failed"
-    rm -rf $MIRROR$DIR
-  fi
-fi
-ui_print " "
-# mount vendor
-DIR=/vendor
-ui_print "- Mount $MIRROR$DIR..."
-mkdir -p $MIRROR$DIR
-if mount_mirror $DIR $MIRROR$DIR; then
-  ui_print "  $MIRROR$DIR mount success"
-else
-  ui_print "  ! $MIRROR$DIR mount failed"
-  rm -rf $MIRROR$DIR
-  ln -sf $MIRROR/system$DIR $MIRROR
-fi
-ui_print " "
-# mount product
-DIR=/product
-ui_print "- Mount $MIRROR$DIR..."
-mkdir -p $MIRROR$DIR
-if mount_mirror $DIR $MIRROR$DIR; then
-  ui_print "  $MIRROR$DIR mount success"
-else
-  ui_print "  ! $MIRROR$DIR mount failed"
-  rm -rf $MIRROR$DIR
-  ln -sf $MIRROR/system$DIR $MIRROR
-fi
-ui_print " "
-# mount system_ext
-DIR=/system_ext
-ui_print "- Mount $MIRROR$DIR..."
-mkdir -p $MIRROR$DIR
-if mount_mirror $DIR $MIRROR$DIR; then
-  ui_print "  $MIRROR$DIR mount success"
-else
-  ui_print "  ! $MIRROR$DIR mount failed"
-  rm -rf $MIRROR$DIR
-  if [ -d $MIRROR/system$DIR ]; then
-    ln -sf $MIRROR/system$DIR $MIRROR
-  fi
-fi
-ui_print " "
-mount_odm_to_mirror
-mount_my_product_to_mirror
-}
 
 # sdk
 NUM=28
@@ -163,20 +40,11 @@ else
   ui_print " "
 fi
 
+# recovery
+mount_partitions_in_recovery
+
 # magisk
-MAGISKPATH=`magisk --path`
-if [ "$BOOTMODE" == true ]; then
-  if [ "$MAGISKPATH" ]; then
-    mount -o rw,remount $MAGISKPATH
-    MAGISKTMP=$MAGISKPATH/.magisk
-    MIRROR=$MAGISKTMP/mirror
-  else
-    MAGISKTMP=/mnt
-    mount -o rw,remount $MAGISKTMP
-    MIRROR=$MAGISKTMP/mirror
-    mount_partitions_to_mirror
-  fi
-fi
+magisk_setup
 
 # path
 SYSTEM=`realpath $MIRROR/system`
@@ -202,21 +70,6 @@ fi
 
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
-
-# mount
-if [ "$BOOTMODE" != true ]; then
-  if [ -e /dev/block/bootdevice/by-name/vendor ]; then
-    mount -o rw -t auto /dev/block/bootdevice/by-name/vendor /vendor
-  else
-    mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
-  fi
-  mount -o rw -t auto /dev/block/bootdevice/by-name/product /product
-  mount -o rw -t auto /dev/block/bootdevice/by-name/system_ext /system_ext
-  mount -o rw -t auto /dev/block/bootdevice/by-name/odm /odm
-  mount -o rw -t auto /dev/block/bootdevice/by-name/my_product /my_product
-  mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
-  mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
-fi
 
 # function
 check_function() {
@@ -272,7 +125,7 @@ if [ "$IS64BIT" == true ]; then
   fi
 else
   ui_print "- 32 bit"
-  rm -rf `find $MODPATH/system -type d -name *64`
+  rm -rf `find $MODPATH -type d -name *64*`
   DOLBY=false
   if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
     ui_print "  ! Unsupported Dolby Atmos."
@@ -332,48 +185,52 @@ if [ "$BOOTMODE" == true ]; then
   done
 fi
 rm -rf $MODPATH/unused
-rm -rf /metadata/magisk/$MODID
-rm -rf /mnt/vendor/persist/magisk/$MODID
-rm -rf /persist/magisk/$MODID
-rm -rf /data/unencrypted/magisk/$MODID
-rm -rf /cache/magisk/$MODID
+remove_sepolicy_rule
 ui_print " "
+# power save
+FILE=$MODPATH/system/etc/sysconfig/*
+if [ "`grep_prop power.save $OPTIONALS`" == 1 ]; then
+  ui_print "- $MODNAME will not be allowed in power save."
+  ui_print "  It may save your battery but decreasing $MODNAME performance."
+  for PKGS in $PKG; do
+    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
+    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
+  done
+  ui_print " "
+fi
 
 # function
 conflict() {
-for NAMES in $NAME; do
-  DIR=/data/adb/modules_update/$NAMES
+for NAME in $NAMES; do
+  DIR=/data/adb/modules_update/$NAME
   if [ -f $DIR/uninstall.sh ]; then
     sh $DIR/uninstall.sh
   fi
   rm -rf $DIR
-  DIR=/data/adb/modules/$NAMES
+  DIR=/data/adb/modules/$NAME
   rm -f $DIR/update
   touch $DIR/remove
-  FILE=/data/adb/modules/$NAMES/uninstall.sh
+  FILE=/data/adb/modules/$NAME/uninstall.sh
   if [ -f $FILE ]; then
     sh $FILE
     rm -f $FILE
   fi
-  rm -rf /metadata/magisk/$NAMES
-  rm -rf /mnt/vendor/persist/magisk/$NAMES
-  rm -rf /persist/magisk/$NAMES
-  rm -rf /data/unencrypted/magisk/$NAMES
-  rm -rf /cache/magisk/$NAMES
+  rm -rf /metadata/magisk/$NAME
+  rm -rf /mnt/vendor/persist/magisk/$NAME
+  rm -rf /persist/magisk/$NAME
+  rm -rf /data/unencrypted/magisk/$NAME
+  rm -rf /cache/magisk/$NAME
+  rm -rf /cust/magisk/$NAME
 done
 }
 
 # conflict
 if [ $DOLBY == true ]; then
-  NAME="dolbyatmos
-        DolbyAudio
-        DolbyAtmos
-        MotoDolby
-        dsplus
-        Dolby"
+  NAMES="dolbyatmos DolbyAtmos DolbyAudio MotoDolby
+         dsplus Dolby"
   conflict
-  NAME=MiSound
-  FILE=/data/adb/modules/$NAME/module.prop
+  NAMES=MiSound
+  FILE=/data/adb/modules/$NAMES/module.prop
   if grep -q 'and Dolby Atmos' $FILE; then
     conflict
   fi
@@ -407,68 +264,28 @@ fi
 
 # function
 permissive_2() {
-sed -i '1i\
-SELINUX=`getenforce`\
-if [ "$SELINUX" == Enforcing ]; then\
-  magiskpolicy --live "permissive *"\
-fi\' $MODPATH/post-fs-data.sh
+sed -i 's|#2||g' $MODPATH/post-fs-data.sh
 }
 permissive() {
-SELINUX=`getenforce`
-if [ "$SELINUX" == Enforcing ]; then
-  setenforce 0
-  SELINUX=`getenforce`
-  if [ "$SELINUX" == Enforcing ]; then
+FILE=/sys/fs/selinux/enforce
+SELINUX=`cat $FILE`
+if [ "$SELINUX" == 1 ]; then
+  if ! setenforce 0; then
+    echo 0 > $FILE
+  fi
+  SELINUX=`cat $FILE`
+  if [ "$SELINUX" == 1 ]; then
     ui_print "  Your device can't be turned to Permissive state."
     ui_print "  Using Magisk Permissive mode instead."
     permissive_2
   else
-    setenforce 1
-    sed -i '1i\
-SELINUX=`getenforce`\
-if [ "$SELINUX" == Enforcing ]; then\
-  setenforce 0\
-fi\' $MODPATH/post-fs-data.sh
+    if ! setenforce 1; then
+      echo 1 > $FILE
+    fi
+    sed -i 's|#1||g' $MODPATH/post-fs-data.sh
   fi
-fi
-}
-set_read_write() {
-for NAME in $NAMES; do
-  if [ -e $DIR$NAME ]; then
-    blockdev --setrw $DIR$NAME
-  fi
-done
-}
-remount_rw() {
-DIR=/dev/block/bootdevice/by-name
-NAMES="/vendor$SLOT /cust$SLOT /system$SLOT /system_ext$SLOT"
-set_read_write
-DIR=/dev/block/mapper
-set_read_write
-DIR=$MAGISKTMP/block
-NAMES="/vendor /system_root /system /system_ext"
-set_read_write
-mount -o rw,remount $MAGISKTMP/mirror/system
-mount -o rw,remount $MAGISKTMP/mirror/system_root
-mount -o rw,remount $MAGISKTMP/mirror/system_ext
-mount -o rw,remount $MAGISKTMP/mirror/vendor
-mount -o rw,remount /system
-mount -o rw,remount /
-mount -o rw,remount /system_root
-mount -o rw,remount /system_ext
-mount -o rw,remount /vendor
-}
-remount_ro() {
-if [ "$BOOTMODE" == true ]; then
-  mount -o ro,remount $MAGISKTMP/mirror/system
-  mount -o ro,remount $MAGISKTMP/mirror/system_root
-  mount -o ro,remount $MAGISKTMP/mirror/system_ext
-  mount -o ro,remount $MAGISKTMP/mirror/vendor
-  mount -o ro,remount /system
-  mount -o ro,remount /
-  mount -o ro,remount /system_root
-  mount -o ro,remount /system_ext
-  mount -o ro,remount /vendor
+else
+  sed -i 's|#1||g' $MODPATH/post-fs-data.sh
 fi
 }
 backup() {
@@ -525,16 +342,6 @@ vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
   fi
 fi
 }
-restore() {
-for FILES in $FILE; do
-  if [ -f $FILES.orig ]; then
-    mv -f $FILES.orig $FILES
-  fi
-  if [ -f $FILES.bak ]; then
-    mv -f $FILES.bak $FILES
-  fi
-done
-}
 early_init_mount_dir() {
 if echo $MAGISK_VER | grep -q delta\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
@@ -546,7 +353,7 @@ if echo $MAGISK_VER | grep -q delta\
   elif ! $ISENCRYPTED; then
     EIMDIR=/data/adb/early-mount.d
   elif [ -d /data/unencrypted ]\
-  && ! grep ' /data ' /proc/mounts | grep -qE 'dm-|f2fs'; then
+  && ! grep ' /data ' /proc/mounts | grep -Eq 'dm-|f2fs'; then
     EIMDIR=/data/unencrypted/early-mount.d
   elif grep ' /cache ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/cache/early-mount.d
@@ -556,6 +363,8 @@ if echo $MAGISK_VER | grep -q delta\
     EIMDIR=/persist/early-mount.d
   elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4'; then
     EIMDIR=/mnt/vendor/persist/early-mount.d
+  elif grep ' /cust ' /proc/mounts | grep -Eq 'ext4|f2fs'; then
+    EIMDIR=/cust/early-mount.d
   else
     EIM=false
     ui_print "- Unable to find early init mount directory"
@@ -736,18 +545,6 @@ if [ $DOLBY == true ] && [ "$MOD_UI_DOLBY" != true ]\
 fi
 rm -rf $MODPATH/system_dolby_36dB
 
-# power save
-FILE=$MODPATH/system/etc/sysconfig/*
-if [ "`grep_prop power.save $OPTIONALS`" == 1 ]; then
-  ui_print "- $MODNAME will not be allowed in power save."
-  ui_print "  It may save your battery but decreasing $MODNAME performance."
-  for PKGS in $PKG; do
-    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
-    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
-  done
-  ui_print " "
-fi
-
 # remount
 if [ $DOLBY == true ]; then
   remount_rw
@@ -798,9 +595,9 @@ if [ $DOLBY == true ]; then
       ui_print "  You can fix this by using Magisk Delta."
       ui_print " "
     fi
-    FILE="$MAGISKTMP/mirror/*/etc/vintf/manifest.xml
-          $MAGISKTMP/mirror/*/*/etc/vintf/manifest.xml
-          /*/etc/vintf/manifest.xml /*/*/etc/vintf/manifest.xml"
+    FILES="$MAGISKTMP/mirror/*/etc/vintf/manifest.xml
+           $MAGISKTMP/mirror/*/*/etc/vintf/manifest.xml
+           /*/etc/vintf/manifest.xml /*/*/etc/vintf/manifest.xml"
     restore
   fi
 fi
@@ -832,10 +629,10 @@ if [ $DOLBY == true ]; then
       ui_print "! Failed to set hal_dms_hwservice context."
       ui_print " "
     fi
-    FILE="$MAGISKTMP/mirror/*/etc/selinux/*_hwservice_contexts
-          $MAGISKTMP/mirror/*/*/etc/selinux/*_hwservice_contexts
-          /*/etc/selinux/*_hwservice_contexts
-          /*/*/etc/selinux/*_hwservice_contexts"
+    FILES="$MAGISKTMP/mirror/*/etc/selinux/*_hwservice_contexts
+           $MAGISKTMP/mirror/*/*/etc/selinux/*_hwservice_contexts
+           /*/etc/selinux/*_hwservice_contexts
+           /*/*/etc/selinux/*_hwservice_contexts"
     restore
   fi
 fi
@@ -1162,7 +959,7 @@ if [ "`grep_prop fix.vendor_overlay $OPTIONALS`" == 1 ]\
 fi
 
 # uninstaller
-NAME=DolbyUninstaller.zip
+NAME=DolbyModuleUninstaller.zip
 if [ $DOLBY == true ]; then
   cp -f $MODPATH/$NAME /sdcard
   ui_print "- Flash /sdcard/$NAME"
