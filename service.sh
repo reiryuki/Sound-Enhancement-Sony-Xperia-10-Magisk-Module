@@ -87,7 +87,12 @@ done
 DIR=/odm/bin/hw
 FILE=$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
 if [ "`realpath $DIR`" == $DIR ] && [ -f $FILE ]; then
-  mount -o bind $MODPATH/system/vendor/$FILE $FILE
+  if [ -L $MODPATH/system/vendor ]\
+  && [ -d $MODPATH/vendor ]; then
+    mount -o bind $MODPATH/vendor/$FILE $FILE
+  else
+    mount -o bind $MODPATH/system/vendor/$FILE $FILE
+  fi
 fi
 # run
 SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
@@ -97,18 +102,19 @@ for SERVICE in $SERVICES; do
   PID=`pidof $SERVICE`
 done
 # restart
-killall vendor.qti.hardware.vibrator.service
-killall vendor.qti.hardware.vibrator.service.oneplus9
-killall android.hardware.camera.provider@2.4-service_64
-killall vendor.mediatek.hardware.mtkpower@1.0-service
-killall android.hardware.usb@1.0-service
-killall android.hardware.usb@1.0-service.basic
-killall android.hardware.light-service.mt6768
-killall android.hardware.lights-service.xiaomi_mithorium
-killall vendor.samsung.hardware.light-service
-killall android.hardware.sensors@1.0-service
-killall android.hardware.sensors@2.0-service-mediatek
-killall android.hardware.sensors@2.0-service.multihal
+killall vendor.qti.hardware.vibrator.service\
+ vendor.qti.hardware.vibrator.service.oneplus9\
+ android.hardware.camera.provider@2.4-service_64\
+ vendor.mediatek.hardware.mtkpower@1.0-service\
+ android.hardware.usb@1.0-service\
+ android.hardware.usb@1.0-service.basic\
+ android.hardware.light-service.mt6768\
+ android.hardware.lights-service.xiaomi_mithorium\
+ vendor.samsung.hardware.light-service\
+ android.hardware.sensors@1.0-service\
+ android.hardware.sensors@2.0-service\
+ android.hardware.sensors@2.0-service-mediatek\
+ android.hardware.sensors@2.0-service.multihal
 }
 
 # dolby

@@ -36,11 +36,11 @@
 - Don't use ACDB Magisk Module!
 - Remove any other Dolby module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot
-- Install this module https://www.pling.com/p/1531791/ via Magisk app or KernelSU app or Recovery (unless you are using KernelSU)
+- Install this module https://www.pling.com/p/1531791/ via Magisk app or KernelSU app or Recovery if Magisk installed
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
-- If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt and reboot after
+- If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt (and your home launcher app also) (enable show system apps) and reboot after
 - Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud (except you are enabling music stream mode option) but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
 - Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
 

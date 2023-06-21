@@ -61,7 +61,7 @@ if [ -d $DIR ]; then
   ui_print "- Mount $MIRROR$DIR..."
   mkdir -p $MIRROR$DIR
   if ! mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  ! Failed"
+    ui_print "  Creating symlink instead"
     rm -rf $MIRROR$DIR
     ln -sf $MIRROR/system$DIR $MIRROR
   fi
@@ -74,7 +74,7 @@ if [ -d $DIR ]; then
   ui_print "- Mount $MIRROR$DIR..."
   mkdir -p $MIRROR$DIR
   if ! mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  ! Failed"
+    ui_print "  Creating symlink instead"
     rm -rf $MIRROR$DIR
     ln -sf $MIRROR/system$DIR $MIRROR
   fi
@@ -87,7 +87,7 @@ if [ -d $DIR ]; then
   ui_print "- Mount $MIRROR$DIR..."
   mkdir -p $MIRROR$DIR
   if ! mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  ! Failed"
+    ui_print "  Creating symlink instead"
     rm -rf $MIRROR$DIR
     if [ -d $MIRROR/system$DIR ]; then
       ln -sf $MIRROR/system$DIR $MIRROR
@@ -102,7 +102,7 @@ if [ -d $DIR ]; then
   ui_print "- Mount $MIRROR$DIR..."
   mkdir -p $MIRROR$DIR
   if ! mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  ! Failed"
+    ui_print "  Creating symlink instead"
     rm -rf $MIRROR$DIR
     if [ -d $MIRROR/system_root$DIR ]; then
       ln -sf $MIRROR/system_root$DIR $MIRROR
@@ -117,7 +117,7 @@ if [ -d $DIR ]; then
   ui_print "- Mount $MIRROR$DIR..."
   mkdir -p $MIRROR$DIR
   if ! mount_mirror $DIR $MIRROR$DIR; then
-    ui_print "  ! Failed"
+    ui_print "  Creating symlink instead"
     rm -rf $MIRROR$DIR
     if [ -d $MIRROR/system_root$DIR ]; then
       ln -sf $MIRROR/system_root$DIR $MIRROR
@@ -171,12 +171,12 @@ if [ "$BOOTMODE" == true ]; then
 fi
 }
 remove_sepolicy_rule() {
-rm -rf /metadata/magisk/"$MODID"
-rm -rf /mnt/vendor/persist/magisk/"$MODID"
-rm -rf /persist/magisk/"$MODID"
-rm -rf /data/unencrypted/magisk/"$MODID"
-rm -rf /cache/magisk/"$MODID"
-rm -rf /cust/magisk/"$MODID"
+rm -rf /metadata/magisk/"$MODID"\
+ /mnt/vendor/persist/magisk/"$MODID"\
+ /persist/magisk/"$MODID"\
+ /data/unencrypted/magisk/"$MODID"\
+ /cache/magisk/"$MODID"\
+ /cust/magisk/"$MODID"
 }
 set_read_write() {
 for NAME in $NAMES; do
