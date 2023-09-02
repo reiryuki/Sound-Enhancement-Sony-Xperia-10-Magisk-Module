@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<MediaCodecs>
+    <Include href="media_codecs_somc.xml" />
+    <Include href="media_codecs_dolby_audio.xml" />
+</MediaCodecs>
