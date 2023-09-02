@@ -48,10 +48,16 @@ magisk_setup
 
 # path
 SYSTEM=`realpath $MIRROR/system`
-PRODUCT=`realpath $MIRROR/product`
-VENDOR=`realpath $MIRROR/vendor`
-SYSTEM_EXT=`realpath $MIRROR/system_ext`
 if [ "$BOOTMODE" == true ]; then
+  if [ ! -d $MIRROR/vendor ]; then
+    mount_vendor_to_mirror
+  fi
+  if [ ! -d $MIRROR/product ]; then
+    mount_product_to_mirror
+  fi
+  if [ ! -d $MIRROR/system_ext ]; then
+    mount_system_ext_to_mirror
+  fi
   if [ ! -d $MIRROR/odm ]; then
     mount_odm_to_mirror
   fi
@@ -59,6 +65,9 @@ if [ "$BOOTMODE" == true ]; then
     mount_my_product_to_mirror
   fi
 fi
+VENDOR=`realpath $MIRROR/vendor`
+PRODUCT=`realpath $MIRROR/product`
+SYSTEM_EXT=`realpath $MIRROR/system_ext`
 ODM=`realpath $MIRROR/odm`
 MY_PRODUCT=`realpath $MIRROR/my_product`
 
@@ -115,10 +124,10 @@ if [ "$IS64BIT" == true ]; then
     DOLBY=true
     check_function
     MODNAME2='Sound Enhancement Xperia 10 and Dolby Atmos Xperia 1 II'
-    sed -i "s/$MODNAME/$MODNAME2/g" $MODPATH/module.prop
+    sed -i "s|$MODNAME|$MODNAME2|g" $MODPATH/module.prop
     MODNAME=$MODNAME2
-    sed -i 's/#d//g' $MODPATH/.aml.sh
-    sed -i 's/#d//g' $MODPATH/*.sh
+    sed -i 's|#d||g' $MODPATH/.aml.sh
+    sed -i 's|#d||g' $MODPATH/*.sh
     cp -rf $MODPATH/system_dolby/* $MODPATH/system
   else
     DOLBY=false
@@ -133,6 +142,18 @@ else
   ui_print " "
 fi
 rm -rf $MODPATH/system_dolby
+
+# 32 bit
+if [ ! "`getprop ro.product.cpu.abilist32`" ]; then
+  ui_print "- This ROM doesn't support 32 bit library,"
+  ui_print "  so Sound Enhancement will not be working."
+  if [ $DOLBY == true ]; then
+    ui_print "  but you still can use the Dolby Atmos."
+  fi
+  ui_print " "
+else
+  sed -i 's|#o||g' $MODPATH/.aml.sh
+fi
 
 # sepolicy
 FILE=$MODPATH/sepolicy.rule
@@ -174,14 +195,14 @@ rm -rf $MODPATH/system_post_process
 # cleaning
 ui_print "- Cleaning..."
 if [ $DOLBY == true ]; then
-  PKG=`cat $MODPATH/package-dolby.txt`
+  PKGS=`cat $MODPATH/package-dolby.txt`
   rm -f /data/vendor/dolby/dax_sqlite3.db
 else
-  PKG=`cat $MODPATH/package.txt`
+  PKGS=`cat $MODPATH/package.txt`
 fi
 if [ "$BOOTMODE" == true ]; then
-  for PKGS in $PKG; do
-    RES=`pm uninstall $PKGS 2>/dev/null`
+  for PKG in $PKGS; do
+    RES=`pm uninstall $PKG 2>/dev/null`
   done
 fi
 rm -rf $MODPATH/unused
@@ -192,9 +213,9 @@ FILE=$MODPATH/system/etc/sysconfig/*
 if [ "`grep_prop power.save $OPTIONALS`" == 1 ]; then
   ui_print "- $MODNAME will not be allowed in power save."
   ui_print "  It may save your battery but decreasing $MODNAME performance."
-  for PKGS in $PKG; do
-    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
-    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
+  for PKG in $PKGS; do
+    sed -i "s|<allow-in-power-save package=\"$PKG\"/>||g" $FILE
+    sed -i "s|<allow-in-power-save package=\"$PKG\" />||g" $FILE
   done
   ui_print " "
 fi
@@ -251,7 +272,7 @@ fi
 DIR=/data/adb/modules/$MODID
 FILE=$DIR/module.prop
 if [ "`grep_prop data.cleanup $OPTIONALS`" == 1 ]; then
-  sed -i 's/^data.cleanup=1/data.cleanup=0/' $OPTIONALS
+  sed -i 's|^data.cleanup=1|data.cleanup=0|g' $OPTIONALS
   ui_print "- Cleaning-up $MODID data..."
   cleanup
   ui_print " "
@@ -346,24 +367,53 @@ early_init_mount_dir() {
 if echo $MAGISK_VER | grep -q delta\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
   EIM=true
-  ACTIVEEIMDIR=$MAGISKTMP/mirror/early-mount
-  if [ -L $ACTIVEEIMDIR ]; then
-    EIMDIR=`readlink $ACTIVEEIMDIR`
+  DIR=$MAGISKTMP/mirror/early-mount
+  if "$BOOTMODE"\
+  && [ -L $DIR ]; then
+    EIMDIR=`readlink $DIR`
     [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MAGISKTMP/mirror/$EIMDIR"
+  elif "$BOOTMODE"\
+  && [ "$MAGISK_VER_CODE" -ge 26000 ]; then
+    DIR=$MAGISKTMP/preinit
+    MOUNT=`mount | grep $DIR`
+    BLOCK=`echo $MOUNT | sed 's| on.*||g'`
+    DIR=`mount | sed "s|$MOUNT||g" | grep -m 1 $BLOCK`
+    EIMDIR=`echo $DIR | sed "s|$BLOCK on ||g" | sed 's| type.*||g'`/early-mount.d
   elif ! $ISENCRYPTED; then
     EIMDIR=/data/adb/early-mount.d
   elif [ -d /data/unencrypted ]\
-  && ! grep ' /data ' /proc/mounts | grep -Eq 'dm-|f2fs'; then
+  && ! grep ' /data ' /proc/mounts | grep -q dm-\
+  && grep ' /data ' /proc/mounts | grep -q ext4; then
     EIMDIR=/data/unencrypted/early-mount.d
-  elif grep ' /cache ' /proc/mounts | grep -q 'ext4'; then
+  elif grep ' /cache ' /proc/mounts | grep -q ext4; then
     EIMDIR=/cache/early-mount.d
-  elif grep ' /metadata ' /proc/mounts | grep -q 'ext4'; then
+  elif grep ' /metadata ' /proc/mounts | grep -q ext4; then
     EIMDIR=/metadata/early-mount.d
-  elif grep ' /persist ' /proc/mounts | grep -q 'ext4'; then
+  elif grep ' /persist ' /proc/mounts | grep -q ext4; then
     EIMDIR=/persist/early-mount.d
-  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q 'ext4'; then
+  elif grep ' /mnt/vendor/persist ' /proc/mounts | grep -q ext4; then
     EIMDIR=/mnt/vendor/persist/early-mount.d
-  elif grep ' /cust ' /proc/mounts | grep -Eq 'ext4|f2fs'; then
+  elif grep ' /cust ' /proc/mounts | grep -q ext4; then
+    EIMDIR=/cust/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && [ -d /data/unencrypted ]\
+  && ! grep ' /data ' /proc/mounts | grep -q dm-\
+  && grep ' /data ' /proc/mounts | grep -q f2fs; then
+    EIMDIR=/data/unencrypted/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && grep ' /cache ' /proc/mounts | grep -q f2fs; then
+    EIMDIR=/cache/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && grep ' /metadata ' /proc/mounts | grep -q f2fs; then
+    EIMDIR=/metadata/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && grep ' /persist ' /proc/mounts | grep -q f2fs; then
+    EIMDIR=/persist/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && grep ' /mnt/vendor/persist ' /proc/mounts | grep -q f2fs; then
+    EIMDIR=/mnt/vendor/persist/early-mount.d
+  elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && grep ' /cust ' /proc/mounts | grep -q f2fs; then
     EIMDIR=/cust/early-mount.d
   else
     EIM=false
@@ -374,9 +424,8 @@ if echo $MAGISK_VER | grep -q delta\
     mkdir -p $EIMDIR
     ui_print "- Your early init mount directory is"
     ui_print "  $EIMDIR"
-    ui_print " "
-    ui_print "  Any file stored to this directory will not be deleted even"
-    ui_print "  you have uninstalled this module."
+    ui_print "  Any file stored to this directory will not be deleted"
+    ui_print "  even you have uninstalled this module."
   else
     EIM=false
     ui_print "- Unable to find early init mount directory ${EIMDIR%/early-mount.d}"
@@ -644,9 +693,9 @@ fi
 
 # function
 hide_oat() {
-for APPS in $APP; do
+for APP in $APPS; do
   REPLACE="$REPLACE
-  `find $MODPATH/system -type d -name $APPS | sed "s|$MODPATH||"`/oat"
+  `find $MODPATH/system -type d -name $APP | sed "s|$MODPATH||g"`/oat"
 done
 }
 replace_dir() {
@@ -655,53 +704,51 @@ if [ -d $DIR ]; then
 fi
 }
 hide_app() {
-DIR=$SYSTEM/app/$APPS
-MODDIR=/system/app/$APPS
-replace_dir
-DIR=$SYSTEM/priv-app/$APPS
-MODDIR=/system/priv-app/$APPS
-replace_dir
-DIR=$PRODUCT/app/$APPS
-MODDIR=/system/product/app/$APPS
-replace_dir
-DIR=$PRODUCT/priv-app/$APPS
-MODDIR=/system/product/priv-app/$APPS
-replace_dir
-DIR=$MY_PRODUCT/app/$APPS
-MODDIR=/system/product/app/$APPS
-replace_dir
-DIR=$MY_PRODUCT/priv-app/$APPS
-MODDIR=/system/product/priv-app/$APPS
-replace_dir
-DIR=$PRODUCT/preinstall/$APPS
-MODDIR=/system/product/preinstall/$APPS
-replace_dir
-DIR=$SYSTEM_EXT/app/$APPS
-MODDIR=/system/system_ext/app/$APPS
-replace_dir
-DIR=$SYSTEM_EXT/priv-app/$APPS
-MODDIR=/system/system_ext/priv-app/$APPS
-replace_dir
-DIR=$VENDOR/app/$APPS
-MODDIR=/system/vendor/app/$APPS
-replace_dir
-DIR=$VENDOR/euclid/product/app/$APPS
-MODDIR=/system/vendor/euclid/product/app/$APPS
-replace_dir
+for APP in $APPS; do
+  DIR=$SYSTEM/app/$APP
+  MODDIR=/system/app/$APP
+  replace_dir
+  DIR=$SYSTEM/priv-app/$APP
+  MODDIR=/system/priv-app/$APP
+  replace_dir
+  DIR=$PRODUCT/app/$APP
+  MODDIR=/system/product/app/$APP
+  replace_dir
+  DIR=$PRODUCT/priv-app/$APP
+  MODDIR=/system/product/priv-app/$APP
+  replace_dir
+  DIR=$MY_PRODUCT/app/$APP
+  MODDIR=/system/product/app/$APP
+  replace_dir
+  DIR=$MY_PRODUCT/priv-app/$APP
+  MODDIR=/system/product/priv-app/$APP
+  replace_dir
+  DIR=$PRODUCT/preinstall/$APP
+  MODDIR=/system/product/preinstall/$APP
+  replace_dir
+  DIR=$SYSTEM_EXT/app/$APP
+  MODDIR=/system/system_ext/app/$APP
+  replace_dir
+  DIR=$SYSTEM_EXT/priv-app/$APP
+  MODDIR=/system/system_ext/priv-app/$APP
+  replace_dir
+  DIR=$VENDOR/app/$APP
+  MODDIR=/system/vendor/app/$APP
+  replace_dir
+  DIR=$VENDOR/euclid/product/app/$APP
+  MODDIR=/system/vendor/euclid/product/app/$APP
+  replace_dir
+done
 }
 
 # hide
-APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
+APPS="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
 hide_oat
-APP="MusicFX AudioFX"
-for APPS in $APP; do
-  hide_app
-done
+APPS="MusicFX AudioFX"
+hide_app
 if [ $DOLBY == true ]; then
-  APP="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos AudioEffectCenter"
-  for APPS in $APP; do
-    hide_app
-  done
+  APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos AudioEffectCenter"
+  hide_app
 fi
 
 # function
@@ -715,8 +762,8 @@ if echo "$PROP" | grep -q m; then
 # else
 #   ui_print "- Sound Enhancement post process effect is disabled"
 #   ui_print "  for Dolby Atmos global effect"
-#   sed -i 's/persist.sony.effect.dolby_atmos false/persist.sony.effect.dolby_atmos true/g' $MODPATH/service.sh
-#   sed -i 's/persist.sony.effect.ahc true/persist.sony.effect.ahc false/g' $MODPATH/service.sh
+#   sed -i 's|persist.sony.effect.dolby_atmos false|persist.sony.effect.dolby_atmos true|g' $MODPATH/service.sh
+#   sed -i 's|persist.sony.effect.ahc true|persist.sony.effect.ahc false|g' $MODPATH/service.sh
 #   ui_print " "
 fi
 if echo "$PROP" | grep -q r; then
@@ -837,26 +884,26 @@ else
 fi
 if [ "`grep_prop dolby.deepbass $OPTIONALS`" == 1 ]; then
   ui_print "- Using deeper bass GEQ frequency"
-  sed -i 's/frequency="47"/frequency="0"/g' $FILE
-  sed -i 's/frequency="141"/frequency="47"/g' $FILE
-  sed -i 's/frequency="234"/frequency="141"/g' $FILE
-  sed -i 's/frequency="328"/frequency="234"/g' $FILE
-  sed -i 's/frequency="469"/frequency="328"/g' $FILE
-  sed -i 's/frequency="656"/frequency="469"/g' $FILE
-  sed -i 's/frequency="844"/frequency="656"/g' $FILE
-  sed -i 's/frequency="1031"/frequency="844"/g' $FILE
-  sed -i 's/frequency="1313"/frequency="1031"/g' $FILE
-  sed -i 's/frequency="1688"/frequency="1313"/g' $FILE
-  sed -i 's/frequency="2250"/frequency="1688"/g' $FILE
-  sed -i 's/frequency="3000"/frequency="2250"/g' $FILE
-  sed -i 's/frequency="3750"/frequency="3000"/g' $FILE
-  sed -i 's/frequency="4688"/frequency="3750"/g' $FILE
-  sed -i 's/frequency="5813"/frequency="4688"/g' $FILE
-  sed -i 's/frequency="7125"/frequency="5813"/g' $FILE
-  sed -i 's/frequency="9000"/frequency="7125"/g' $FILE
-  sed -i 's/frequency="11250"/frequency="9000"/g' $FILE
-  sed -i 's/frequency="13875"/frequency="11250"/g' $FILE
-  sed -i 's/frequency="19688"/frequency="13875"/g' $FILE
+  sed -i 's|frequency="47"|frequency="0"|g' $FILE
+  sed -i 's|frequency="141"|frequency="47"|g' $FILE
+  sed -i 's|frequency="234"|frequency="141"|g' $FILE
+  sed -i 's|frequency="328"|frequency="234"|g' $FILE
+  sed -i 's|frequency="469"|frequency="328"|g' $FILE
+  sed -i 's|frequency="656"|frequency="469"|g' $FILE
+  sed -i 's|frequency="844"|frequency="656"|g' $FILE
+  sed -i 's|frequency="1031"|frequency="844"|g' $FILE
+  sed -i 's|frequency="1313"|frequency="1031"|g' $FILE
+  sed -i 's|frequency="1688"|frequency="1313"|g' $FILE
+  sed -i 's|frequency="2250"|frequency="1688"|g' $FILE
+  sed -i 's|frequency="3000"|frequency="2250"|g' $FILE
+  sed -i 's|frequency="3750"|frequency="3000"|g' $FILE
+  sed -i 's|frequency="4688"|frequency="3750"|g' $FILE
+  sed -i 's|frequency="5813"|frequency="4688"|g' $FILE
+  sed -i 's|frequency="7125"|frequency="5813"|g' $FILE
+  sed -i 's|frequency="9000"|frequency="7125"|g' $FILE
+  sed -i 's|frequency="11250"|frequency="9000"|g' $FILE
+  sed -i 's|frequency="13875"|frequency="11250"|g' $FILE
+  sed -i 's|frequency="19688"|frequency="13875"|g' $FILE
 fi
 ui_print " "
 }
@@ -872,61 +919,61 @@ FILE=$VENDOR/lib*/hw/audio.primary.*.so
 if grep -q "$NAME" $FILE ; then
   ui_print "- Detected DSEEHX support in"
   ui_print "$FILE"
-  sed -i 's/ro.somc.dseehx.supported true/ro.somc.dseehx.supported false/g' $MODPATH/service.sh
+  sed -i 's|ro.somc.dseehx.supported true|ro.somc.dseehx.supported false|g' $MODPATH/service.sh
   ui_print " "
 fi
 
 # function
 file_check_system() {
-for NAMES in $NAME; do
+for NAME in $NAMES; do
   if [ "$IS64BIT" == true ]; then
-    FILE=$SYSTEM/lib64/$NAMES
-    FILE2=$SYSTEM_EXT/lib64/$NAMES
+    FILE=$SYSTEM/lib64/$NAME
+    FILE2=$SYSTEM_EXT/lib64/$NAME
     if [ -f $FILE ] || [ -f $FILE2 ]; then
-      ui_print "- Detected $NAMES 64"
+      ui_print "- Detected $NAME 64"
       ui_print " "
-      rm -f $MODPATH/system/lib64/$NAMES
+      rm -f $MODPATH/system/lib64/$NAME
     fi
   fi
-  FILE=$SYSTEM/lib/$NAMES
-  FILE2=$SYSTEM_EXT/lib/$NAMES
+  FILE=$SYSTEM/lib/$NAME
+  FILE2=$SYSTEM_EXT/lib/$NAME
   if [ -f $FILE ] || [ -f $FILE2 ]; then
-    ui_print "- Detected $NAMES"
+    ui_print "- Detected $NAME"
     ui_print " "
-    rm -f $MODPATH/system/lib/$NAMES
+    rm -f $MODPATH/system/lib/$NAME
   fi
 done
 }
 file_check_vendor() {
-for NAMES in $NAME; do
+for NAME in $NAMES; do
   if [ "$IS64BIT" == true ]; then
-    FILE=$VENDOR/lib64/$NAMES
-    FILE2=$ODM/lib64/$NAMES
+    FILE=$VENDOR/lib64/$NAME
+    FILE2=$ODM/lib64/$NAME
     if [ -f $FILE ] || [ -f $FILE2 ]; then
-      ui_print "- Detected $NAMES 64"
+      ui_print "- Detected $NAME 64"
       ui_print " "
-      rm -f $MODPATH/system/vendor/lib64/$NAMES
+      rm -f $MODPATH/system/vendor/lib64/$NAME
     fi
   fi
-  FILE=$VENDOR/lib/$NAMES
-  FILE2=$ODM/lib/$NAMES
+  FILE=$VENDOR/lib/$NAME
+  FILE2=$ODM/lib/$NAME
   if [ -f $FILE ] || [ -f $FILE2 ]; then
-    ui_print "- Detected $NAMES"
+    ui_print "- Detected $NAME"
     ui_print " "
-    rm -f $MODPATH/system/vendor/lib/$NAMES
+    rm -f $MODPATH/system/vendor/lib/$NAME
   fi
 done
 }
 
 # check
-NAME=libaudio-resampler.so
+NAMES=libaudio-resampler.so
 file_check_system
-NAME="libAlacSwDec.so libOmxAlacDec.so
-      libOmxAlacDecSw.so libstagefright_soft_somcalacdec.so"
+NAMES="libAlacSwDec.so libOmxAlacDec.so
+       libOmxAlacDecSw.so libstagefright_soft_somcalacdec.so"
 file_check_vendor
-NAME="libstagefrightdolby.so
-      libstagefright_soft_ddpdec.so
-      libstagefright_soft_ac4dec.so"
+NAMES="libstagefrightdolby.so
+       libstagefright_soft_ddpdec.so
+       libstagefright_soft_ac4dec.so"
 if [ $DOLBY == true ]; then
   file_check_vendor
 fi
@@ -946,7 +993,7 @@ if [ "`grep_prop disable.raw $OPTIONALS`" == 0 ]; then
   ui_print "- Not disables Ultra Low Latency playback (RAW)"
   ui_print " "
 else
-  sed -i 's/#u//g' $FILE
+  sed -i 's|#u||g' $FILE
 fi
 
 # vendor_overlay

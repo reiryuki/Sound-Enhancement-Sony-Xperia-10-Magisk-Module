@@ -239,6 +239,8 @@ if [ "$MODAEX" ]; then
   fi
 fi
 
+# function
+sound_enhancement() {
 # store
 LIB=libsonysweffect.so
 LIBHW=libsonypostprocbundle.so
@@ -250,7 +252,6 @@ UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
 UUIDPROXY=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
 RMVS="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID
       $UUIDHW $UUIDPROXY libeffectproxy.so"
-
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
@@ -261,7 +262,6 @@ if [ "$MODAEC" ]; then
   sed -i "/^    uuid $UUIDPROXY/a\    libhw {\n      library $LIBNAMEHW\n      uuid $UUIDHW\n    }" $MODAEC
   sed -i "/^    uuid $UUIDPROXY/a\    libsw {\n      library $LIBNAME\n      uuid $UUID\n    }" $MODAEC
 fi
-
 # patch audio effects xml
 if [ "$MODAEX" ]; then
   remove_xml
@@ -273,26 +273,7 @@ if [ "$MODAEX" ]; then
   sed -i "/<effects>/a\            <libsw library=\"$LIBNAME\" uuid=\"$UUID\"\/>" $MODAEX
   sed -i "/<effects>/a\        <effectProxy name=\"$NAME\" library=\"proxy\" uuid=\"$UUIDPROXY\">" $MODAEX
 fi
-
-# patch audio policy
-if [ "$MODAP" ]; then
-  sed -i 's|COMPRESS_OFFLOAD|NONE|g' $MODAP
-  sed -i 's|,compressed_offload||g' $MODAP
-#u  sed -i 's|RAW|NONE|g' $MODAP
-#u  sed -i 's|,raw||g' $MODAP
-fi
-
-# patch audio policy xml
-if [ "$MODAPX" ]; then
-  if ! grep -q 'format="AUDIO_FORMAT_ALAC"' $MODAPX; then
-        sed -i '/AUDIO_FORMAT_MP3/i\
-                    <profile name="" format="AUDIO_FORMAT_ALAC"\
-                             samplingRates="8000,11025,12000,16000,22050,24000,32000,44100,48000,64000,88200,96000,128000,176400,192000"\
-                             channelMasks="AUDIO_CHANNEL_OUT_MONO,AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_2POINT1,AUDIO_CHANNEL_OUT_QUAD,AUDIO_CHANNEL_OUT_PENTA,AUDIO_CHANNEL_OUT_5POINT1,AUDIO_CHANNEL_OUT_6POINT1,AUDIO_CHANNEL_OUT_7POINT1"/>' $MODAPX
-  fi
-fi
-
-# function
+}
 dolby_atmos() {
 # store
 LIB=libswdap.so
@@ -346,8 +327,32 @@ if [ "$MODAEX" ]; then
 fi
 }
 
-# dolby atmos
+# effect
+#osound_enhancement
 #ddolby_atmos
+
+# patch audio policy
+if [ "$MODAP" ]; then
+  sed -i 's|COMPRESS_OFFLOAD|NONE|g' $MODAP
+  sed -i 's|,compressed_offload||g' $MODAP
+#u  sed -i 's|RAW|NONE|g' $MODAP
+#u  sed -i 's|,raw||g' $MODAP
+fi
+
+# patch audio policy xml
+if [ "$MODAPX" ]; then
+  if ! grep -q 'format="AUDIO_FORMAT_ALAC"' $MODAPX; then
+        sed -i '/AUDIO_FORMAT_MP3/i\
+                    <profile name="" format="AUDIO_FORMAT_ALAC"\
+                             samplingRates="8000,11025,12000,16000,22050,24000,32000,44100,48000,64000,88200,96000,128000,176400,192000"\
+                             channelMasks="AUDIO_CHANNEL_OUT_MONO,AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_2POINT1,AUDIO_CHANNEL_OUT_QUAD,AUDIO_CHANNEL_OUT_PENTA,AUDIO_CHANNEL_OUT_5POINT1,AUDIO_CHANNEL_OUT_6POINT1,AUDIO_CHANNEL_OUT_7POINT1"/>' $MODAPX
+  fi
+fi
+
+
+
+
+
 
 
 

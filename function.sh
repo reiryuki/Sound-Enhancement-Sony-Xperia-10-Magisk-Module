@@ -106,6 +106,10 @@ if [ -d $DIR ]; then
     rm -rf $MIRROR$DIR
     if [ -d $MIRROR/system_root$DIR ]; then
       ln -sf $MIRROR/system_root$DIR $MIRROR
+    elif [ -d $MIRROR/vendor$DIR ]; then
+      ln -sf $MIRROR/vendor$DIR $MIRROR
+    elif [ -d $MIRROR/system/vendor$DIR ]; then
+      ln -sf $MIRROR/system/vendor$DIR $MIRROR
     fi
   fi
   ui_print " "
@@ -187,7 +191,7 @@ done
 }
 remount_rw() {
 DIR=/dev/block/bootdevice/by-name
-NAMES="/vendor$SLOT /cust$SLOT /system$SLOT /system_ext$SLOT"
+NAMES="/vendor$SLOT /cust /system$SLOT /system_ext$SLOT"
 set_read_write
 DIR=/dev/block/mapper
 set_read_write

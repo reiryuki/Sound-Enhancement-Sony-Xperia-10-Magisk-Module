@@ -2,7 +2,7 @@
 
 ## DISCLAIMER
 - Dolby & Sony apps and blobs are owned by Dolby™ and Sony™.
-- The MIT license specified here is for the Magisk Module, not for Dolby nor Sony apps and blobs.
+- The MIT license specified here is for the Magisk Module only, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
 - Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
@@ -20,11 +20,12 @@
 
 ## Requirements
 - Sound Enhancement:
+  - 32 bit architecture or 64 bit architecture with 32 bit library support
   - Android 9 and up
   - Magisk or KernelSU installed
 
 - Dolby Atmos:
-  - Architecture 64 bit
+  - 64 bit architecture
   - Android 9 and up
   - Magisk or KernelSU installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
@@ -34,13 +35,15 @@
 ## Installation Guide & Download Link
 - Recommended to use Magisk Delta if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
 - Don't use ACDB Magisk Module!
-- Remove any other Dolby module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
+- Remove any other else Dolby Magisk module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot
+- If you have Dolby in-built in your ROM, then you need to activate data.cleanup=1 at the first time install (READ Optionals bellow!)
 - Install this module https://www.pling.com/p/1531791/ via Magisk app or KernelSU app or Recovery if Magisk installed
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Disable the "No active profiles" notification and ignore it it's nothing
 - Reboot
 - If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt (and your home launcher app also) (enable show system apps) and reboot after
+- If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot after
 - Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud (except you are enabling music stream mode option) but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
 - Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
 
@@ -59,7 +62,7 @@
 - Android 11 DotOS ROM
 - Android 12 AncientOS ROM
 - Android 12.1 Nusantara ROM
-- Android 13 AOSP ROM
+- Android 13 AOSP ROM & CrDroid ROM
 
 ## Credits and contributors
 - https://t.me/viperatmos
@@ -67,7 +70,7 @@
 - You can contribute ideas about this Magisk Module here: https://t.me/androidappsportdevelopment
 
 ## Thanks for Donations
-- This Magisk Module is always will be free but you can however show us that you are care by making a donations:
+This Magisk Module is always will be free but you can however show us that you are care by making a donations:
 - https://ko-fi.com/reiryuki
 - https://www.paypal.me/reiryuki
 - https://t.me/androidryukimodsdiscussions/2619

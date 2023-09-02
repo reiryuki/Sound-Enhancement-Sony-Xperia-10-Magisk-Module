@@ -23,6 +23,7 @@ resetprop vendor.audio.dolby.ds2.hardbypass false
 }
 
 # property
+resetprop ro.audio.ignore_effects false
 #ddolby_prop
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
@@ -50,11 +51,20 @@ resetprop vendor.audio.use.sw.alac.decoder true
 
 # special file
 FILE=/dev/sony_hweffect_params
+FILE2=/dev/msm_hweffects
+FILE3=/dev/mtk_snd_soc_sounddev
 if [ ! -e $FILE ]; then
-  mknod $FILE c 10 51
-  chmod 0660 $FILE
-  chown 1000.1005 $FILE
-  chcon u:object_r:audio_hweffect_device:s0 $FILE
+  if [ -e $FILE2 ]; then
+    MM=`stat -c "%t %T" $FILE2 | { read major minor; printf "%d %d\n" 0x$major 0x$minor; }`
+  elif [ -e $FILE3 ]; then
+    MM=`stat -c "%t %T" $FILE3 | { read major minor; printf "%d %d\n" 0x$major 0x$minor; }`
+  fi
+  if [ "$MM" ]; then
+    mknod $FILE c $MM
+    chmod 0660 $FILE
+    chown 1000.1005 $FILE
+    chcon u:object_r:audio_hweffect_device:s0 $FILE
+  fi
 fi
 
 # restart
@@ -182,7 +192,7 @@ if [ "$API" -ge 33 ]; then
   appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
 fi
 PKGOPS=`appops get $PKG`
-UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's/    userId=//'`
+UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
 if [ "$UID" -gt 9999 ]; then
   UIDOPS=`appops get --uid "$UID"`
 fi
@@ -194,7 +204,7 @@ if pm list packages | grep $PKG; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's/    userId=//'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
   if [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -207,7 +217,7 @@ if pm list packages | grep $PKG; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's/    userId=//'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
   if [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -216,7 +226,7 @@ fi
 # function
 stop_log() {
 FILE=$MODPATH/debug.log
-SIZE=`du $FILE | sed "s|$FILE||"`
+SIZE=`du $FILE | sed "s|$FILE||g"`
 if [ "$LOG" != stopped ] && [ "$SIZE" -gt 50 ]; then
   exec 2>/dev/null
   LOG=stopped
