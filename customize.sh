@@ -9,6 +9,22 @@ if [ "$BOOTMODE" != true ]; then
   ui_print " "
 fi
 
+# optionals
+OPTIONALS=/sdcard/optionals.prop
+if [ ! -f $OPTIONALS ]; then
+  touch $OPTIONALS
+fi
+
+# debug
+if [ "`grep_prop debug.log $OPTIONALS`" == 1 ]; then
+  ui_print "- The install log will contain detailed information"
+  set -x
+  ui_print " "
+fi
+
+# var
+LIST32BIT=`getprop ro.product.cpu.abilist32`
+
 # run
 . $MODPATH/function.sh
 
@@ -71,48 +87,39 @@ SYSTEM_EXT=`realpath $MIRROR/system_ext`
 ODM=`realpath $MIRROR/odm`
 MY_PRODUCT=`realpath $MIRROR/my_product`
 
-# optionals
-OPTIONALS=/sdcard/optionals.prop
-if [ ! -f $OPTIONALS ]; then
-  touch $OPTIONALS
-fi
-
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
 # function
-check_function() {
-if [ "$IS64BIT" == true ]; then
-  LISTS=`strings $MODPATH/system_dolby/vendor/lib64/$DES | grep ^lib | grep .so`
-  FILE=`for LIST in $LISTS; do echo $SYSTEM/lib64/$LIST; done`
-  ui_print "- Checking"
-  ui_print "$NAME"
-  ui_print "  function at"
-  ui_print "$FILE"
-  ui_print "  Please wait..."
-  if ! grep -q $NAME $FILE; then
-    ui_print "  Using new $LIB 64"
-    mv -f $MODPATH/system_support/lib64/$LIB $MODPATH/system/lib64
-  fi
-  ui_print " "
-fi
-LISTS=`strings $MODPATH/system_dolby/vendor/lib/$DES | grep ^lib | grep .so`
-FILE=`for LIST in $LISTS; do echo $SYSTEM/lib/$LIST; done`
+run_check_function() {
+LISTS=`strings $MODPATH/system_dolby/vendor$DIR/$DES | grep ^lib | grep .so`
+FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
 ui_print "- Checking"
 ui_print "$NAME"
 ui_print "  function at"
 ui_print "$FILE"
 ui_print "  Please wait..."
 if ! grep -q $NAME $FILE; then
-  ui_print "  Using new $LIB"
-  mv -f $MODPATH/system_support/lib/$LIB $MODPATH/system/lib
+  ui_print "  Function not found."
+  ui_print "  Using new $DIR$LIB"
+  mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
 fi
 ui_print " "
+}
+check_function() {
+if [ "$IS64BIT" == true ]; then
+  DIR=/lib64
+  run_check_function
+fi
+if [ "$LIST32BIT" ]; then
+  DIR=/lib
+  run_check_function
+fi
 }
 
 # bit
 if [ "$IS64BIT" == true ]; then
-  ui_print "- 64 bit"
+  ui_print "- 64 bit architecture"
   ui_print " "
   if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
     ui_print "- Activating Dolby Atmos..."
@@ -144,15 +151,22 @@ fi
 rm -rf $MODPATH/system_dolby
 
 # 32 bit
-if [ ! "`getprop ro.product.cpu.abilist32`" ]; then
-  ui_print "- This ROM doesn't support 32 bit library,"
-  ui_print "  so Sound Enhancement will not be working."
-  if [ $DOLBY == true ]; then
-    ui_print "  but you still can use the Dolby Atmos."
+if [ "$IS64BIT" == true ]; then
+  if [ "$LIST32BIT" ]; then
+    ui_print "- 32 bit library support"
+    sed -i 's|#o||g' $MODPATH/.aml.sh
+  else
+    ui_print "- This ROM doesn't support 32 bit library,"
+    ui_print "  so Sound Enhancement will not be working."
+    if [ $DOLBY == true ]; then
+      ui_print "  but you can still use the Dolby Atmos."
+      rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
+       $MODPATH/system*/lib $MODPATH/system*/vendor/lib
+    else
+      abort
+    fi
   fi
   ui_print " "
-else
-  sed -i 's|#o||g' $MODPATH/.aml.sh
 fi
 
 # sepolicy
@@ -367,15 +381,14 @@ early_init_mount_dir() {
 if echo $MAGISK_VER | grep -q delta\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
   EIM=true
-  DIR=$MAGISKTMP/mirror/early-mount
   if "$BOOTMODE"\
-  && [ -L $DIR ]; then
-    EIMDIR=`readlink $DIR`
-    [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MAGISKTMP/mirror/$EIMDIR"
+  && [ -L $MIRROR/early-mount ]; then
+    EIMDIR=`readlink $MIRROR/early-mount`
+    [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MIRROR/$EIMDIR"
   elif "$BOOTMODE"\
-  && [ "$MAGISK_VER_CODE" -ge 26000 ]; then
-    DIR=$MAGISKTMP/preinit
-    MOUNT=`mount | grep $DIR`
+  && [ "$MAGISK_VER_CODE" -ge 26000 ]\
+  && [ -d $MAGISKTMP/preinit ]; then
+    MOUNT=`mount | grep $MAGISKTMP/preinit`
     BLOCK=`echo $MOUNT | sed 's| on.*||g'`
     DIR=`mount | sed "s|$MOUNT||g" | grep -m 1 $BLOCK`
     EIMDIR=`echo $DIR | sed "s|$BLOCK on ||g" | sed 's| type.*||g'`/early-mount.d
@@ -435,63 +448,45 @@ else
   EIM=false
 fi
 }
-find_file() {
+run_find_file() {
 for NAME in $NAMES; do
-  if [ "$IS64BIT" == true ]; then
-    FILE=`find $SYSTEM/lib64 $VENDOR/lib64 $SYSTEM_EXT/lib64 -type f -name $NAME`
-    if [ ! "$FILE" ]; then
-      if [ "`grep_prop install.hwlib $OPTIONALS`" == 1 ]; then
-        ui_print "- Installing $NAME 64 directly to"
-        ui_print "$SYSTEM/lib64..."
-        cp $MODPATH/system_support/lib64/$NAME $SYSTEM/lib64
-        DES=$SYSTEM/lib64/$NAME
-        if [ -f $MODPATH/system_support/lib64/$NAME ]\
-        && [ ! -f $DES ]; then
-          ui_print "  ! Installation failed."
-          ui_print "    Using $NAME 64 systemlessly."
-          cp -f $MODPATH/system_support/lib64/$NAME $MODPATH/system/lib64
-        fi
-      else
-        ui_print "! $NAME 64 not found."
-        ui_print "  Using $NAME 64 systemlessly."
-        cp -f $MODPATH/system_support/lib64/$NAME $MODPATH/system/lib64
-        ui_print "  If this module still doesn't work, type:"
-        ui_print "  install.hwlib=1"
-        ui_print "  inside $OPTIONALS"
-        ui_print "  and reinstall this module"
-        ui_print "  to install $NAME 64 directly to this ROM."
-        ui_print "  DwYOR!"
-      fi
-      ui_print " "
-    fi
-  fi
-  FILE=`find $SYSTEM/lib $VENDOR/lib $SYSTEM_EXT/lib -type f -name $NAME`
+  FILE=`find $SYSTEM$DIR $SYSTEM_EXT$DIR -type f -name $NAME`
   if [ ! "$FILE" ]; then
     if [ "`grep_prop install.hwlib $OPTIONALS`" == 1 ]; then
-      ui_print "- Installing $NAME directly to"
-      ui_print "$SYSTEM/lib..."
-      cp $MODPATH/system_support/lib/$NAME $SYSTEM/lib
-      DES=$SYSTEM/lib/$NAME
-      if [ -f $MODPATH/system_support/lib/$NAME ]\
+      ui_print "- Installing $DIR/$NAME directly to"
+      ui_print "$SYSTEM..."
+      cp $MODPATH/system_support$DIR/$NAME $SYSTEM$DIR
+      DES=$SYSTEM$DIR/$NAME
+      if [ -f $MODPATH/system_support$DIR/$NAME ]\
       && [ ! -f $DES ]; then
         ui_print "  ! Installation failed."
-        ui_print "    Using $NAME systemlessly."
-        cp -f $MODPATH/system_support/lib/$NAME $MODPATH/system/lib
+        ui_print "    Using $DIR/$NAME systemlessly."
+        cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
       fi
     else
-      ui_print "! $NAME not found."
-      ui_print "  Using $NAME systemlessly."
-      cp -f $MODPATH/system_support/lib/$NAME $MODPATH/system/lib
+      ui_print "! $DIR/$NAME not found."
+      ui_print "  Using $DIR/$NAME systemlessly."
+      cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
       ui_print "  If this module still doesn't work, type:"
       ui_print "  install.hwlib=1"
       ui_print "  inside $OPTIONALS"
       ui_print "  and reinstall this module"
-      ui_print "  to install $NAME directly to this ROM."
+      ui_print "  to install $DIR/$NAME directly to this ROM."
       ui_print "  DwYOR!"
     fi
     ui_print " "
   fi
 done
+}
+find_file() {
+if [ "$IS64BIT" == true ]; then
+  DIR=/lib64
+  run_find_file
+fi
+if [ "$LIST32BIT" ]; then
+  DIR=/lib
+  run_find_file
+fi
 sed -i 's|^install.hwlib=1|install.hwlib=0|g' $OPTIONALS
 }
 patch_manifest_eim() {
@@ -925,57 +920,64 @@ fi
 
 # function
 file_check_system() {
-for NAME in $NAMES; do
-  if [ "$IS64BIT" == true ]; then
-    FILE=$SYSTEM/lib64/$NAME
-    FILE2=$SYSTEM_EXT/lib64/$NAME
-    if [ -f $FILE ] || [ -f $FILE2 ]; then
-      ui_print "- Detected $NAME 64"
-      ui_print " "
-      rm -f $MODPATH/system/lib64/$NAME
-    fi
-  fi
-  FILE=$SYSTEM/lib/$NAME
-  FILE2=$SYSTEM_EXT/lib/$NAME
-  if [ -f $FILE ] || [ -f $FILE2 ]; then
-    ui_print "- Detected $NAME"
+for FILE in $FILES; do
+  DES=$SYSTEM$FILE
+  DES2=$SYSTEM_EXT$FILE
+  if [ -f $DES ] || [ -f $DES2 ]; then
+    ui_print "- Detected $FILE"
     ui_print " "
-    rm -f $MODPATH/system/lib/$NAME
+    rm -f $MODPATH/system$FILE
   fi
 done
 }
 file_check_vendor() {
-for NAME in $NAMES; do
-  if [ "$IS64BIT" == true ]; then
-    FILE=$VENDOR/lib64/$NAME
-    FILE2=$ODM/lib64/$NAME
-    if [ -f $FILE ] || [ -f $FILE2 ]; then
-      ui_print "- Detected $NAME 64"
-      ui_print " "
-      rm -f $MODPATH/system/vendor/lib64/$NAME
-    fi
-  fi
-  FILE=$VENDOR/lib/$NAME
-  FILE2=$ODM/lib/$NAME
-  if [ -f $FILE ] || [ -f $FILE2 ]; then
-    ui_print "- Detected $NAME"
+for FILE in $FILES; do
+  DES=$VENDOR$FILE
+  DES2=$ODM$FILE
+  if [ -f $DES ] || [ -f $DES2 ]; then
+    ui_print "- Detected $FILE"
     ui_print " "
-    rm -f $MODPATH/system/vendor/lib/$NAME
+    rm -f $MODPATH/system/vendor$FILE
   fi
 done
 }
 
 # check
-NAMES=libaudio-resampler.so
-file_check_system
-NAMES="libAlacSwDec.so libOmxAlacDec.so
-       libOmxAlacDecSw.so libstagefright_soft_somcalacdec.so"
-file_check_vendor
-NAMES="libstagefrightdolby.so
-       libstagefright_soft_ddpdec.so
-       libstagefright_soft_ac4dec.so"
-if [ $DOLBY == true ]; then
+if "$IS64BIT"; then
+  FILES=/lib64/libaudio-resampler.so
+  file_check_system
+fi
+if [ "LIST32BIT" ]; then
+  FILES=/lib/libaudio-resampler.so
+  file_check_system
+fi
+if "$IS64BIT"; then
+  FILES="/lib64/libAlacSwDec.so
+         /lib64/libOmxAlacDec.so
+         /lib64/libOmxAlacDecSw.so
+         /lib64/libstagefright_soft_somcalacdec.so"
   file_check_vendor
+fi
+if [ "LIST32BIT" ]; then
+  FILES="/lib/libAlacSwDec.so
+         /lib/libOmxAlacDec.so
+         /lib/libOmxAlacDecSw.so
+         /lib/libstagefright_soft_somcalacdec.so"
+  file_check_vendor
+fi
+if [ $DOLBY == true ]; then
+  if "$IS64BIT"; then
+    FILES="/lib64/libstagefrightdolby.so
+           /lib64/libstagefright_soft_ddpdec.so
+           /lib64/libstagefright_soft_ac4dec.so"
+    file_check_vendor
+  fi
+  if [ "LIST32BIT" ]; then
+    FILES="/lib/libstagefrightdolby.so
+           /lib/libstagefright_soft_ddpdec.so
+           /lib/libstagefright_soft_ac4dec.so"
+    file_check_vendor
+  fi
 fi
 
 # audio rotation

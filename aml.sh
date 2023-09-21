@@ -1,13 +1,19 @@
 [ -z $MODPATH ] && MODPATH=${0%/*}
 
 # destination
-LIBPATH="\/vendor\/lib\/soundfx"
 MODAEC=`find $MODPATH -type f -name *audio*effects*.conf`
 MODAEX=`find $MODPATH -type f -name *audio*effects*.xml`
 MODAP=`find $MODPATH -type f -name *policy*.conf -o -name *policy*.xml`
 MODAPX=`find $MODPATH -type f -name *policy*.xml`
 
 # function
+libpath() {
+if [ -f /vendor/lib/soundfx/$LIB ]; then
+  LIBPATH="\/vendor\/lib\/soundfx"
+else
+  LIBPATH="\/vendor\/lib64\/soundfx"
+fi
+}
 remove_conf() {
 for RMV in $RMVS; do
   sed -i "s|$RMV|removed|g" $MODAEC
@@ -16,6 +22,10 @@ sed -i 's|path /vendor/lib/soundfx/removed||g' $MODAEC
 sed -i 's|path /system/lib/soundfx/removed||g' $MODAEC
 sed -i 's|path /vendor/lib/removed||g' $MODAEC
 sed -i 's|path /system/lib/removed||g' $MODAEC
+sed -i 's|path /vendor/lib64/soundfx/removed||g' $MODAEC
+sed -i 's|path /system/lib64/soundfx/removed||g' $MODAEC
+sed -i 's|path /vendor/lib64/removed||g' $MODAEC
+sed -i 's|path /system/lib64/removed||g' $MODAEC
 sed -i 's|library removed||g' $MODAEC
 sed -i 's|uuid removed||g' $MODAEC
 sed -i "/^        removed {/ {;N s/        removed {\n        }//}" $MODAEC
@@ -252,6 +262,7 @@ UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
 UUIDPROXY=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
 RMVS="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID
       $UUIDHW $UUIDPROXY libeffectproxy.so"
+libpath
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
@@ -283,6 +294,7 @@ NAME=dap
 NAME=dap_mod
 UUID=9d4921da-8225-4f29-aefa-39537a04bcaa
 RMVS="$LIB $LIBNAME $NAME $UUID"
+libpath
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
