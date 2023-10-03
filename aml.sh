@@ -1,17 +1,18 @@
-[ -z $MODPATH ] && MODPATH=${0%/*}
+[ ! "$MODPATH" ] && MODPATH=${0%/*}
 
 # destination
+[ ! "$libdir" ] && libdir=/vendor
 MODAEC=`find $MODPATH -type f -name *audio*effects*.conf`
 MODAEX=`find $MODPATH -type f -name *audio*effects*.xml`
 MODAP=`find $MODPATH -type f -name *policy*.conf -o -name *policy*.xml`
 MODAPX=`find $MODPATH -type f -name *policy*.xml`
 
 # function
-libpath() {
-if [ -f /vendor/lib/soundfx/$LIB ]; then
-  LIBPATH="\/vendor\/lib\/soundfx"
+archdir() {
+if [ -f $libdir/lib/soundfx/$LIB ]; then
+  ARCHDIR=/lib
 else
-  LIBPATH="\/vendor\/lib64\/soundfx"
+  ARCHDIR=/lib64
 fi
 }
 remove_conf() {
@@ -262,13 +263,13 @@ UUIDHW=f9ed8ae0-1b9c-11e4-8900-0002a5d5c51b
 UUIDPROXY=af8da7e0-2ca1-11e3-b71d-0002a5d5c51b
 RMVS="$LIB $LIBHW $LIBNAME $LIBNAMEHW $NAME $UUID
       $UUIDHW $UUIDPROXY libeffectproxy.so"
-libpath
+archdir
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
-  sed -i "/^libraries {/a\  proxy {\n    path $LIBPATH\/libeffectproxy.so\n  }" $MODAEC
-  sed -i "/^libraries {/a\  $LIBNAMEHW {\n    path $LIBPATH\/$LIBHW\n  }" $MODAEC
-  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
+  sed -i "/^libraries {/a\  proxy {\n    path \\$libdir\\$ARCHDIR\/soundfx\/libeffectproxy.so\n  }" $MODAEC
+  sed -i "/^libraries {/a\  $LIBNAMEHW {\n    path \\$libdir\\$ARCHDIR\/soundfx\/$LIBHW\n  }" $MODAEC
+  sed -i "/^libraries {/a\  $LIBNAME {\n    path \\$libdir\\$ARCHDIR\/soundfx\/$LIB\n  }" $MODAEC
   sed -i "/^effects {/a\  $NAME {\n    library proxy\n    uuid $UUIDPROXY\n  }" $MODAEC
   sed -i "/^    uuid $UUIDPROXY/a\    libhw {\n      library $LIBNAMEHW\n      uuid $UUIDHW\n    }" $MODAEC
   sed -i "/^    uuid $UUIDPROXY/a\    libsw {\n      library $LIBNAME\n      uuid $UUID\n    }" $MODAEC
@@ -294,11 +295,11 @@ NAME=dap
 NAME=dap_mod
 UUID=9d4921da-8225-4f29-aefa-39537a04bcaa
 RMVS="$LIB $LIBNAME $NAME $UUID"
-libpath
+archdir
 # patch audio effects conf
 if [ "$MODAEC" ]; then
   remove_conf
-  sed -i "/^libraries {/a\  $LIBNAME {\n    path $LIBPATH\/$LIB\n  }" $MODAEC
+  sed -i "/^libraries {/a\  $LIBNAME {\n    path \\$libdir\\$ARCHDIR\/soundfx\/$LIB\n  }" $MODAEC
   sed -i "/^effects {/a\  $NAME {\n    library $LIBNAME\n    uuid $UUID\n  }" $MODAEC
 #m  sed -i "/^    music {/a\        $NAME {\n        }" $MODAEC
 #r  sed -i "/^    ring {/a\        $NAME {\n        }" $MODAEC

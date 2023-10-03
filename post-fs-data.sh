@@ -87,13 +87,6 @@ chcon u:object_r:vendor_data_file:s0 $DIR
 # directory
 #ddolby_data
 
-# cleaning
-FILE=$MODPATH/cleaner.sh
-if [ -f $FILE ]; then
-  . $FILE
-  rm -f $FILE
-fi
-
 # permission
 chmod 0751 $MODPATH/system/bin
 FILES=`find $MODPATH/system/bin -type f`
@@ -200,7 +193,12 @@ fi
 # manifest
 #ddolby_manifest
 
-
+# cleaning
+FILE=$MODPATH/cleaner.sh
+if [ -f $FILE ]; then
+  . $FILE
+  mv -f $FILE $FILE\.txt
+fi
 
 
 

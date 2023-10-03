@@ -197,15 +197,6 @@ if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   ui_print " "
 fi
 
-# stream mode
-PROP=`grep_prop stream.mode $OPTIONALS`
-if [ "$MOD_UI" != true ] && echo "$PROP" | grep -q m; then
-  ui_print "- Using Sound Enhancement post process music stream..."
-  cp -rf $MODPATH/system_post_process/* $MODPATH/system
-  ui_print " "
-fi
-rm -rf $MODPATH/system_post_process
-
 # cleaning
 ui_print "- Cleaning..."
 if [ $DOLBY == true ]; then
@@ -753,6 +744,9 @@ PROP=`grep_prop stream.mode $OPTIONALS`
 if echo "$PROP" | grep -q m; then
   ui_print "- Activating music stream..."
   sed -i 's|#m||g' $FILE
+  ui_print "  Using Sound Enhancement post process type soundfx"
+  ui_print "  instead of global type soundfx"
+  sed -i 's|ro.sony.global.effect true|ro.sony.global.effect false|g' $MODPATH/service.sh
   ui_print " "
 # else
 #   ui_print "- Sound Enhancement post process effect is disabled"

@@ -8,7 +8,7 @@
 - Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Global type soundfx
 - The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality
-- Doesn't support ACDB module because using effect proxy
+- Doesn't support ACDB Magisk Module because using effect proxy
 
 ## Sources
 - https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys
@@ -44,8 +44,7 @@
 - Reboot
 - If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt (and your home launcher app also) (enable show system apps) and reboot after
 - If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot after
-- Sound Enhancement FX now can be applied with apps that doesn't use external EQ option like YouTube and SoundCloud (except you are enabling music stream mode option) but you need to play music with an app that uses external EQ option first after device boot like Xperia Music, YouTube Music, & Spotify
-- Force-stopping Sound Enhancement app (not the Sound Enhancement launcher app) causes Sound Enhancement FX failure
+- Play a music with any app that uses external EQ like Xperia Music, YouTube Music, or Spotify first, otherwise Sound Enhancement will not work with player that doesn't use external EQ like YouTube and SoundCloud (this trick can't be working if you are activating music stream mode optional)
 
 ## Optionals & Troubleshootings
 - https://t.me/androidryukimodsdiscussions/29836

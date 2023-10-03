@@ -34,9 +34,18 @@ allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untru
 
 # dir
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_file dir search
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } system_file dir write
 
 # unix_stream_socket
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } zygote unix_stream_socket getopt
+
+# capability
+allow system_app system_app capability { dac_read_search dac_override sys_resource }
+allow platform_app platform_app capability { dac_read_search dac_override sys_resource }
+allow priv_app priv_app capability { dac_read_search dac_override sys_resource }
+allow untrusted_app_29 untrusted_app_29 capability { dac_read_search dac_override sys_resource }
+allow untrusted_app_27 untrusted_app_27 capability { dac_read_search dac_override sys_resource }
+allow untrusted_app untrusted_app capability { dac_read_search dac_override sys_resource }
 
 # additional
 allow { hal_audio_default mtk_hal_audio audioserver } system_suspend_hwservice hwservice_manager find
@@ -60,9 +69,9 @@ allow { hal_audio_default mtk_hal_audio audioserver } { system_app priv_app plat
 allow hal_audio_default hal_audio_default capability2 block_suspend
 allow mtk_hal_audio mtk_hal_audio capability2 block_suspend
 allow audioserver audioserver capability2 block_suspend
-allow hal_audio_default hal_audio_default capability sys_nice
-allow mtk_hal_audio mtk_hal_audio capability sys_nice
-allow audioserver audioserver capability sys_nice
+allow hal_audio_default hal_audio_default capability { sys_nice dac_override sys_admin dac_read_search }
+allow mtk_hal_audio mtk_hal_audio capability { sys_nice dac_override sys_admin dac_read_search }
+allow audioserver audioserver capability { sys_nice dac_override sys_admin dac_read_search }
 
 
 ## Sound Enhancement

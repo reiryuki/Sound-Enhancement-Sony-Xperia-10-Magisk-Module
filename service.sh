@@ -25,6 +25,7 @@ resetprop vendor.audio.dolby.ds2.hardbypass false
 # property
 resetprop ro.audio.ignore_effects false
 #ddolby_prop
+resetprop ro.sony.global.effect true
 resetprop ro.semc.product.model I4113
 resetprop ro.semc.ms_type_id PM-1181-BV
 resetprop ro.semc.version.fs GENERIC
@@ -36,6 +37,10 @@ resetprop vendor.audio.sony.effect.use.proxy true
 resetprop vendor.audio.sony.effect.custom.sp_bundle 0x122
 resetprop vendor.audio.sony.effect.custom.caplus_hs 0x298
 resetprop vendor.audio.sony.effect.custom.caplus_sp 0x2B8
+#resetprop vendor.audio.sony.effect.wait_ef_off_ms 500
+#resetprop vendor.audio.sony.effect.wait_conv_on_ms 500
+#resetprop vendor.audio.sony.effect.cpu_min_freq_little 600
+#resetprop vendor.audio.sony.effect.cpu_min_freq_big 600
 resetprop ro.somc.dseehx.supported true
 resetprop -p --delete persist.sony.effect.ahc
 resetprop -n persist.sony.effect.ahc true
