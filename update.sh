@@ -9,6 +9,7 @@ if [ "$ARCH" ]; then
         if [ -f /system/lib64/$NAMES ]; then
           cp -f /system/lib64/$NAMES $DES
         else
+          cp -f /system/apex/*/lib64/$NAMES $DES
           cp -f /apex/*/lib64/$NAMES $DES
         fi
       done
@@ -22,6 +23,7 @@ if [ "$ARCH" ]; then
         if [ -f /system/lib/$NAMES ]; then
           cp -f /system/lib/$NAMES $DES
         else
+          cp -f /system/apex/*/lib/$NAMES $DES
           cp -f /apex/*/lib/$NAMES $DES
         fi
       done
@@ -46,7 +48,6 @@ elif [ "$PROP" == mips64 ]; then
 elif [ "$PROP" == mips ]; then
   ARCH=mips
 fi
-
 PKG=com.sonyericsson.soundenhancement
 NAME="libhscomp_jni.so libhscomp.so"
 copy_library

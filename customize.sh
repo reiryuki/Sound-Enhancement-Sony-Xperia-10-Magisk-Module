@@ -154,7 +154,7 @@ rm -rf $MODPATH/system_dolby
 if [ "$IS64BIT" == true ]; then
   if [ "$LIST32BIT" ]; then
     ui_print "- 32 bit library support"
-    sed -i 's|#o||g' $MODPATH/.aml.sh
+    sed -i 's|#h||g' $MODPATH/.aml.sh
   else
     ui_print "- This ROM doesn't support 32 bit library,"
     ui_print "  so Sound Enhancement will not be working."
@@ -740,94 +740,98 @@ fi
 # function
 stream_mode() {
 FILE=$MODPATH/.aml.sh
-PROP=`grep_prop stream.mode $OPTIONALS`
 if echo "$PROP" | grep -q m; then
-  ui_print "- Activating music stream..."
+  ui_print "- Activating Dolby Atmos music stream..."
   sed -i 's|#m||g' $FILE
-  ui_print "  Using Sound Enhancement post process type soundfx"
-  ui_print "  instead of global type soundfx"
-  sed -i 's|ro.sony.global.effect true|ro.sony.global.effect false|g' $MODPATH/service.sh
   ui_print " "
-# else
-#   ui_print "- Sound Enhancement post process effect is disabled"
-#   ui_print "  for Dolby Atmos global effect"
-#   sed -i 's|persist.sony.effect.dolby_atmos false|persist.sony.effect.dolby_atmos true|g' $MODPATH/service.sh
-#   sed -i 's|persist.sony.effect.ahc true|persist.sony.effect.ahc false|g' $MODPATH/service.sh
-#   ui_print " "
 fi
 if echo "$PROP" | grep -q r; then
-  ui_print "- Activating ring stream..."
+  ui_print "- Activating Dolby Atmos ring stream..."
   sed -i 's|#r||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q a; then
-  ui_print "- Activating alarm stream..."
+  ui_print "- Activating Dolby Atmos alarm stream..."
   sed -i 's|#a||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q s; then
-  ui_print "- Activating system stream..."
+  ui_print "- Activating Dolby Atmos system stream..."
   sed -i 's|#s||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q v; then
-  ui_print "- Activating voice_call stream..."
+  ui_print "- Activating Dolby Atmos voice_call stream..."
   sed -i 's|#v||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q n; then
-  ui_print "- Activating notification stream..."
+  ui_print "- Activating Dolby Atmos notification stream..."
   sed -i 's|#n||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q b; then
-  ui_print "- Activating bluetooth_sco stream..."
+  ui_print "- Activating Dolby Atmos bluetooth_sco stream..."
   sed -i 's|#b||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q f; then
-  ui_print "- Activating dtmf stream..."
+  ui_print "- Activating Dolby Atmos dtmf stream..."
   sed -i 's|#f||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q e; then
-  ui_print "- Activating enforced_audible stream..."
+  ui_print "- Activating Dolby Atmos enforced_audible stream..."
   sed -i 's|#e||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q y; then
-  ui_print "- Activating accessibility stream..."
+  ui_print "- Activating Dolby Atmos accessibility stream..."
   sed -i 's|#y||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q t; then
-  ui_print "- Activating tts stream..."
+  ui_print "- Activating Dolby Atmos tts stream..."
   sed -i 's|#t||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q i; then
-  ui_print "- Activating assistant stream..."
+  ui_print "- Activating Dolby Atmos assistant stream..."
   sed -i 's|#i||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q c; then
-  ui_print "- Activating call_assistant stream..."
+  ui_print "- Activating Dolby Atmos call_assistant stream..."
   sed -i 's|#c||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q p; then
-  ui_print "- Activating patch stream..."
+  ui_print "- Activating Dolby Atmos patch stream..."
   sed -i 's|#p||g' $FILE
   ui_print " "
 fi
 if echo "$PROP" | grep -q g; then
-  ui_print "- Activating rerouting stream..."
+  ui_print "- Activating Dolby Atmos rerouting stream..."
   sed -i 's|#g||g' $FILE
   ui_print " "
 fi
 }
 
 # stream mode
+FILE=$MODPATH/service.sh
+PROP=`grep_prop stream.mode $OPTIONALS`
+if echo "$PROP" | grep -q m; then
+  ui_print "- Using Sound Enhancement post process type soundfx"
+  ui_print "  instead of global type soundfx"
+  sed -i 's|ro.sony.global.effect true|ro.sony.global.effect false|g' $FILE
+  ui_print " "
+# else
+#   ui_print "- Sound Enhancement post process effect is disabled"
+#   ui_print "  for Dolby Atmos global effect"
+#   sed -i 's|persist.sony.effect.dolby_atmos false|persist.sony.effect.dolby_atmos true|g' $FILE
+#   sed -i 's|persist.sony.effect.ahc true|persist.sony.effect.ahc false|g' $FILE
+#   ui_print " "
+fi
 if [ $DOLBY == true ]; then
   stream_mode
 fi

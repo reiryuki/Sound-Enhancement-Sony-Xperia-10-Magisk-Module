@@ -341,7 +341,7 @@ fi
 }
 
 # effect
-#osound_enhancement
+#hsound_enhancement
 #ddolby_atmos
 
 # patch audio policy
