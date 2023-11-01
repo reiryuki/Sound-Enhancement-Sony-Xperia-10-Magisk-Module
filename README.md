@@ -23,7 +23,6 @@
   - 32 bit architecture or 64 bit architecture with 32 bit library support
   - Android 9 and up
   - Magisk or KernelSU installed
-
 - Dolby Atmos:
   - 64 bit architecture
   - Android 9 and up
