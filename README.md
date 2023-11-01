@@ -28,6 +28,7 @@
   - 64 bit architecture
   - Android 9 and up
   - Magisk or KernelSU installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
+  - ROM doesn't use vendor.dolby.media.c2@1.0-service
 
 ## WARNING!!!
 - Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta.
@@ -47,10 +48,10 @@
 - Play a music with any app that uses external EQ like Xperia Music, YouTube Music, or Spotify first, otherwise Sound Enhancement will not work with player that doesn't use external EQ like YouTube and SoundCloud (this trick can't be working if you are activating music stream mode optional)
 
 ## Optionals & Troubleshootings
-- https://t.me/androidryukimodsdiscussions/29836
-- https://t.me/androidryukimodsdiscussions/60861
 - https://t.me/androidryukimodsdiscussions/25187
-- https://t.me/androidryukimodsdiscussions/26764
+- Global: https://t.me/androidryukimodsdiscussions/29836
+- Global: https://t.me/androidryukimodsdiscussions/60861
+- Stream: https://t.me/androidryukimodsdiscussions/26764
 
 ## Support & Bug Report
 - https://t.me/androidryukimodsdiscussions/2618
