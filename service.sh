@@ -53,7 +53,6 @@ resetprop -p --delete persist.sony.enable.dolby_auto_mode
 resetprop -n persist.sony.enable.dolby_auto_mode true
 resetprop -p --delete persist.sony.effect.clear_audio_plus
 resetprop -n persist.sony.effect.clear_audio_plus true
-resetprop vendor.audio.use.sw.alac.decoder true
 
 # special file
 FILE=/dev/sony_hweffect_params

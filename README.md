@@ -7,7 +7,7 @@
 ## Descriptions
 - Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Global type soundfx
-- The Dolby Atmos changes ro.product.manufacturer system property, may breaks your platform apps and features functionality
+- The Dolby Atmos changes/spoofs ro.product.manufacturer to Sony which may break some system apps and features functionality
 - Doesn't support ACDB Magisk Module because using effect proxy
 
 ## Sources

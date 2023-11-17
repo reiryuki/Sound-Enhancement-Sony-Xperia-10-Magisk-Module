@@ -273,6 +273,11 @@ if [ $DOLBY == true ]; then
   if grep -q 'and Dolby Atmos' $FILE; then
     conflict
   fi
+  NAMES=DolbyAtmosSpatialSound
+  FILE=/data/adb/modules/$NAMES/module.prop
+  if grep -q 'Dolby Atmos and' $FILE; then
+    conflict
+  fi
 fi
 
 # function
@@ -332,15 +337,21 @@ fi
 backup() {
 if [ ! -f $FILE.orig ] && [ ! -f $FILE.bak ]; then
   cp -af $FILE $FILE.orig
+  if [ -f $FILE.orig ]; then
+    ui_print "- Created"
+    ui_print "$FILE.orig"
+  else
+    ui_print "- Failed to create"
+    ui_print "$FILE.orig"
+    ui_print "  Probably Read-Only or no space left"
+  fi
+  ui_print " "
 fi
 }
 patch_manifest() {
 if [ -f $FILE ]; then
   backup
   if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
-    ui_print "- Created"
-    ui_print "$FILE.orig"
-    ui_print " "
     ui_print "- Patching"
     ui_print "$FILE"
     ui_print "  directly..."
@@ -348,17 +359,8 @@ if [ -f $FILE ]; then
     <hal format="hidl">\
         <name>vendor.dolby.hardware.dms</name>\
         <transport>hwbinder</transport>\
-        <version>1.0</version>\
-        <interface>\
-            <name>IDms</name>\
-            <instance>default</instance>\
-        </interface>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $FILE
-    ui_print " "
-  else
-    ui_print "- Failed to create"
-    ui_print "$FILE.orig"
     ui_print " "
   fi
 fi
@@ -367,18 +369,11 @@ patch_hwservice() {
 if [ -f $FILE ]; then
   backup
   if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
-    ui_print "- Created"
-    ui_print "$FILE.orig"
-    ui_print " "
     ui_print "- Patching"
     ui_print "$FILE"
     ui_print "  directly..."
     sed -i '1i\
 vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
-    ui_print " "
-  else
-    ui_print "- Failed to create"
-    ui_print "$FILE.orig"
     ui_print " "
   fi
 fi
@@ -513,11 +508,6 @@ if [ $EIM == true ]; then
     <hal format="hidl">\
         <name>vendor.dolby.hardware.dms</name>\
         <transport>hwbinder</transport>\
-        <version>1.0</version>\
-        <interface>\
-            <name>IDms</name>\
-            <instance>default</instance>\
-        </interface>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $DES
       ui_print " "
@@ -969,27 +959,27 @@ if "$IS64BIT"; then
          /lib64/libOmxAlacDec.so
          /lib64/libOmxAlacDecSw.so
          /lib64/libstagefright_soft_somcalacdec.so"
-  file_check_vendor
+#  file_check_vendor
 fi
 if [ "$LIST32BIT" ]; then
   FILES="/lib/libAlacSwDec.so
          /lib/libOmxAlacDec.so
          /lib/libOmxAlacDecSw.so
          /lib/libstagefright_soft_somcalacdec.so"
-  file_check_vendor
+#  file_check_vendor
 fi
 if [ $DOLBY == true ]; then
   if "$IS64BIT"; then
     FILES="/lib64/libstagefrightdolby.so
            /lib64/libstagefright_soft_ddpdec.so
            /lib64/libstagefright_soft_ac4dec.so"
-    file_check_vendor
+#    file_check_vendor
   fi
   if [ "$LIST32BIT" ]; then
     FILES="/lib/libstagefrightdolby.so
            /lib/libstagefright_soft_ddpdec.so
            /lib/libstagefright_soft_ac4dec.so"
-    file_check_vendor
+#    file_check_vendor
   fi
 fi
 
@@ -998,7 +988,8 @@ FILE=$MODPATH/service.sh
 if [ "`grep_prop audio.rotation $OPTIONALS`" == 1 ]; then
   ui_print "- Enables ro.audio.monitorRotation=true"
   sed -i '1i\
-resetprop ro.audio.monitorRotation true' $FILE
+resetprop ro.audio.monitorRotation true\
+resetprop ro.audio.monitorWindowRotation true' $FILE
   ui_print " "
 fi
 
