@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Included>
-    <Decoders>
-        <MediaCodec name="OMX.somc.alac.decoder" type="audio/alac" >
-            <Limit name="channel-count" max="6" />
-            <Limit name="sample-rate" ranges="8000,16000,22050,24000,32000,44100,48000,88200,96000,176400,192000" />
-        </MediaCodec>
-    </Decoders>
-</Included>
