@@ -90,16 +90,6 @@ SYSTEM_EXT=`realpath $MIRROR/system_ext`
 ODM=`realpath $MIRROR/odm`
 MY_PRODUCT=`realpath $MIRROR/my_product`
 
-# check
-FILE=/bin/hw/vendor.dolby.media.c2@1.0-service
-if [ -f /system$FILE ] || [ -f /vendor$FILE ]\
-|| [ -f /odm$FILE ] || [ -f /system_ext$FILE ]\
-|| [ -f /product$FILE ]; then
-  ui_print "! This module is conflicting with your"
-  ui_print "  $FILE"
-  abort
-fi
-
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
@@ -180,6 +170,19 @@ if [ "$IS64BIT" == true ]; then
     fi
   fi
   ui_print " "
+fi
+
+# check
+if [ $DOLBY == true ]; then
+  FILE=/bin/hw/vendor.dolby.media.c2@1.0-service
+  if [ -f /system$FILE ] || [ -f /vendor$FILE ]\
+  || [ -f /odm$FILE ] || [ -f /system_ext$FILE ]\
+  || [ -f /product$FILE ]; then
+    ui_print "! Dolby Atmos maybe conflicting with your"
+    ui_print "  $FILE"
+    ui_print "  causes your internal storage mount failed"
+    ui_print " "
+  fi
 fi
 
 # sepolicy
