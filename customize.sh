@@ -49,7 +49,7 @@ fi
 ui_print " "
 
 # sdk
-NUM=28
+NUM=29
 if [ "$API" -lt $NUM ]; then
   ui_print "! Unsupported SDK $API. You have to upgrade your"
   ui_print "  Android version at least SDK API $NUM to use this module."
@@ -170,6 +170,8 @@ if [ "$IS64BIT" == true ]; then
     fi
   fi
   ui_print " "
+else
+  sed -i 's|#h||g' $MODPATH/.aml.sh
 fi
 
 # check
@@ -922,6 +924,45 @@ if grep -q "$NAME" $FILE ; then
   ui_print "$FILE"
   sed -i 's|ro.somc.dseehx.supported true|ro.somc.dseehx.supported false|g' $MODPATH/service.sh
   ui_print " "
+fi
+
+# function
+rename_file() {
+ui_print "- Renaming"
+ui_print "$FILE"
+ui_print "  to"
+ui_print "$MODFILE"
+mv -f $FILE $MODFILE
+ui_print " "
+}
+change_name() {
+if grep -q $NAME $FILE; then
+  ui_print "- Changing $NAME to $NAME2 at"
+  ui_print "$FILE"
+  ui_print "  Please wait..."
+  sed -i "s|$NAME|$NAME2|g" $FILE
+  ui_print " "
+fi
+}
+
+# mod
+if [ $DOLBY == true ]\
+&& [ "`grep_prop dolby.mod $OPTIONALS`" != 0 ]; then
+  NAME=libswdap.so
+  NAME2=libswdlb.so
+  if [ "$IS64BIT" == true ]; then
+    FILE=$MODPATH/system/vendor/lib64/soundfx/$NAME
+    MODFILE=$MODPATH/system/vendor/lib64/soundfx/$NAME2
+    rename_file
+  fi
+  if [ "$LIST32BIT" ]; then
+    FILE=$MODPATH/system/vendor/lib/soundfx/$NAME
+    MODFILE=$MODPATH/system/vendor/lib/soundfx/$NAME2
+    rename_file
+  fi
+  FILE="$MODPATH/system/vendor/lib*/soundfx/$NAME2
+$MODPATH/.aml.sh"
+  change_name
 fi
 
 # function

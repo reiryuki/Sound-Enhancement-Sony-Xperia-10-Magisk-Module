@@ -21,11 +21,11 @@
 ## Requirements
 - Sound Enhancement:
   - 32 bit architecture or 64 bit architecture with 32 bit library support
-  - Android 9 and up
+  - Android 10 and up
   - Magisk or KernelSU installed
 - Dolby Atmos:
   - 64 bit architecture
-  - Android 9 and up
+  - Android 10 and up
   - Magisk or KernelSU installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
 ## WARNING!!!
