@@ -963,6 +963,17 @@ if [ $DOLBY == true ]\
   FILE="$MODPATH/system/vendor/lib*/soundfx/$NAME2
 $MODPATH/.aml.sh"
   change_name
+  NAME=libdlbdsservice.so
+  NAME2=libdapdsservice.so
+  if [ "$IS64BIT" == true ]; then
+    FILE=$MODPATH/system/vendor/lib64/$NAME
+    MODFILE=$MODPATH/system/vendor/lib64/$NAME2
+    rename_file
+  fi
+  FILE="$MODPATH/system/vendor/lib*/$NAME2
+$MODPATH/system/vendor/lib*/vendor.dolby.hardware.dms@*-impl.so
+$MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service"
+  change_name
 fi
 
 # function

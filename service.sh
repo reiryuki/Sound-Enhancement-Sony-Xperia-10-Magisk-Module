@@ -97,14 +97,19 @@ for NAME in $NAMES; do
 done
 # mount
 DIR=/odm/bin/hw
-FILE=$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
-if [ "`realpath $DIR`" == $DIR ] && [ -f $FILE ]; then
-  if [ -L $MODPATH/system/vendor ]\
-  && [ -d $MODPATH/vendor ]; then
-    mount -o bind $MODPATH/vendor/$FILE $FILE
-  else
-    mount -o bind $MODPATH/system/vendor/$FILE $FILE
-  fi
+FILES="$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
+       $DIR/vendor.dolby.hardware.dms@2.0-service"
+if [ "`realpath $DIR`" == $DIR ]; then
+  for FILE in $FILES; do
+    if [ -f $FILE ]; then
+      if [ -L $MODPATH/system/vendor ]\
+      && [ -d $MODPATH/vendor ]; then
+        mount -o bind $MODPATH/vendor$FILE $FILE
+      else
+        mount -o bind $MODPATH/system/vendor$FILE $FILE
+      fi
+    fi
+  done
 fi
 # run
 SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
