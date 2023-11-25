@@ -143,7 +143,7 @@ if [ "$IS64BIT" == true ]; then
     DOLBY=false
   fi
 else
-  ui_print "- 32 bit"
+  ui_print "- 32 bit architecture"
   rm -rf `find $MODPATH -type d -name *64*`
   DOLBY=false
   if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
@@ -384,14 +384,14 @@ vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
 fi
 }
 early_init_mount_dir() {
-if echo $MAGISK_VER | grep -q delta\
+if echo $MAGISK_VER | grep -Eq 'delta|Delta|kitsune'\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
   EIM=true
-  if "$BOOTMODE"\
+  if [ "$BOOTMODE" == true ]\
   && [ -L $MIRROR/early-mount ]; then
     EIMDIR=`readlink $MIRROR/early-mount`
     [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MIRROR/$EIMDIR"
-  elif "$BOOTMODE"\
+  elif [ "$BOOTMODE" == true ]\
   && [ "$MAGISK_VER_CODE" -ge 26000 ]\
   && [ -d $MAGISKTMP/preinit ]; then
     MOUNT=`mount | grep $MAGISKTMP/preinit`
@@ -637,7 +637,7 @@ if [ $DOLBY == true ]; then
       ui_print "- Using systemless manifest.xml patch."
       ui_print "  On some ROMs, it causes bugs or even makes bootloop"
       ui_print "  because not allowed to restart hwservicemanager."
-      ui_print "  You can fix this by using Magisk Delta."
+      ui_print "  You can fix this by using Magisk Delta/Kitsune Mask."
       ui_print " "
     fi
     FILES="$MAGISKTMP/mirror/*/etc/vintf/manifest.xml
@@ -971,8 +971,8 @@ $MODPATH/.aml.sh"
     rename_file
   fi
   FILE="$MODPATH/system/vendor/lib*/$NAME2
-$MODPATH/system/vendor/lib*/vendor.dolby.hardware.dms@*-impl.so
-$MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service"
+$MODPATH/system/vendor/lib*/vendor.dolby*.hardware.dms*@*-impl.so
+$MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service"
   change_name
 fi
 
@@ -1001,7 +1001,7 @@ done
 }
 
 # check
-if "$IS64BIT"; then
+if [ "$IS64BIT" == true ]; then
   FILES=/lib64/libaudio-resampler.so
   file_check_system
 fi
@@ -1009,7 +1009,7 @@ if [ "$LIST32BIT" ]; then
   FILES=/lib/libaudio-resampler.so
   file_check_system
 fi
-if "$IS64BIT"; then
+if [ "$IS64BIT" == true ]; then
   FILES="/lib64/libAlacSwDec.so
          /lib64/libOmxAlacDec.so
          /lib64/libOmxAlacDecSw.so
@@ -1024,7 +1024,7 @@ if [ "$LIST32BIT" ]; then
 #  file_check_vendor
 fi
 if [ $DOLBY == true ]; then
-  if "$IS64BIT"; then
+  if [ "$IS64BIT" == true ]; then
     FILES="/lib64/libstagefrightdolby.so
            /lib64/libstagefright_soft_ddpdec.so
            /lib64/libstagefright_soft_ac4dec.so"

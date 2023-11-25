@@ -26,13 +26,13 @@
 - Dolby Atmos:
   - 64 bit architecture
   - Android 10 and up
-  - Magisk or KernelSU installed (Recommended to use Magisk Delta for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
+  - Magisk or KernelSU installed (Recommended to use Magisk Delta/Kitsune Mask for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
 ## WARNING!!!
-- Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta.
+- Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta/Kitsune Mask.
 
 ## Installation Guide & Download Link
-- Recommended to use Magisk Delta if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
+- Recommended to use Magisk Delta/Kitsune Mask if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
 - Don't use ACDB Magisk Module!
 - Remove any other else Dolby Magisk module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot

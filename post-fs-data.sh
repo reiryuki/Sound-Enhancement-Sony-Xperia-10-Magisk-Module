@@ -116,8 +116,8 @@ if [ -L $MODPATH/system/vendor ]\
   chcon -R u:object_r:vendor_file:s0 $MODPATH/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/odm/etc
-  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
-  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@2.0-service
+#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
 else
   chmod 0751 $MODPATH/system/vendor/bin
   chmod 0751 $MODPATH/system/vendor/bin/hw
@@ -132,8 +132,8 @@ else
   chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
-  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby.hardware.dms@*-service
-  #dchcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@2.0-service
+#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
 fi
 
 # function
@@ -160,7 +160,7 @@ fi
 }
 
 # mount
-if ! grep delta /data/adb/magisk/util_functions.sh; then
+if ! grep -E 'delta|Delta|kitsune' /data/adb/magisk/util_functions.sh; then
   mount_helper
 fi
 
