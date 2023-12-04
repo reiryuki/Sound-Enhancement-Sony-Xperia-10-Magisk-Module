@@ -5,7 +5,7 @@
 - The MIT license specified here is for the Magisk Module only, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
-- Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
+- Equalizers soundfx ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Global type soundfx
 - Dolby Atmos changes/spoofs ro.product.manufacturer to Sony which may break some system apps and features functionality
 - Dolby Atmos conflicted with vendor.dolby.hardware.dms@2.0-service
