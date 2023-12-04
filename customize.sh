@@ -1023,7 +1023,7 @@ $MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service"
   change_name
   NAME=39537a04bcaa
   NAME2=5f7279756b69
-  FILE=$MODPATH/.aml.sh
+  FILE="$MODPATH/.aml.sh $MODPATH/acdb*.conf"
   change_name
   NAME=452799218539
 #  change_name
