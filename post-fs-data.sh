@@ -179,6 +179,7 @@ if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep 1.0; then
         <transport>hwbinder</transport>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $MODPATH$M
+    umount $M
     mount -o bind $MODPATH$M $M
     killall hwservicemanager
   fi
@@ -187,6 +188,30 @@ fi
 
 # manifest
 #ddolby_manifest
+
+# function
+mount_bind_file() {
+if [ -f $MODFILE ]; then
+  for FILE in $FILES; do
+    umount $FILE
+    mount -o bind $MODFILE $FILE
+  done
+fi
+}
+mount_bind_to_apex() {
+for NAME in $NAMES; do
+  MODFILE=$MODPATH/system/lib64/$NAME
+  FILES=`find /apex /system/apex -type f -path *lib64/$NAME`
+  mount_bind_file
+  MODFILE=$MODPATH/system/lib/$NAME
+  FILES=`find /apex /system/apex -type f -path *lib/$NAME`
+  mount_bind_file
+done
+}
+
+# mount
+NAMES=libhidlbase.so
+mount_bind_to_apex
 
 # cleaning
 FILE=$MODPATH/cleaner.sh

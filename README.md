@@ -1,4 +1,4 @@
-# Sound Enhancement Sony Xperia 10 Magisk Module
+# Sound Enhancement & Dolby Atmos Sony Xperia 10 Magisk Module
 
 ## DISCLAIMER
 - Dolby & Sony apps and blobs are owned by Dolby™ and Sony™.
@@ -7,8 +7,9 @@
 ## Descriptions
 - Equalizer soundfx ported from Sony Xperia 10 (I4113) and Sony Xperia 1 II (XQ-AT51) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Global type soundfx
-- The Dolby Atmos changes/spoofs ro.product.manufacturer to Sony which may break some system apps and features functionality
-- Doesn't support ACDB Magisk Module because using effect proxy
+- Dolby Atmos changes/spoofs ro.product.manufacturer to Sony which may break some system apps and features functionality
+- Dolby Atmos conflicted with vendor.dolby.hardware.dms@2.0-service
+- Sound Enhancement doesn't support ACDB Magisk Module because using effect proxy
 
 ## Sources
 - https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys

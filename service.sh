@@ -15,6 +15,7 @@ resetprop ro.odm.build.SomcCntrl.Brand Sony
 resetprop ro.odm.build.SomcCntrl.Model Pdx203
 resetprop ro.odm.build.SomcCntrl.device pdx203
 resetprop ro.product.manufacturer Sony
+resetprop ro.dolby.mod_uuid false
 resetprop vendor.audio.dolby.ds2.enabled false
 resetprop vendor.audio.dolby.ds2.hardbypass false
 #resetprop -p --delete persist.vendor.dolby.loglevel
@@ -88,7 +89,7 @@ fi
 # function
 dolby_service() {
 # stop
-NAMES="dms-hal-1-0 dms-hal-2-0 dms-v36-hal-2-0"
+NAMES="dms-hal-1-0 dms-hal-2-0"
 for NAME in $NAMES; do
   if [ "`getprop init.svc.$NAME`" == running ]\
   || [ "`getprop init.svc.$NAME`" == restarting ]; then
@@ -97,8 +98,7 @@ for NAME in $NAMES; do
 done
 # mount
 DIR=/odm/bin/hw
-FILES="$DIR/vendor.dolby_v3_6.hardware.dms360@2.0-service
-       $DIR/vendor.dolby.hardware.dms@2.0-service"
+FILES=$DIR/vendor.dolby.hardware.dms@2.0-service
 if [ "`realpath $DIR`" == $DIR ]; then
   for FILE in $FILES; do
     if [ -f $FILE ]; then

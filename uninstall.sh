@@ -38,13 +38,17 @@ remove_dolby() {
 [ -z $BOOTMODE ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
 [ -z $BOOTMODE ] && ps -A 2>/dev/null | grep zygote | grep -qv grep && BOOTMODE=true
 [ -z $BOOTMODE ] && BOOTMODE=false
-# system_root
-if [ -z $SYSTEM_ROOT ]; then
+# sar
+if [ -z $SYSTEM_ROOT ]\
+&& [ -z $SYSTEM_AS_ROOT ]; then
   if [ -f /system/init -o -L /system/init ]; then
-    SYSTEM_ROOT=true
+    SYSTEM_AS_ROOT=true
   else
-    SYSTEM_ROOT=false
-    grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && SYSTEM_ROOT=true
+    if grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts; then
+      SYSTEM_AS_ROOT=true
+    else
+      SYSTEM_AS_ROOT=false
+    fi
   fi
 fi
 # slot
