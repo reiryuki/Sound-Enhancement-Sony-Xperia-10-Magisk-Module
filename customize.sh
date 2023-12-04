@@ -133,7 +133,7 @@ if [ "$IS64BIT" == true ]; then
     LIB=libhidlbase.so
     DOLBY=true
     check_function
-    MODNAME2='Sound Enhancement Xperia 10 and Dolby Atmos Xperia 1 II'
+    MODNAME2='Sound Enhancement and Dolby Atmos Sony Xperia 10'
     sed -i "s|$MODNAME|$MODNAME2|g" $MODPATH/module.prop
     MODNAME=$MODNAME2
     sed -i 's|#d||g' $MODPATH/.aml.sh
@@ -760,7 +760,13 @@ hide_oat
 APPS="MusicFX AudioFX"
 hide_app
 if [ $DOLBY == true ]; then
-  APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner DolbyAtmos AudioEffectCenter"
+  if [ "`grep_prop dolby.mod $OPTIONALS`" == 0 ]; then
+    APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner 
+          DolbyAtmos AudioEffectCenter"
+  else
+    APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner 
+          DolbyAtmos"
+  fi
   hide_app
 fi
 
