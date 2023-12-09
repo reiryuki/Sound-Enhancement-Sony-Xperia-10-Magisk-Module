@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <permissions>
     <privapp-permissions package="com.sonyericsson.soundenhancement">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
         <permission name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
         <permission name="android.permission.READ_SEARCH_INDEXABLES"/>
         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
