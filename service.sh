@@ -10,40 +10,40 @@ API=`getprop ro.build.version.sdk`
 
 # function
 dolby_prop() {
-resetprop ro.odm.build.SomcCntrl.manufacture Sony
-resetprop ro.odm.build.SomcCntrl.Brand Sony
-resetprop ro.odm.build.SomcCntrl.Model Pdx203
-resetprop ro.odm.build.SomcCntrl.device pdx203
-resetprop ro.product.manufacturer Sony
-resetprop ro.dolby.mod_uuid false
-resetprop vendor.audio.dolby.ds2.enabled false
-resetprop vendor.audio.dolby.ds2.hardbypass false
+resetprop -n ro.odm.build.SomcCntrl.manufacture Sony
+resetprop -n ro.odm.build.SomcCntrl.Brand Sony
+resetprop -n ro.odm.build.SomcCntrl.Model Pdx203
+resetprop -n ro.odm.build.SomcCntrl.device pdx203
+resetprop -n ro.product.manufacturer Sony
+resetprop -n ro.dolby.mod_uuid false
+resetprop -n vendor.audio.dolby.ds2.enabled false
+resetprop -n vendor.audio.dolby.ds2.hardbypass false
 #resetprop -p --delete persist.vendor.dolby.loglevel
 #resetprop -n persist.vendor.dolby.loglevel 0
-#resetprop vendor.dolby.dap.param.tee false
-#resetprop vendor.dolby.mi.metadata.log false
+#resetprop -n vendor.dolby.dap.param.tee false
+#resetprop -n vendor.dolby.mi.metadata.log false
 }
 
 # property
-resetprop ro.audio.ignore_effects false
+resetprop -n ro.audio.ignore_effects false
 #ddolby_prop
-resetprop ro.sony.global.effect true
-resetprop ro.semc.product.model I4113
-resetprop ro.semc.ms_type_id PM-1181-BV
-resetprop ro.semc.version.fs GENERIC
-resetprop ro.semc.product.name "Xperia 10"
-resetprop ro.semc.product.device I41
-#resetprop ro.boot.hardware.sku I4113
-resetprop audio.sony.effect.use.proxy true
-resetprop vendor.audio.sony.effect.use.proxy true
-resetprop vendor.audio.sony.effect.custom.sp_bundle 0x122
-resetprop vendor.audio.sony.effect.custom.caplus_hs 0x298
-resetprop vendor.audio.sony.effect.custom.caplus_sp 0x2B8
-#resetprop vendor.audio.sony.effect.wait_ef_off_ms 500
-#resetprop vendor.audio.sony.effect.wait_conv_on_ms 500
-#resetprop vendor.audio.sony.effect.cpu_min_freq_little 600
-#resetprop vendor.audio.sony.effect.cpu_min_freq_big 600
-resetprop ro.somc.dseehx.supported true
+resetprop -n ro.sony.global.effect true
+resetprop -n ro.semc.product.model I4113
+resetprop -n ro.semc.ms_type_id PM-1181-BV
+resetprop -n ro.semc.version.fs GENERIC
+resetprop -n ro.semc.product.name "Xperia 10"
+resetprop -n ro.semc.product.device I41
+#resetprop -n ro.boot.hardware.sku I4113
+resetprop -n audio.sony.effect.use.proxy true
+resetprop -n vendor.audio.sony.effect.use.proxy true
+resetprop -n vendor.audio.sony.effect.custom.sp_bundle 0x122
+resetprop -n vendor.audio.sony.effect.custom.caplus_hs 0x298
+resetprop -n vendor.audio.sony.effect.custom.caplus_sp 0x2B8
+#resetprop -n vendor.audio.sony.effect.wait_ef_off_ms 500
+#resetprop -n vendor.audio.sony.effect.wait_conv_on_ms 500
+#resetprop -n vendor.audio.sony.effect.cpu_min_freq_little 600
+#resetprop -n vendor.audio.sony.effect.cpu_min_freq_big 600
+resetprop -n ro.somc.dseehx.supported true
 resetprop -p --delete persist.sony.effect.ahc
 resetprop -n persist.sony.effect.ahc true
 resetprop -p --delete persist.sony.mono_speaker
@@ -133,6 +133,7 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.sensors@2.0-service-mediatek\
  android.hardware.sensors@2.0-service.multihal\
  android.hardware.health-service.qti
+#skillall vendor.qti.hardware.display.allocator-service
 }
 
 # dolby
@@ -188,6 +189,13 @@ fi
 until [ "`getprop sys.boot_completed`" == "1" ]; do
   sleep 10
 done
+
+# settings
+settings put global 5pole_accessory_detect 2
+settings put global dnc_num_modes 3
+settings put global dnc_mode_name_0 Bus/Train
+settings put global dnc_mode_name_1 Airplane
+settings put global dnc_mode_name_2 Office
 
 # grant
 PKG=com.sonyericsson.soundenhancement
