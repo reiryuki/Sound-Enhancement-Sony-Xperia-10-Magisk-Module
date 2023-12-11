@@ -5,6 +5,7 @@
 MODAEC=`find $MODPATH -type f -name *audio*effects*.conf`
 MODAEX=`find $MODPATH -type f -name *audio*effects*.xml`
 MODAP=`find $MODPATH -type f -name *policy*.conf -o -name *policy*.xml`
+MODAPX=`find $MODPATH -type f -name *policy*.xml`
 
 # function
 archdir() {
@@ -353,7 +354,15 @@ if [ "$MODAP" ]; then
 #u  sed -i 's|,raw||g' $MODAP
 fi
 
-
+# patch audio policy xml
+if [ "$MODAPX" ]; then
+  if ! grep -q 'format="AUDIO_FORMAT_ALAC"' $MODAPX; then
+        sed -i '/AUDIO_FORMAT_MP3/i\
+                    <profile name="" format="AUDIO_FORMAT_ALAC"\
+                             samplingRates="8000,11025,12000,16000,22050,24000,32000,44100,48000,64000,88200,96000,128000,176400,192000"\
+                             channelMasks="AUDIO_CHANNEL_OUT_MONO,AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_2POINT1,AUDIO_CHANNEL_OUT_QUAD,AUDIO_CHANNEL_OUT_PENTA,AUDIO_CHANNEL_OUT_5POINT1,AUDIO_CHANNEL_OUT_6POINT1,AUDIO_CHANNEL_OUT_7POINT1"/>' $MODAPX
+  fi
+fi
 
 
 

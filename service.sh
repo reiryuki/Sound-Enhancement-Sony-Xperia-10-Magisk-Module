@@ -26,7 +26,6 @@ resetprop -n vendor.audio.dolby.ds2.hardbypass false
 
 # property
 resetprop -n ro.audio.ignore_effects false
-#ddolby_prop
 resetprop -n ro.sony.global.effect true
 resetprop -n ro.semc.product.model I4113
 resetprop -n ro.semc.ms_type_id PM-1181-BV
@@ -54,6 +53,8 @@ resetprop -p --delete persist.sony.enable.dolby_auto_mode
 resetprop -n persist.sony.enable.dolby_auto_mode true
 resetprop -p --delete persist.sony.effect.clear_audio_plus
 resetprop -n persist.sony.effect.clear_audio_plus true
+resetprop -n vendor.audio.use.sw.alac.decoder true
+#ddolby_prop
 
 # special file
 FILE=/dev/sony_hweffect_params
@@ -115,6 +116,14 @@ fi
 SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
 for SERVICE in $SERVICES; do
   killall $SERVICE
+  if ! stat -c %a $SERVICE | grep 755\
+  || [ "`stat -c %u.%g $SERVICE`" != 0.2000 ]\
+  || ! ls -Z $SERVICE | grep hal_dms_default_exec; then
+    mount -o remount,rw $SERVICE
+    chmod 0755 $SERVICE
+    chown 0.2000 $SERVICE
+    chcon u:object_r:hal_dms_default_exec:s0 $SERVICE
+  fi
   $SERVICE &
   PID=`pidof $SERVICE`
 done

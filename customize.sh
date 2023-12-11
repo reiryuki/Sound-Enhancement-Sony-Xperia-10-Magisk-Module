@@ -1079,29 +1079,29 @@ fi
 if [ "$IS64BIT" == true ]; then
   FILES="/lib64/libAlacSwDec.so
          /lib64/libOmxAlacDec.so
-         /lib64/libOmxAlacDecSw.so
-         /lib64/libstagefright_soft_somcalacdec.so"
-#  file_check_vendor
+         /lib64/libOmxAlacDecSw.so"
+#         /lib64/libstagefright_soft_somcalacdec.so
+  file_check_vendor
 fi
 if [ "$LIST32BIT" ]; then
   FILES="/lib/libAlacSwDec.so
          /lib/libOmxAlacDec.so
          /lib/libOmxAlacDecSw.so
          /lib/libstagefright_soft_somcalacdec.so"
-#  file_check_vendor
+  file_check_vendor
 fi
 if [ $DOLBY == true ]; then
   if [ "$IS64BIT" == true ]; then
-    FILES="/lib64/libstagefrightdolby.so
-           /lib64/libstagefright_soft_ddpdec.so
-           /lib64/libstagefright_soft_ac4dec.so"
-#    file_check_vendor
+    FILES=/lib64/libstagefrightdolby.so
+#           "/lib64/libstagefright_soft_ddpdec.so
+#           /lib64/libstagefright_soft_ac4dec.so"
+    file_check_vendor
   fi
   if [ "$LIST32BIT" ]; then
     FILES="/lib/libstagefrightdolby.so
            /lib/libstagefright_soft_ddpdec.so
            /lib/libstagefright_soft_ac4dec.so"
-#    file_check_vendor
+    file_check_vendor
   fi
 fi
 
