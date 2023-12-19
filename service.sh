@@ -116,9 +116,8 @@ fi
 SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
 for SERVICE in $SERVICES; do
   killall $SERVICE
-  if ! stat -c %a $SERVICE | grep 755\
-  || [ "`stat -c %u.%g $SERVICE`" != 0.2000 ]\
-  || ! ls -Z $SERVICE | grep hal_dms_default_exec; then
+  if ! stat -c %a $SERVICE | grep -E '755|775|777|757'\
+  || [ "`stat -c %u.%g $SERVICE`" != 0.2000 ]; then
     mount -o remount,rw $SERVICE
     chmod 0755 $SERVICE
     chown 0.2000 $SERVICE
@@ -130,6 +129,7 @@ done
 # restart
 killall vendor.qti.hardware.vibrator.service\
  vendor.qti.hardware.vibrator.service.oneplus9\
+ vendor.qti.hardware.vibrator.service.oplus\
  android.hardware.camera.provider@2.4-service_64\
  vendor.mediatek.hardware.mtkpower@1.0-service\
  android.hardware.usb@1.0-service\
@@ -142,7 +142,8 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.sensors@2.0-service-mediatek\
  android.hardware.sensors@2.0-service.multihal\
  android.hardware.health-service.qti
-#skillall vendor.qti.hardware.display.allocator-service
+#skillall vendor.qti.hardware.display.allocator-service\
+#s vendor.qti.hardware.display.composer-service
 }
 
 # dolby
@@ -247,6 +248,9 @@ if appops get $PKG > /dev/null 2>&1; then
     UIDOPS=`appops get --uid "$UID"`
   fi
 fi
+
+# audio flinger
+DMAF=`dumpsys media.audio_flinger`
 
 # function
 stop_log() {

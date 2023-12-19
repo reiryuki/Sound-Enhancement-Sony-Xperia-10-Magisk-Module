@@ -1,16 +1,23 @@
 # space
 ui_print " "
 
+# var
+UID=`id -u`
+LIST32BIT=`grep_get_prop ro.product.cpu.abilist32`
+if [ ! "$LIST32BIT" ]; then
+  LIST32BIT=`grep_get_prop ro.system.product.cpu.abilist32`
+fi
+
 # log
 if [ "$BOOTMODE" != true ]; then
-  FILE=/sdcard/$MODID\_recovery.log
+  FILE=/storage/emulated/"$UID"/$MODID\_recovery.log
   ui_print "- Log will be saved at $FILE"
   exec 2>$FILE
   ui_print " "
 fi
 
 # optionals
-OPTIONALS=/sdcard/optionals.prop
+OPTIONALS=/storage/emulated/"$UID"/optionals.prop
 if [ ! -f $OPTIONALS ]; then
   touch $OPTIONALS
 fi
@@ -20,12 +27,6 @@ if [ "`grep_prop debug.log $OPTIONALS`" == 1 ]; then
   ui_print "- The install log will contain detailed information"
   set -x
   ui_print " "
-fi
-
-# var
-LIST32BIT=`grep_get_prop ro.product.cpu.abilist32`
-if [ ! "$LIST32BIT" ]; then
-  LIST32BIT=`grep_get_prop ro.system.product.cpu.abilist32`
 fi
 
 # run
@@ -199,7 +200,7 @@ fi
 MOD_UI=false
 if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   APP=SoundEnhancement
-  FILE=/sdcard/$APP.apk
+  FILE=/storage/emulated/"$UID"/$APP.apk
   DIR=`find $MODPATH/system -type d -name $APP`
   ui_print "- Using modified UI apk..."
   if [ -f $FILE ]; then
@@ -494,28 +495,8 @@ run_find_file() {
 for NAME in $NAMES; do
   FILE=`find $SYSTEM$DIR $SYSTEM_EXT$DIR -type f -name $NAME`
   if [ ! "$FILE" ]; then
-    if [ "`grep_prop install.hwlib $OPTIONALS`" == 1 ]; then
-      ui_print "- Installing $DIR/$NAME directly to"
-      ui_print "$SYSTEM..."
-      cp $MODPATH/system_support$DIR/$NAME $SYSTEM$DIR
-      DES=$SYSTEM$DIR/$NAME
-      if [ -f $MODPATH/system_support$DIR/$NAME ]\
-      && [ ! -f $DES ]; then
-        ui_print "  ! Installation failed."
-        ui_print "    Using $DIR/$NAME systemlessly."
-        cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
-      fi
-    else
-      ui_print "! $DIR/$NAME not found."
-      ui_print "  Using $DIR/$NAME systemlessly."
-      cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
-      ui_print "  If this module still doesn't work, type:"
-      ui_print "  install.hwlib=1"
-      ui_print "  inside $OPTIONALS"
-      ui_print "  and reinstall this module"
-      ui_print "  to install $DIR/$NAME directly to this ROM."
-      ui_print "  DwYOR!"
-    fi
+    ui_print "- Using /system$DIR/$NAME"
+    cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
     ui_print " "
   fi
 done
@@ -529,7 +510,6 @@ if [ "$LIST32BIT" ]; then
   DIR=/lib
   run_find_file
 fi
-sed -i 's|^install.hwlib=1|install.hwlib=0|g' $OPTIONALS
 }
 patch_manifest_eim() {
 if [ $EIM == true ]; then
@@ -600,7 +580,7 @@ MOD_UI_DOLBY=false
 if [ $DOLBY == true ]\
 && [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   APP=DaxUI
-  FILE=/sdcard/$APP.apk
+  FILE=/storage/emulated/"$UID"/$APP.apk
   DIR=`find $MODPATH/system -type d -name $APP`
   ui_print "- Using modified Dolby UI apk..."
   if [ -f $FILE ]; then
@@ -637,7 +617,6 @@ if [ $DOLBY == true ]; then
 fi
 
 # check
-chcon -R u:object_r:system_lib_file:s0 $MODPATH/system_support/lib*
 NAMES="libhidltransport.so libhwbinder.so"
 if [ $DOLBY == true ]; then
   find_file
