@@ -2,7 +2,7 @@ copy_library() {
 DIR=`find /data/app -type d -name *$PKG*`
 DES=$DIR/lib/$ARCH
 if [ "$ARCH" ]; then
-  if echo "$PROP" | grep 64; then
+  if echo "$ABI" | grep 64; then
     if echo $DES | grep $PKG; then
       mkdir -p $DES
       for NAMES in $NAME; do
@@ -34,18 +34,18 @@ if [ "$ARCH" ]; then
 fi
 }
 
-PROP=`getprop ro.product.cpu.abi`
-if [ "$PROP" == arm64-v8a ]; then
+ABI=`getprop ro.product.cpu.abi`
+if [ "$ABI" == arm64-v8a ]; then
   ARCH=arm64
-elif [ "$PROP" == armeabi-v7a ] || [ "$PROP" == armeabi ]; then
+elif [ "$ABI" == armeabi-v7a ] || [ "$ABI" == armeabi ]; then
   ARCH=arm
-elif [ "$PROP" == x86_64 ]; then
+elif [ "$ABI" == x86_64 ]; then
   ARCH=x64
-elif [ "$PROP" == x86 ]; then
+elif [ "$ABI" == x86 ]; then
   ARCH=x86
-elif [ "$PROP" == mips64 ]; then
+elif [ "$ABI" == mips64 ]; then
   ARCH=mips64
-elif [ "$PROP" == mips ]; then
+elif [ "$ABI" == mips ]; then
   ARCH=mips
 fi
 PKG=com.sonyericsson.soundenhancement

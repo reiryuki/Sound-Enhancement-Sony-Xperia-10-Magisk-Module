@@ -77,10 +77,8 @@ if [ "$API" -ge 24 ]; then
 else
   SERVER=mediaserver
 fi
-PID=`pidof $SERVER`
-if [ "$PID" ]; then
-  killall $SERVER android.hardware.audio@4.0-service-mediatek
-fi
+killall $SERVER\
+ android.hardware.audio@4.0-service-mediatek
 
 # unused
 #NAMES=vendor.semc.system.idd-1-0
@@ -249,13 +247,19 @@ if appops get $PKG > /dev/null 2>&1; then
   fi
 fi
 
+# revoke
+PKG=com.reiryuki.soundenhancementlauncher
+if [ "$API" -ge 33 ]; then
+  pm revoke $PKG android.permission.POST_NOTIFICATIONS
+fi
+
 # audio flinger
 DMAF=`dumpsys media.audio_flinger`
 
 # function
 stop_log() {
 SIZE=`du $LOGFILE | sed "s|$LOGFILE||g"`
-if [ "$LOG" != stopped ] && [ "$SIZE" -gt 50 ]; then
+if [ "$LOG" != stopped ] && [ "$SIZE" -gt 75 ]; then
   exec 2>/dev/null
   set +x
   LOG=stopped
