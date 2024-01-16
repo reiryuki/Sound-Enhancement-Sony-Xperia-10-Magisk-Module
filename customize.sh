@@ -400,21 +400,17 @@ if echo $MAGISK_VER | grep -Eq 'delta|Delta|kitsune'\
     if [ -L $MIRROR/early-mount ]; then
       EIMDIR=`readlink $MIRROR/early-mount`
       [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MIRROR/$EIMDIR"
-    elif [ "$MAGISK_VER_CODE" -ge 26000 ]\
-    && [ -d $INTERNALDIR/preinit ]; then
-      MOUNT=`mount | grep $INTERNALDIR/preinit`
-      BLOCK=`echo $MOUNT | sed 's| on.*||g'`
-      DIR=`mount | sed "s|$MOUNT||g" | grep -m 1 $BLOCK`
-      DIR=`echo $DIR | sed "s|$BLOCK on ||g" | sed 's| type.*||g'`
-      if [ "$DIR" ]; then
-        if [ "$DIR" == /data ]; then
+    elif grep -q PREINITDEVICE $INTERNALDIR/config; then
+      NAME=`grep_prop PREINITDEVICE $INTERNALDIR/config`
+      if [ "$NAME" ]; then
+        if [ "$NAME" == userdata ]; then
           if ! $ISENCRYPTED; then
             EIMDIR=/data/adb/early-mount.d
           else
             EIMDIR=/data/unencrypted/early-mount.d
           fi
         else
-          EIMDIR=$DIR/early-mount.d
+          EIMDIR=/$NAME/early-mount.d
         fi
       else
         ui_print "! It seems Magisk early init mount directory is not"
