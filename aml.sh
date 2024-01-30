@@ -71,7 +71,7 @@ if [ "$MODAEC" ]; then
     sed -i "s|$RMV {}||g" $MODAEC
   done
   if ! grep -q '^output_session_processing {' $MODAEC; then
-    sed -i -e '$a\
+    sed -i '$a\
 \
 output_session_processing {\
     music {\

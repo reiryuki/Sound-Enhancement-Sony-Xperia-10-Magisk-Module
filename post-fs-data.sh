@@ -123,8 +123,8 @@ if [ -L $MODPATH/system/vendor ]\
   chcon -R u:object_r:vendor_file:s0 $MODPATH/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/odm/etc
-#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
-#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
 else
   chmod 0751 $MODPATH/system/vendor/bin
   chmod 0751 $MODPATH/system/vendor/bin/hw
@@ -139,8 +139,8 @@ else
   chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
-#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
-#d  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
+#  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/system/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
 fi
 
 # function
@@ -198,21 +198,23 @@ fi
 
 # function
 mount_bind_file() {
-if [ -f $MODFILE ]; then
-  for FILE in $FILES; do
-    umount $FILE
-    mount -o bind $MODFILE $FILE
-  done
-fi
+for FILE in $FILES; do
+  umount $FILE
+  mount -o bind $MODFILE $FILE
+done
 }
 mount_bind_to_apex() {
 for NAME in $NAMES; do
   MODFILE=$MODPATH/system/lib64/$NAME
-  FILES=`find /apex /system/apex -type f -path *lib64/$NAME`
-  mount_bind_file
+  if [ -f $MODFILE ]; then
+    FILES=`find /apex /system/apex -path *lib64/* -type f -name $NAME`
+    mount_bind_file
+  fi
   MODFILE=$MODPATH/system/lib/$NAME
-  FILES=`find /apex /system/apex -type f -path *lib/$NAME`
-  mount_bind_file
+  if [ -f $MODFILE ]; then
+    FILES=`find /apex /system/apex -path *lib/* -type f -name $NAME`
+    mount_bind_file
+  fi
 done
 }
 

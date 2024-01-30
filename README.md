@@ -15,6 +15,7 @@
 - https://dumps.tadiphone.dev/dumps/sony/i4113 kirin_dsds-user-10-53.1.A.2.2-053001A00020000200894138764-release-keys
 - libhscomp_jni.so & libhscomp.so: https://dumps.tadiphone.dev/dumps/sony/akari akari-user-9-TAMA2-2.0.1-191021-1837-1-dev-keys
 - system_dolby: https://dumps.tadiphone.dev/dumps/sony/xq-at51 qssi-user-10-58.0.A.3.31-058000A003003102854466984-release-keys
+- libhidlbase.so: CrDroid ROM Android 13
 
 ## Screenshots
 - https://t.me/androidryukimodsdiscussions/144433
@@ -62,6 +63,10 @@
 - Android 12 AncientOS ROM
 - Android 12.1 Nusantara ROM
 - Android 13 AOSP ROM, CrDroid ROM, & AlphaDroid ROM
+- Android 14 LineageOS ROM (Sound Enhancement only)
+
+## Known Issue
+- Dolby Atmos is unsupported in some Android 14 ROMs
 
 ## Credits and contributors
 - https://t.me/viperatmos

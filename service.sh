@@ -67,7 +67,7 @@ if [ ! -e $FILE ]; then
     mknod $FILE c $MM
     chmod 0660 $FILE
     chown 1000.1005 $FILE
-    chcon u:object_r:audio_hweffect_device:s0 $FILE
+#    chcon u:object_r:audio_hweffect_device:s0 $FILE
   fi
 fi
 
@@ -119,7 +119,6 @@ for SERVICE in $SERVICES; do
     mount -o remount,rw $SERVICE
     chmod 0755 $SERVICE
     chown 0.2000 $SERVICE
-    chcon u:object_r:hal_dms_default_exec:s0 $SERVICE
   fi
   $SERVICE &
   PID=`pidof $SERVICE`
@@ -135,13 +134,15 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.light-service.mt6768\
  android.hardware.lights-service.xiaomi_mithorium\
  vendor.samsung.hardware.light-service\
- android.hardware.sensors@1.0-service\
- android.hardware.sensors@2.0-service\
- android.hardware.sensors@2.0-service-mediatek\
- android.hardware.sensors@2.0-service.multihal\
  android.hardware.health-service.qti
 #skillall vendor.qti.hardware.display.allocator-service\
 #s vendor.qti.hardware.display.composer-service
+if [ "$API" -le 33 ]; then
+  killall android.hardware.sensors@1.0-service\
+   android.hardware.sensors@2.0-service\
+   android.hardware.sensors@2.0-service-mediatek\
+   android.hardware.sensors@2.0-service.multihal
+fi
 }
 
 # dolby
@@ -216,7 +217,7 @@ if [ "$API" -ge 33 ]; then
   appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
 fi
 PKGOPS=`appops get $PKG`
-UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
 if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
   UIDOPS=`appops get --uid "$UID"`
 fi
@@ -228,7 +229,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -241,7 +242,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi

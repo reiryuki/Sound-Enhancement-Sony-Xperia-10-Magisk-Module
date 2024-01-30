@@ -49,6 +49,41 @@ else
 fi
 ui_print " "
 
+# .aml.sh
+mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
+
+# bit
+if [ "$IS64BIT" == true ]; then
+  ui_print "- 64 bit architecture"
+  if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
+    DOLBY=false
+  else
+    DOLBY=true
+  fi
+  ui_print " "
+  # 32 bit
+  if [ "$LIST32BIT" ]; then
+    ui_print "- 32 bit library support"
+    sed -i 's|#h||g' $MODPATH/.aml.sh
+  else
+    ui_print "- Doesn't support 32 bit library"
+    ui_print "  Sound Enhancement will not be working"
+    if [ $DOLBY == true ]; then
+      ui_print "  but you can still use the Dolby Atmos."
+    fi
+    rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
+     $MODPATH/system*/lib $MODPATH/system*/vendor/lib
+  fi
+  ui_print " "
+else
+  ui_print "- 32 bit architecture"
+  rm -rf `find $MODPATH -type d -name *64*`
+  sed -i 's|#h||g' $MODPATH/.aml.sh
+  ui_print "  ! Unsupported Dolby Atmos."
+  DOLBY=false
+  ui_print " "
+fi
+
 # sdk
 NUM=29
 if [ "$API" -lt $NUM ]; then
@@ -74,89 +109,78 @@ SYSTEM_EXT=`realpath $MIRROR/system_ext`
 ODM=`realpath $MIRROR/odm`
 MY_PRODUCT=`realpath $MIRROR/my_product`
 
-# .aml.sh
-mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
-
 # function
-run_check_function() {
-LISTS=`strings $MODPATH/system_dolby/vendor$DIR/$DES | grep ^lib | grep .so`
-FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
-ui_print "- Checking"
-ui_print "$NAME"
-ui_print "  function at"
-ui_print "$FILE"
-ui_print "  Please wait..."
-if ! grep -q $NAME $FILE; then
-  ui_print "  Function not found."
-  ui_print "  Replaces /system$DIR/$LIB"
-  mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
-fi
-ui_print " "
-}
 check_function() {
-if [ "$IS64BIT" == true ]; then
-  DIR=/lib64
-  run_check_function
+if [ -f $MODPATH/system_support$DIR/$LIB ]; then
+  ui_print "- Checking"
+  ui_print "$NAME"
+  ui_print "  function at"
+  ui_print "$FILE"
+  ui_print "  Please wait..."
+  if ! grep -q $NAME $FILE; then
+    ui_print "  Function not found."
+    ui_print "  Replaces /system$DIR/$LIB."
+    mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
+    [ "$MES" ] && ui_print "$MES"
+  fi
+  ui_print " "
 fi
-if [ "$LIST32BIT" ]; then
-  DIR=/lib
-  run_check_function
-fi
+}
+find_file() {
+for LIB in $LIBS; do
+  if [ -f $MODPATH/system_support$DIR/$LIB ]; then
+    FILE=`find $SYSTEM$DIR $SYSTEM_EXT$DIR -type f -name $LIB`
+    if [ ! "$FILE" ]; then
+      ui_print "- Using /system$DIR/$LIB."
+      mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
+      ui_print " "
+    fi
+  fi
+done
 }
 
-# bit
-if [ "$IS64BIT" == true ]; then
-  ui_print "- 64 bit architecture"
+# check
+if [ $DOLBY == true ]; then
+  ui_print "- Activating Dolby Atmos..."
   ui_print " "
-  if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
-    ui_print "- Activating Dolby Atmos..."
-    ui_print " "
-    # check
-    NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
-    DES=vendor.dolby.hardware.dms@1.0.so
-    LIB=libhidlbase.so
-    DOLBY=true
+  MES="  Dolby Atmos may not work."
+  NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
+  DES=vendor.dolby.hardware.dms@1.0.so
+  LIB=libhidlbase.so
+  if [ "$IS64BIT" == true ]; then
+    DIR=/lib64
+    LISTS=`strings $MODPATH/system_dolby/vendor$DIR/$DES | grep ^lib | grep .so`
+    FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
     check_function
-    MODNAME2='Sound Enhancement and Dolby Atmos Sony Xperia 10'
-    sed -i "s|$MODNAME|$MODNAME2|g" $MODPATH/module.prop
-    MODNAME=$MODNAME2
-    sed -i 's|#d||g' $MODPATH/.aml.sh
-    sed -i 's|#d||g' $MODPATH/*.sh
-    cp -rf $MODPATH/system_dolby/* $MODPATH/system
-  else
-    DOLBY=false
   fi
-else
-  ui_print "- 32 bit architecture"
-  rm -rf `find $MODPATH -type d -name *64*`
-  DOLBY=false
-  if [ "`grep_prop se.dolby $OPTIONALS`" != 0 ]; then
-    ui_print "  ! Unsupported Dolby Atmos."
+  if [ "$LIST32BIT" ]; then
+    DIR=/lib
+    LISTS=`strings $MODPATH/system_dolby/vendor$DIR/$DES | grep ^lib | grep .so`
+    FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
+    check_function
   fi
-  ui_print " "
+  MODNAME2='Sound Enhancement and Dolby Atmos Sony Xperia 10'
+  sed -i "s|$MODNAME|$MODNAME2|g" $MODPATH/module.prop
+  MODNAME=$MODNAME2
+  sed -i 's|#d||g' $MODPATH/.aml.sh
+  sed -i 's|#d||g' $MODPATH/*.sh
+  cp -rf $MODPATH/system_dolby/* $MODPATH/system
 fi
 rm -rf $MODPATH/system_dolby
 
-# 32 bit
-if [ "$IS64BIT" == true ]; then
-  if [ "$LIST32BIT" ]; then
-    ui_print "- 32 bit library support"
-    sed -i 's|#h||g' $MODPATH/.aml.sh
-  else
-    ui_print "- This ROM doesn't support 32 bit library,"
-    ui_print "  so Sound Enhancement will not be working."
-    if [ $DOLBY == true ]; then
-      ui_print "  but you can still use the Dolby Atmos."
-      rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
-       $MODPATH/system*/lib $MODPATH/system*/vendor/lib
-    else
-      abort
-    fi
+# check
+if [ $DOLBY == true ]; then
+  LIBS="libhidltransport.so libhwbinder.so"
+  if [ "$IS64BIT" == true ]; then
+    DIR=/lib64
+    find_file
   fi
-  ui_print " "
-else
-  sed -i 's|#h||g' $MODPATH/.aml.sh
+  if [ "$LIST32BIT" ]; then
+    DIR=/lib
+    find_file
+  fi
 fi
+rm -rf $MODPATH/system_support
 
 # check
 if [ $DOLBY == true ]; then
@@ -478,24 +502,14 @@ else
   EIM=false
 fi
 }
-run_find_file() {
-for NAME in $NAMES; do
-  FILE=`find $SYSTEM$DIR $SYSTEM_EXT$DIR -type f -name $NAME`
-  if [ ! "$FILE" ]; then
-    ui_print "- Using /system$DIR/$NAME"
-    cp -f $MODPATH/system_support$DIR/$NAME $MODPATH/system$DIR
-    ui_print " "
-  fi
-done
-}
-find_file() {
-if [ "$IS64BIT" == true ]; then
-  DIR=/lib64
-  run_find_file
-fi
-if [ "$LIST32BIT" ]; then
-  DIR=/lib
-  run_find_file
+eim_cache_warning() {
+if echo $EIMDIR | grep -q cache; then
+  ui_print "  Please do not ever wipe your /cache"
+  ui_print "  as long as this module is installed!"
+  ui_print "  If your /cache is wiped for some reasons,"
+  ui_print "  then you need to uninstall this module and reboot first,"
+  ui_print "  then reinstall this module afterwards"
+  ui_print "  to get this module working correctly."
 fi
 }
 patch_manifest_eim() {
@@ -510,14 +524,14 @@ if [ $EIM == true ]; then
     fi
     if ! grep -A2 vendor.dolby.hardware.dms $DES | grep -q 1.0; then
       ui_print "- Patching"
-      ui_print "$SRC"
-      ui_print "  systemlessly using early init mount..."
+      ui_print "$DES"
       sed -i '/<manifest/a\
     <hal format="hidl">\
         <name>vendor.dolby.hardware.dms</name>\
         <transport>hwbinder</transport>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $DES
+      eim_cache_warning
       ui_print " "
     fi
   else
@@ -537,10 +551,10 @@ if [ $EIM == true ]; then
     fi
     if ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $DES; then
       ui_print "- Patching"
-      ui_print "$SRC"
-      ui_print "  systemlessly using early init mount..."
+      ui_print "$DES"
       sed -i '1i\
 vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $DES
+      eim_cache_warning
       ui_print " "
     fi
   else
@@ -602,13 +616,6 @@ fi
 if [ $DOLBY == true ]; then
   early_init_mount_dir
 fi
-
-# check
-NAMES="libhidltransport.so libhwbinder.so"
-if [ $DOLBY == true ]; then
-  find_file
-fi
-rm -rf $MODPATH/system_support
 
 # patch manifest.xml
 if [ $DOLBY == true ]; then
