@@ -65,7 +65,7 @@
 - Android 13 AOSP ROM, CrDroid ROM, & AlphaDroid ROM
 - Android 14 LineageOS ROM (Sound Enhancement only)
 
-## Known Issues
+## Known Issue
 - Dolby Atmos is unsupported in some Android 14 ROMs
 
 ## Credits and contributors
