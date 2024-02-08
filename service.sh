@@ -137,12 +137,10 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.health-service.qti
 #skillall vendor.qti.hardware.display.allocator-service\
 #s vendor.qti.hardware.display.composer-service
-if [ "$API" -le 33 ]; then
-  killall android.hardware.sensors@1.0-service\
-   android.hardware.sensors@2.0-service\
-   android.hardware.sensors@2.0-service-mediatek\
-   android.hardware.sensors@2.0-service.multihal
-fi
+#xkillall android.hardware.sensors@1.0-service\
+#x android.hardware.sensors@2.0-service\
+#x android.hardware.sensors@2.0-service-mediatek\
+#x android.hardware.sensors@2.0-service.multihal
 }
 
 # dolby
