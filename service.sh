@@ -134,6 +134,7 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.light-service.mt6768\
  android.hardware.lights-service.xiaomi_mithorium\
  vendor.samsung.hardware.light-service\
+ vendor.qti.hardware.lights.service\
  android.hardware.health-service.qti
 #skillall vendor.qti.hardware.display.allocator-service\
 #s vendor.qti.hardware.display.composer-service
