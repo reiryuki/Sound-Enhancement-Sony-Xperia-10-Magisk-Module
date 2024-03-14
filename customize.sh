@@ -88,7 +88,7 @@ fi
 NUM=29
 if [ "$API" -lt $NUM ]; then
   ui_print "! Unsupported SDK $API. You have to upgrade your"
-  ui_print "  Android version at least SDK API $NUM to use this module."
+  ui_print "  Android version at least SDK $NUM to use this module."
   abort
 else
   ui_print "- SDK $API"
@@ -238,7 +238,10 @@ else
 fi
 if [ "$BOOTMODE" == true ]; then
   for PKG in $PKGS; do
-    RES=`pm uninstall $PKG 2>/dev/null`
+    FILE=`find /data/app -name *$PKG*`
+    if [ "$FILE" ]; then
+      RES=`pm uninstall $PKG 2>/dev/null`
+    fi
   done
 fi
 rm -rf $MODPATH/unused
@@ -403,50 +406,27 @@ if [ -f $FILE ]; then
   fi
 fi
 }
-patch_hwservice() {
-if [ -f $FILE ]; then
-  backup
-  if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
-    ui_print "- Patching"
-    ui_print "$FILE"
-    ui_print "  directly..."
-    sed -i '1i\
-vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $FILE
-    ui_print " "
-  fi
-fi
+eim_dir_warning() {
+ui_print "! It seems Magisk early init mount directory is not"
+ui_print "  activated yet. Please reinstall Magisk via Magisk app"
+ui_print "  (not via Recovery)."
+ui_print " "
 }
 early_init_mount_dir() {
-if echo $MAGISK_VER | grep -Eq 'delta|Delta|kitsune'\
+if echo $MAGISK_VER | grep -Eq 'delta|kitsune'\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
   check_data
-  get_flags
-  ui_print "  This is for detection only"
-  ui_print " "
+  get_flags > /dev/null 2>&1
   if [ "$BOOTMODE" == true ]; then
+    if [ "$MAGISK_VER_CODE" -ge 26000 ]; then
+      PREINITDEVICE=`grep_prop PREINITDEVICE $INTERNALDIR/config`
+      if [ ! "$PREINITDEVICE" ]; then
+        eim_dir_warning
+      fi
+    fi
     if [ -L $MIRROR/early-mount ]; then
       EIMDIR=`readlink $MIRROR/early-mount`
       [ "${EIMDIR:0:1}" != "/" ] && EIMDIR="$MIRROR/$EIMDIR"
-    elif grep -q PREINITDEVICE $INTERNALDIR/config; then
-      NAME=`grep_prop PREINITDEVICE $INTERNALDIR/config`
-      if [ "$NAME" ]; then
-        if [ "$NAME" == userdata ]; then
-          if ! $ISENCRYPTED; then
-            EIMDIR=/data/adb/early-mount.d
-          else
-            EIMDIR=/data/unencrypted/early-mount.d
-          fi
-        elif [ "$NAME" == persist ] && [ ! -d /persist ]; then
-          EIMDIR=/mnt/vendor/persist/early-mount.d
-        else
-          EIMDIR=/$NAME/early-mount.d
-        fi
-      else
-        ui_print "! It seems Magisk early init mount directory is not"
-        ui_print "  activated yet. Please reinstall Magisk.zip via Magisk app"
-        ui_print "  (not via Recovery)."
-        ui_print " "
-      fi
     fi
   fi
   if [ ! "$EIMDIR" ]; then
@@ -545,29 +525,6 @@ if [ $EIM == true ]; then
   fi
 fi
 }
-patch_hwservice_eim() {
-if [ $EIM == true ]; then
-  SRC=$SYSTEM/etc/selinux/plat_hwservice_contexts
-  if [ -f $SRC ]; then
-    DIR=$EIMDIR/system/etc/selinux
-    DES=$DIR/plat_hwservice_contexts
-    mkdir -p $DIR
-    if [ ! -f $DES ]; then
-      cp -af $SRC $DIR
-    fi
-    if ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $DES; then
-      ui_print "- Patching"
-      ui_print "$DES"
-      sed -i '1i\
-vendor.dolby.hardware.dms::IDms u:object_r:hal_dms_hwservice:s0' $DES
-      eim_cache_warning
-      ui_print " "
-    fi
-  else
-    EIM=false
-  fi
-fi
-}
 
 # permissive
 if [ "`grep_prop permissive.mode $OPTIONALS`" == 1 ]; then
@@ -654,36 +611,6 @@ if [ $DOLBY == true ]; then
       ui_print "  On some ROMs, it causes bugs or even makes bootloop"
       ui_print "  because not allowed to restart hwservicemanager."
       ui_print "  You can fix this by using Magisk Delta/Kitsune Mask."
-      ui_print " "
-    fi
-  fi
-fi
-
-# patch hwservice contexts
-if [ $DOLBY == true ]; then
-  FILE="$INTERNALDIR/mirror/*/etc/selinux/*_hwservice_contexts
-        $INTERNALDIR/mirror/*/*/etc/selinux/*_hwservice_contexts
-        /*/etc/selinux/*_hwservice_contexts
-        /*/*/etc/selinux/*_hwservice_contexts"
-  if [ "`grep_prop dolby.skip.vendor $OPTIONALS`" != 1 ]\
-  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
-    FILE=$VENDOR/etc/selinux/vendor_hwservice_contexts
-    patch_hwservice
-  fi
-  if [ "`grep_prop dolby.skip.system $OPTIONALS`" != 1 ]\
-  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
-    FILE=$SYSTEM/etc/selinux/plat_hwservice_contexts
-    patch_hwservice
-  fi
-  if [ "`grep_prop dolby.skip.system_ext $OPTIONALS`" != 1 ]\
-  && ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
-    FILE=$SYSTEM_EXT/etc/selinux/system_ext_hwservice_contexts
-    patch_hwservice
-  fi
-  if ! grep -Eq 'u:object_r:hal_dms_hwservice:s0|u:object_r:default_android_hwservice:s0' $FILE; then
-    patch_hwservice_eim
-    if [ $EIM == false ]; then
-      ui_print "! Failed to set hal_dms_hwservice context."
       ui_print " "
     fi
   fi
