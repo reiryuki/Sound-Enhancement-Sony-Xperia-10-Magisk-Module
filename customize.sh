@@ -694,7 +694,7 @@ if echo "$PROP" | grep -q m; then
   sed -i 's|#m||g' $FILE
   sed -i 's|musicstream=|musicstream=true|g' $MODPATH/acdb.conf
   sed -i 's|music_stream false|music_stream true|g' $MODPATH/service.sh
-  ui_print "  Sound FX will always be enabled"
+  ui_print "  Dolby Atmos will always be enabled"
   ui_print "  and cannot be disabled by on/off togglers"
   ui_print " "
 fi
