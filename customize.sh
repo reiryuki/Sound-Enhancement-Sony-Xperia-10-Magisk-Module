@@ -143,7 +143,6 @@ done
 if [ $DOLBY == true ]; then
   ui_print "- Activating Dolby Atmos..."
   ui_print " "
-  MES="  Dolby Atmos may not work."
   NAME=_ZN7android8hardware23getOrCreateCachedBinderEPNS_4hidl4base4V1_05IBaseE
   DES=vendor.dolby.hardware.dms@1.0.so
   LIB=libhidlbase.so
@@ -166,7 +165,6 @@ if [ $DOLBY == true ]; then
   sed -i 's|#d||g' $MODPATH/*.sh
   cp -rf $MODPATH/system_dolby/* $MODPATH/system
 fi
-rm -rf $MODPATH/system_dolby
 
 # check
 if [ $DOLBY == true ]; then
@@ -180,7 +178,6 @@ if [ $DOLBY == true ]; then
     find_file
   fi
 fi
-rm -rf $MODPATH/system_support
 
 # check
 if [ $DOLBY == true ]; then
@@ -244,7 +241,9 @@ if [ "$BOOTMODE" == true ]; then
     fi
   done
 fi
-rm -rf $MODPATH/unused
+rm -rf $MODPATH/system_dolby\
+ $MODPATH/system_support\
+ $MODPATH/unused
 remove_sepolicy_rule
 ui_print " "
 # power save
@@ -275,12 +274,12 @@ for NAME in $NAMES; do
     sh $FILE
     rm -f $FILE
   fi
-  rm -rf /metadata/magisk/$NAME
-  rm -rf /mnt/vendor/persist/magisk/$NAME
-  rm -rf /persist/magisk/$NAME
-  rm -rf /data/unencrypted/magisk/$NAME
-  rm -rf /cache/magisk/$NAME
-  rm -rf /cust/magisk/$NAME
+  rm -rf /metadata/magisk/$NAME\
+   /mnt/vendor/persist/magisk/$NAME\
+   /persist/magisk/$NAME\
+   /data/unencrypted/magisk/$NAME\
+   /cache/magisk/$NAME\
+   /cust/magisk/$NAME
 done
 }
 
@@ -694,6 +693,9 @@ if echo "$PROP" | grep -q m; then
   ui_print "- Activating Dolby Atmos music stream..."
   sed -i 's|#m||g' $FILE
   sed -i 's|musicstream=|musicstream=true|g' $MODPATH/acdb.conf
+  sed -i 's|music_stream false|music_stream true|g' $MODPATH/service.sh
+  ui_print "  Sound FX will always be enabled"
+  ui_print "  and cannot be disabled by on/off togglers"
   ui_print " "
 fi
 if echo "$PROP" | grep -q r; then
@@ -1055,7 +1057,14 @@ fi
 # unmount
 unmount_mirror
 
-
+# note
+ui_print "- If Sound Enhancement FX doesn't work, then type:"
+ui_print " "
+ui_print "  su"
+ui_print "  sefx"
+ui_print " "
+ui_print "  at Terminal/Termux app while playing music"
+ui_print " "
 
 
 

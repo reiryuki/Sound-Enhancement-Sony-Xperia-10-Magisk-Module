@@ -16,6 +16,7 @@ resetprop -n ro.odm.build.SomcCntrl.Model Pdx203
 resetprop -n ro.odm.build.SomcCntrl.device pdx203
 resetprop -n ro.product.manufacturer Sony
 resetprop -n ro.dolby.mod_uuid false
+resetprop -n ro.dolby.music_stream false
 resetprop -n vendor.audio.dolby.ds2.enabled false
 resetprop -n vendor.audio.dolby.ds2.hardbypass false
 #resetprop -p --delete persist.vendor.dolby.loglevel
@@ -135,10 +136,11 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.lights-service.xiaomi_mithorium\
  vendor.samsung.hardware.light-service\
  vendor.qti.hardware.lights.service\
+ android.hardware.lights-service.qti\
  android.hardware.health-service.qti
 #skillall vendor.qti.hardware.display.allocator-service\
 #s vendor.qti.hardware.display.composer-service\
-#s camerahalserver
+#s camerahalserver qcrilNrd
 #xkillall android.hardware.sensors@1.0-service\
 #x android.hardware.sensors@2.0-service\
 #x android.hardware.sensors@2.0-service-mediatek\
