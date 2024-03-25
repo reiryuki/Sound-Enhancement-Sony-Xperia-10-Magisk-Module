@@ -198,7 +198,7 @@ if [ -d $AML ] && [ ! -f $AML/disable ]\
 fi
 
 # wait
-until [ "`getprop sys.boot_completed`" == "1" ]; do
+until [ "`getprop sys.boot_completed`" == 1 ]; do
   sleep 10
 done
 
