@@ -70,6 +70,7 @@
 - Android 12.1 Nusantara ROM
 - Android 13 AOSP ROM, CrDroid ROM, & AlphaDroid ROM
 - Android 14 LineageOS ROM
+- Android 14 AwakenOS ROM
 
 ## Credits and Contributors
 - https://t.me/viperatmos
