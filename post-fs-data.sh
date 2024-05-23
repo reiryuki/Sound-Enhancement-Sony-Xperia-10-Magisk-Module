@@ -45,23 +45,6 @@ chmod 0755 $MODPATH/*/libmagiskpolicy.so
 FILE=$MODPATH/sepolicy.pfsd
 sepolicy_sh
 
-# list
-PKGS=`cat $MODPATH/package.txt`
-#dPKGS=`cat $MODPATH/package-dolby.txt`
-for PKG in $PKGS; do
-  magisk --denylist rm $PKG 2>/dev/null
-  magisk --sulist add $PKG 2>/dev/null
-done
-if magisk magiskhide sulist; then
-  for PKG in $PKGS; do
-    magisk magiskhide add $PKG
-  done
-else
-  for PKG in $PKGS; do
-    magisk magiskhide rm $PKG
-  done
-fi
-
 # run
 . $MODPATH/copy.sh
 
@@ -200,8 +183,16 @@ fi
 # function
 mount_bind_file() {
 for FILE in $FILES; do
-  umount $FILE
-  mount -o bind $MODFILE $FILE
+  if echo $FILE | grep libhidlbase.so; then
+    DES=`echo $FILE | sed 's|libhidlbase.so|libutils.so|g'`
+    if grep _ZN7android8String16aSEOS0_ $DES; then
+      umount $FILE
+      mount -o bind $MODFILE $FILE
+    fi
+  else
+    umount $FILE
+    mount -o bind $MODFILE $FILE
+  fi
 done
 }
 mount_bind_to_apex() {

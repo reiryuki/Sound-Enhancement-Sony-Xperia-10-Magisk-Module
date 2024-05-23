@@ -202,6 +202,23 @@ until [ "`getprop sys.boot_completed`" == 1 ]; do
   sleep 10
 done
 
+# list
+PKGS=`cat $MODPATH/package.txt`
+#dPKGS=`cat $MODPATH/package-dolby.txt`
+for PKG in $PKGS; do
+  magisk --denylist rm $PKG 2>/dev/null
+  magisk --sulist add $PKG 2>/dev/null
+done
+if magisk magiskhide sulist; then
+  for PKG in $PKGS; do
+    magisk magiskhide add $PKG
+  done
+else
+  for PKG in $PKGS; do
+    magisk magiskhide rm $PKG
+  done
+fi
+
 # settings
 settings put global 5pole_accessory_detect 2
 settings put global dnc_num_modes 3
