@@ -906,6 +906,8 @@ if [ "$LIST32BIT" ]; then
   FILES=/lib/libaudio-resampler.so
   file_check_system
 fi
+FILES=/etc/media_codecs_somc_audio.xml
+file_check_vendor
 if [ "$IS64BIT" == true ]; then
   FILES="/lib64/libAlacSwDec.so
          /lib64/libOmxAlacDec.so
@@ -921,6 +923,8 @@ if [ "$LIST32BIT" ]; then
   file_check_vendor
 fi
 if [ $DOLBY == true ]; then
+  FILES=/etc/media_codecs_dolby_audio.xml
+  file_check_vendor
   if [ "$IS64BIT" == true ]; then
     FILES=/lib64/libstagefrightdolby.so
 #           "/lib64/libstagefright_soft_ddpdec.so
