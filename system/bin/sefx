@@ -8,6 +8,12 @@ sefx_warn_2() {
 echo "Unsupported music player"
 echo "Please try another music player!"
 }
+start_broadcast() {
+am broadcast -a android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION --es android.media.extra.PACKAGE_NAME $PKG --ei android.media.extra.AUDIO_SESSION $SESSION --ei android.media.extra.CONTENT_TYPE $TYPE
+}
+start_activity() {
+am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p com.sonyericsson.soundenhancement
+}
 run_sefx() {
 PKGS=`dumpsys media_session | sed "s| |\n|g" | grep packages= | sed 's|packages=||g'`
 if [ ! "$PKGS" ]; then
@@ -60,10 +66,28 @@ for PKG in $PKGS; do
     echo "Package Name = $PKG"
     echo "Audio Session = $SESSION"
     echo "Content Type = $TYPE ($TYPENAME)"
-    am broadcast -a android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION --es android.media.extra.PACKAGE_NAME $PKG --ei android.media.extra.AUDIO_SESSION $SESSION --ei android.media.extra.CONTENT_TYPE $TYPE
+    if ! start_broadcast; then
+      FILE=/sys/fs/selinux/enforce
+      chmod 0644 $FILE
+      SELINUX=`cat $FILE`
+      if [ "$SELINUX" == 1 ]; then
+        echo 0 > $FILE
+        start_broadcast
+        echo 1 > $FILE
+      fi
+    fi
   done
 done
-am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p com.sonyericsson.soundenhancement
+if ! start_activity; then
+  FILE=/sys/fs/selinux/enforce
+  chmod 0644 $FILE
+  SELINUX=`cat $FILE`
+  if [ "$SELINUX" == 1 ]; then
+    echo 0 > $FILE
+    start_activity
+    echo 1 > $FILE
+  fi
+fi
 return 0
 }
 
