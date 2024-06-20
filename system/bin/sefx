@@ -1,94 +1,101 @@
 #!/bin/sh
 
 # function
-sefx_warn() {
-echo "Please play music first!"
-}
-sefx_warn_2() {
-echo "Unsupported music player"
-echo "Please try another music player!"
-}
 start_broadcast() {
 am broadcast -a android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION --es android.media.extra.PACKAGE_NAME $PKG --ei android.media.extra.AUDIO_SESSION $SESSION --ei android.media.extra.CONTENT_TYPE $TYPE
 }
 start_activity() {
 am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p com.sonyericsson.soundenhancement
 }
-run_sefx() {
-PKGS=`dumpsys media_session | sed "s| |\n|g" | grep packages= | sed 's|packages=||g'`
-if [ ! "$PKGS" ]; then
-  sefx_warn
-  return 1
-fi
-for PKG in $PKGS; do
-  PIDS=`pidof "$PKG"`
-  if [ ! "$PIDS" ]; then
-    sefx_warn
-    return 1
+sefx_warn() {
+echo "Please play music first!"
+}
+sefx_result() {
+echo "Package Name = $PKG"
+if [ "$SESSION" ]; then
+  echo "Audio Session = $SESSION"
+  echo "Content Type = $TYPE ($TYPENAME)"
+  if ! start_broadcast; then
+    FILE=/sys/fs/selinux/enforce
+    chmod 0644 $FILE
+    SELINUX=`cat $FILE`
+    if [ "$SELINUX" == 1 ]; then
+      echo 0 > $FILE
+      start_broadcast
+      echo 1 > $FILE
+    fi
   fi
-  for PID in $PIDS; do
-    DUMP=`dumpsys audio | grep "$PID" | grep sessionId: | sed "s| |\n|g"`
-    if [ ! "$DUMP" ]; then
-      sefx_warn
-      return 1
-    fi
-    SESSION=`echo "$DUMP" | grep sessionId: | sed 's|sessionId:||g'`
-    if [ ! "$SESSION" ]; then
-      sefx_warn
-      return 1
-    elif [ "$SESSION" == -1 ]; then
-      sefx_warn_2
-      return 1
-    fi
-    CONTENT=`echo "$DUMP" | grep content= | sed 's|content=||g'`
-    if echo "$CONTENT" | grep -q MUSIC; then
-      TYPE=2
-      TYPENAME=Music
-    elif echo "$CONTENT" | grep -q MOVIE; then
-      TYPE=3
-      TYPENAME=Movie
-    elif echo "$CONTENT" | grep -q SONIFICATION; then
-      TYPE=4
-      TYPENAME=Sonification
-    elif echo "$CONTENT" | grep -q SPEECH; then
-      TYPE=1
-      TYPENAME=Speech
-    elif echo "$CONTENT" | grep -q ULTRASOUND; then
-      TYPE=1997
-      TYPENAME=Ultrasound
-    elif echo "$CONTENT" | grep -q UNKNOWN; then
-      TYPE=0
-      TYPENAME=Unknown
-    else
-      TYPE=-1
-      TYPENAME=Undefined
-    fi
-    echo "Package Name = $PKG"
-    echo "Audio Session = $SESSION"
-    echo "Content Type = $TYPE ($TYPENAME)"
-    if ! start_broadcast; then
+  if [ "$SESSION" -lt 0 ]; then
+    echo "Unsupported music player"
+  else
+    if ! start_activity; then
       FILE=/sys/fs/selinux/enforce
       chmod 0644 $FILE
       SELINUX=`cat $FILE`
       if [ "$SELINUX" == 1 ]; then
         echo 0 > $FILE
-        start_broadcast
+        start_activity
         echo 1 > $FILE
       fi
     fi
-  done
-done
-if ! start_activity; then
-  FILE=/sys/fs/selinux/enforce
-  chmod 0644 $FILE
-  SELINUX=`cat $FILE`
-  if [ "$SELINUX" == 1 ]; then
-    echo 0 > $FILE
-    start_activity
-    echo 1 > $FILE
   fi
+else
+  sefx_warn
 fi
-return 0
+}
+run_sefx() {
+PKGS=`dumpsys media_session | sed 's| |\n|g' | grep packages= | sed 's|packages=||g'`
+unset PKG
+if [ "$PKGS" ]; then
+  for PKG in $PKGS; do
+    PIDS=`pidof "$PKG"`
+    unset SESSION
+    unset TYPE
+    unset TYPENAME
+    if [ "$PIDS" ]; then
+      for PID in $PIDS; do
+        DUMP=`dumpsys audio | grep "$PID" | grep sessionId: | sed 's| |\n|g'`
+        if [ "$DUMP" ]; then
+          SESSION=`echo "$DUMP" | grep sessionId: | sed 's|sessionId:||g'`
+          if [ "$SESSION" ]; then
+            CONTENT=`echo "$DUMP" | grep content= | sed 's|content=||g'`
+            if echo "$CONTENT" | grep -q MUSIC; then
+              TYPE=2
+              TYPENAME=Music
+            elif echo "$CONTENT" | grep -q MOVIE; then
+              TYPE=3
+              TYPENAME=Movie
+            elif echo "$CONTENT" | grep -q SONIFICATION; then
+              TYPE=4
+              TYPENAME=Sonification
+            elif echo "$CONTENT" | grep -q SPEECH; then
+              TYPE=1
+              TYPENAME=Speech
+            elif echo "$CONTENT" | grep -q ULTRASOUND; then
+              TYPE=1997
+              TYPENAME=Ultrasound
+            elif echo "$CONTENT" | grep -q UNKNOWN; then
+              TYPE=0
+              TYPENAME=Unknown
+            else
+              TYPE=-1
+              TYPENAME=Undefined
+            fi
+            sefx_result
+          else
+            sefx_result
+          fi
+        else
+          sefx_result
+        fi
+      done
+    else
+      sefx_result
+    fi
+  done
+else
+  sefx_warn
+fi
 }
 
 # check
