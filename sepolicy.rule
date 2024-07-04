@@ -93,7 +93,10 @@ allow { hal_audio_default mtk_hal_audio audioserver } audio_hweffect_device chr_
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_dev chr_file { read write }
 
 
+## Extended Audio Service
 
+# dir
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } unlabeled dir search
 
 
 

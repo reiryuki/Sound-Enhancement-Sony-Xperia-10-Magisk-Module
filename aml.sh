@@ -229,7 +229,8 @@ for MODAEX in $MODAEXS; do
     fi
     if ! grep -q '<stream type="notification">' $MODAEX\
     || grep -q '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
-    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
+    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX\
+    || grep -q '<!-- heaton.zhong' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"notification\">\n        <\/stream>" $MODAEX
     fi
     if ! grep -q '<stream type="voice_call">' $MODAEX; then
@@ -240,17 +241,20 @@ for MODAEX in $MODAEXS; do
     fi
     if ! grep -q '<stream type="alarm">' $MODAEX\
     || grep -q '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
-    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
+    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX\
+    || grep -q '<!-- heaton.zhong' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"alarm\">\n        <\/stream>" $MODAEX
     fi
     if ! grep -q '<stream type="ring">' $MODAEX\
     || grep -q '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
-    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
+    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX\
+    || grep -q '<!-- heaton.zhong' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"ring\">\n        <\/stream>" $MODAEX
     fi
     if ! grep -q '<stream type="music">' $MODAEX\
     || grep -q '<!-- YunMang.Xiao@PSW.MM.Dolby' $MODAEX\
-    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX; then
+    || grep -q '<!-- WuHao@MULTIMEDIA.AUDIOSERVER.EFFECT' $MODAEX\
+    || grep -q '<!-- heaton.zhong' $MODAEX; then
       sed -i "/<postprocess>/a\        <stream type=\"music\">\n        <\/stream>" $MODAEX
     fi
   fi

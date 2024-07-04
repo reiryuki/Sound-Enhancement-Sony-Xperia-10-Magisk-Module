@@ -139,7 +139,7 @@ killall vendor.qti.hardware.vibrator.service\
  android.hardware.lights-service.qti
 #skillall vendor.qti.hardware.display.allocator-service\
 #s vendor.qti.hardware.display.composer-service\
-#s camerahalserver qcrilNrd
+#s camerahalserver qcrilNrd mtkfusionrild
 #xkillall android.hardware.sensors@1.0-service\
 #x android.hardware.sensors@2.0-service\
 #x android.hardware.sensors@2.0-service-mediatek\

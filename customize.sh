@@ -59,38 +59,6 @@ ui_print " "
 # .aml.sh
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
-# bit
-if [ "$IS64BIT" == true ]; then
-  ui_print "- 64 bit architecture"
-  if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
-    DOLBY=false
-  else
-    DOLBY=true
-  fi
-  ui_print " "
-  # 32 bit
-  if [ "$LIST32BIT" ]; then
-    ui_print "- 32 bit library support"
-    sed -i 's|#h||g' $MODPATH/.aml.sh
-  else
-    ui_print "- Doesn't support 32 bit library"
-    ui_print "  Sound Enhancement will not be working"
-    if [ $DOLBY == true ]; then
-      ui_print "  but you can still use the Dolby Atmos."
-    fi
-    rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
-     $MODPATH/system*/lib $MODPATH/system*/vendor/lib
-  fi
-  ui_print " "
-else
-  ui_print "- 32 bit architecture"
-  rm -rf `find $MODPATH -type d -name *64*`
-  sed -i 's|#h||g' $MODPATH/.aml.sh
-  ui_print "  ! Unsupported Dolby Atmos."
-  DOLBY=false
-  ui_print " "
-fi
-
 # sdk
 NUM=29
 if [ "$API" -lt $NUM ]; then
@@ -104,6 +72,51 @@ fi
 
 # recovery
 mount_partitions_in_recovery
+
+# bit
+if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
+  DOLBY=false
+else
+  DOLBY=true
+fi
+AUDIO64BIT=`grep linker64 /*/bin/hw/*audio*`
+if [ "$IS64BIT" == true ]; then
+  ui_print "- 64 bit architecture"
+  ui_print " "
+  if [ "$LIST32BIT" ]; then
+    ui_print "- 32 bit library support"
+    ui_print " "
+    if [ "$AUDIO64BIT" ]; then
+      ui_print "! Sound Enhancement uses 32 bit audio service only"
+      ui_print "  But this ROM uses 64 bit audio service"
+      ui_print "  Sound Enhancement will not be working"
+      if [ $DOLBY == true ]; then
+        ui_print "  But you can still use the Dolby Atmos"
+      fi
+      ui_print " "
+    else
+      sed -i 's|#h||g' $MODPATH/.aml.sh
+    fi
+  else
+    ui_print "! Doesn't support 32 bit library"
+    ui_print "  Sound Enhancement will not be working"
+    if [ $DOLBY == true ]; then
+      ui_print "  But you can still use the Dolby Atmos"
+    fi
+    rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
+     $MODPATH/system*/lib $MODPATH/system*/vendor/lib
+    ui_print " "
+  fi
+else
+  ui_print "- 32 bit architecture"
+  rm -rf `find $MODPATH -type d -name *64*`
+  sed -i 's|#h||g' $MODPATH/.aml.sh
+  if [ $DOLBY == true ]; then
+    ui_print "  ! Unsupported Dolby Atmos."
+  fi
+  DOLBY=false
+  ui_print " "
+fi
 
 # magisk
 magisk_setup
