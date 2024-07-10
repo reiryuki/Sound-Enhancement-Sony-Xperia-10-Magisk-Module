@@ -5,8 +5,8 @@
 - The MIT license specified here is for the Magisk Module only, not for Dolby nor Sony apps and blobs.
 
 ## Descriptions
-- Equalizers soundfx ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
-- Global type soundfx
+- Equalizers sound effect ported from Sony Xperia 10 (I4113) and integrated as a Magisk Module for all supported and rooted devices with Magisk
+- Global type sound effect
 - Dolby Atmos changes/spoofs ro.product.manufacturer to Sony which may break some system apps and features functionality
 - Dolby Atmos conflicted with `vendor.dolby.hardware.dms@2.0-service`
 - Sound Enhancement doesn't support ACDB Magisk Module because using effect proxy
@@ -23,7 +23,7 @@
 
 ## Requirements
 - Sound Enhancement:
-  - 32 bit architecture or 64 bit architecture with 32 bit library support
+  - 32 bit audio service (this also can be found in 64 bit ROM with 32 bit support, not only 32 bit ROM)
   - Android 10 and up
   - Magisk or KernelSU installed
 - Dolby Atmos:
@@ -47,7 +47,8 @@
 - Disable the "No active profiles" notification and ignore it it's nothing
 - If you are using KernelSU, you need to allow superuser list manually all package name listed in package-dolby.txt (and your home launcher app also) (enable show system apps) and reboot afterwards
 - If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot afterwards
-- If Sound Enhancement FX doesn't work, then type:
+- If you have sensors issue (fingerprint, proximity, gyroscope, etc), then READ Optionals bellow!
+- If Sound Enhancement effect doesn't work, then type:
 
   `su`
   
