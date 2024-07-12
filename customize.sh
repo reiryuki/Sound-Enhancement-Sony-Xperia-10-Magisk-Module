@@ -79,7 +79,7 @@ if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
 else
   DOLBY=true
 fi
-AUDIO64BIT=`grep linker64 /*/bin/hw/*audio*`
+AUDIO64BIT=`grep linker64 /*/bin/hw/*hardware*audio*`
 if [ "$IS64BIT" == true ]; then
   ui_print "- 64 bit architecture"
   ui_print " "
