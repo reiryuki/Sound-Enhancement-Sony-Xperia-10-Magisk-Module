@@ -23,7 +23,7 @@ allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untru
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_default_prop vendor_audio_prop debug_mtk_gpud_prop audio_config_prop } file { read open getattr map }
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } qemu_hw_prop file { read open getattr }
-allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_displayfeature_prop file read
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_displayfeature_prop file { read open }
 allow { hal_audio_default mtk_hal_audio audioserver } vendor_dolby_loglevel_prop file { read open getattr }
 allow zygote { device unlabeled } file write
 allow zygote zygote_tmpfs file { create open }
@@ -36,6 +36,7 @@ allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untru
 # dir
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_file dir search
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } system_file dir write
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } data_log_file dir { search getattr }
 
 # unix_stream_socket
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } zygote unix_stream_socket getopt

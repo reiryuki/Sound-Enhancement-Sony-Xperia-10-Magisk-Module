@@ -3,9 +3,13 @@ ui_print " "
 
 # var
 UID=`id -u`
+[ ! "$UID" ] && UID=0
 LIST32BIT=`grep_get_prop ro.product.cpu.abilist32`
 if [ ! "$LIST32BIT" ]; then
   LIST32BIT=`grep_get_prop ro.system.product.cpu.abilist32`
+fi
+if [ ! "$LIST32BIT" ]; then
+  [ -f /system/lib/libandroid.so ] && LIST32BIT=true
 fi
 
 # log
@@ -73,48 +77,54 @@ fi
 # recovery
 mount_partitions_in_recovery
 
-# bit
+# architecture
 if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
   DOLBY=false
 else
   DOLBY=true
 fi
+NAME=arm64
+NAME2=arm
 AUDIO64BIT=`grep linker64 /*/bin/hw/*hardware*audio*`
-if [ "$IS64BIT" == true ]; then
-  ui_print "- 64 bit architecture"
-  ui_print " "
-  if [ "$LIST32BIT" ]; then
+if [ "$LIST32BIT" ]; then
+  if [ "$ARCH" == $NAME ]; then
+    ui_print "- $ARCH architecture"
+    ui_print " "
     ui_print "- 32 bit library support"
     ui_print " "
-    if [ "$AUDIO64BIT" ]; then
-      ui_print "! Sound Enhancement uses 32 bit audio service only"
-      ui_print "  But this ROM uses 64 bit audio service"
-      ui_print "  Sound Enhancement will not be working"
-      if [ $DOLBY == true ]; then
-        ui_print "  But you can still use the Dolby Atmos"
-      fi
-      ui_print " "
-    else
-      sed -i 's|#h||g' $MODPATH/.aml.sh
+  elif [ "$ARCH" == $NAME2 ]; then
+    ui_print "- $ARCH architecture"
+    rm -rf `find $MODPATH -type d -name *64*`
+    sed -i 's|#h||g' $MODPATH/.aml.sh
+    if [ $DOLBY == true ]; then
+      ui_print "  ! Unsupported Dolby Atmos."
     fi
+    DOLBY=false
+    ui_print " "
   else
-    ui_print "! Doesn't support 32 bit library"
+    ui_print "! Unsupported $ARCH architecture."
+    ui_print "  This module is only for $NAME or $NAME2 architecture."
+    abort
+  fi
+  if [ "$AUDIO64BIT" ]; then
+    ui_print "! Sound Enhancement uses 32 bit audio service only"
+    ui_print "  But this ROM uses 64 bit audio service"
     ui_print "  Sound Enhancement will not be working"
     if [ $DOLBY == true ]; then
       ui_print "  But you can still use the Dolby Atmos"
     fi
-    rm -rf $MODPATH/armeabi-v7a $MODPATH/x86\
-     $MODPATH/system*/lib $MODPATH/system*/vendor/lib
     ui_print " "
+  else
+    sed -i 's|#h||g' $MODPATH/.aml.sh
   fi
 else
-  ui_print "- 32 bit architecture"
-  rm -rf `find $MODPATH -type d -name *64*`
-  sed -i 's|#h||g' $MODPATH/.aml.sh
+  ui_print "! Doesn't support 32 bit library"
+  ui_print "  Sound Enhancement will not be working"
   if [ $DOLBY == true ]; then
-    ui_print "  ! Unsupported Dolby Atmos."
+    ui_print "  But you can still use the Dolby Atmos"
   fi
-  DOLBY=false
+  rm -rf $MODPATH/armeabi-v7a $MODPATH/system*/lib\
+   $MODPATH/system*/vendor/lib
   ui_print " "
 fi
 
@@ -139,7 +149,7 @@ if [ -f $MODPATH/system_support$DIR/$LIB ]; then
   ui_print "  Please wait..."
   if ! grep -q $NAME $FILE; then
     ui_print "  Function not found."
-    ui_print "  Replaces /system$DIR/$LIB."
+    ui_print "  Replaces /system$DIR/$LIB systemlessly."
     mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
     [ "$MES" ] && ui_print "$MES"
   fi
@@ -346,7 +356,7 @@ if [ "`grep_prop data.cleanup $OPTIONALS`" == 1 ]; then
   ui_print " "
 elif [ -d $DIR ]\
 && [ "$PREVMODNAME" != "$MODNAME" ]; then
-  ui_print "- Different version detected"
+  ui_print "- Different module name is detected"
   ui_print "  Cleaning-up $MODID data..."
   cleanup
   ui_print " "
@@ -648,7 +658,7 @@ for APP in $APPS; do
 done
 }
 replace_dir() {
-if [ -d $DIR ]; then
+if [ -d $DIR ] && [ ! -d $MODPATH$MODDIR ]; then
   REPLACE="$REPLACE $MODDIR"
 fi
 }
@@ -691,9 +701,10 @@ done
 }
 
 # hide
-APPS="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
+APPS="`ls $MODPATH/system/priv-app`
+      `ls $MODPATH/system/app`"
 hide_oat
-APPS="MusicFX AudioFX"
+APPS="$APPS MusicFX AudioFX"
 hide_app
 if [ $DOLBY == true ]; then
   if [ "`grep_prop dolby.mod $OPTIONALS`" == 0 ]; then
@@ -889,24 +900,28 @@ fi
 # function
 file_check_system() {
 for FILE in $FILES; do
-  DES=$SYSTEM$FILE
-  DES2=$SYSTEM_EXT$FILE
-  if [ -f $DES ] || [ -f $DES2 ]; then
-    ui_print "- Detected $FILE"
-    ui_print " "
-    rm -f $MODPATH/system$FILE
-  fi
+  DESS="$SYSTEM$FILE $SYSTEM_EXT$FILE"
+  for DES in $DESS; do
+    if [ -f $DES ]; then
+      ui_print "- Detected"
+      ui_print "$DES"
+      rm -f $MODPATH/system$FILE
+      ui_print " "
+    fi
+  done
 done
 }
 file_check_vendor() {
 for FILE in $FILES; do
-  DES=$VENDOR$FILE
-  DES2=$ODM$FILE
-  if [ -f $DES ] || [ -f $DES2 ]; then
-    ui_print "- Detected $FILE"
-    ui_print " "
-    rm -f $MODPATH/system/vendor$FILE
-  fi
+  DESS="$VENDOR$FILE $ODM$FILE"
+  for DES in $DESS; do
+    if [ -f $DES ]; then
+      ui_print "- Detected"
+      ui_print "$DES"
+      rm -f $MODPATH/system/vendor$FILE
+      ui_print " "
+    fi
+  done
 done
 }
 

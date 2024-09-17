@@ -23,12 +23,13 @@
 
 ## Requirements
 - Sound Enhancement:
+  - ARM or ARM64 architecture
   - 32 bit audio service (this also can be found in 64 bit ROM with 32 bit support, not only 32 bit ROM)
-  - Android 10 and up
+  - Android 10 (SDK 29) and up
   - Magisk or KernelSU installed
 - Dolby Atmos:
-  - 64 bit architecture
-  - Android 10 and up
+  - ARM64 architecture
+  - Android 10 (SDK 29) and up
   - Magisk or KernelSU installed (Recommended to use Magisk Delta/Kitsune Mask for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 
 ## WARNING!!!
@@ -66,21 +67,14 @@
 - https://t.me/androidryukimodsdiscussions/2618
 - If you don't do above, issues will be closed immediately
 
-## Tested on
-- Android 10 CrDroid ROM
-- Android 11 DotOS ROM
-- Android 12 AncientOS ROM
-- Android 12.1 Nusantara ROM
-- Android 13 AOSP ROM, CrDroid ROM, & AlphaDroid ROM
-- Android 14 LineageOS ROM
-
 ## Credits and Contributors
+- @HuskyDG
 - https://t.me/viperatmos
 - https://t.me/androidryukimodsdiscussions
 - @HELLBOY017
 - You can contribute ideas about this Magisk Module here: https://t.me/androidappsportdevelopment
 
 ## Sponsors
-- https://t.me/androidryukimodsdiscussions/2619
+- https://t.me/ryukinotes/25
 
 
