@@ -16,19 +16,19 @@
 - libhscomp_jni.so & libhscomp.so: https://dumps.tadiphone.dev/dumps/sony/akari akari-user-9-TAMA2-2.0.1-191021-1837-1-dev-keys
 - system_dolby: https://dumps.tadiphone.dev/dumps/sony/xq-at51 qssi-user-10-58.0.A.3.31-058000A003003102854466984-release-keys
 - system_support: CrDroid ROM Android 13
-- libmagiskpolicy.so: Kitsune Mask R65C33E4F
+- libmagiskpolicy.so: Kitsune Mask R6687BB53
 
 ## Screenshots
 - https://t.me/androidryukimodsdiscussions/144433
 
 ## Requirements
 - Sound Enhancement:
-  - ARM or ARM64 architecture
+  - armeabi-v7a or arm64-v8a architecture
   - 32 bit audio service (this also can be found in 64 bit ROM with 32 bit support, not only 32 bit ROM)
   - Android 10 (SDK 29) and up
   - Magisk or KernelSU installed
 - Dolby Atmos:
-  - ARM64 architecture
+  - arm64-v8a architecture
   - Android 10 (SDK 29) and up
   - Magisk or KernelSU installed (Recommended to use Magisk Delta/Kitsune Mask for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/androidryukimodsdiscussions/100091)
 

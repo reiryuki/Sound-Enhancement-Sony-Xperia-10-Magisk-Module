@@ -1,8 +1,8 @@
 id=SoundEnhancement
 name=Sound Enhancement Sony Xperia 10
-version=v1.0.4
-versionCode=104
+version=v1.0.5
+versionCode=105
 author=Rei Ryuki the Fixer
-description=Equalizers global type sound effect ported from Sony Xperia 10 (I4113) for any Android 10 (SDK 29) and up, ARM or ARM64 architecture.
+description=Equalizers global type sound effect ported from Sony Xperia 10 (I4113) for any armeabi-v7a or arm64-v8a architecture, Android 10 (SDK 29) and up.
 
 

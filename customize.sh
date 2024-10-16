@@ -4,12 +4,16 @@ ui_print " "
 # var
 UID=`id -u`
 [ ! "$UID" ] && UID=0
-LIST32BIT=`grep_get_prop ro.product.cpu.abilist32`
-if [ ! "$LIST32BIT" ]; then
-  LIST32BIT=`grep_get_prop ro.system.product.cpu.abilist32`
+ABILIST=`grep_get_prop ro.product.cpu.abilist`
+if [ ! "$ABILIST" ]; then
+  ABILIST=`grep_get_prop ro.system.product.cpu.abilist`
 fi
-if [ ! "$LIST32BIT" ]; then
-  [ -f /system/lib/libandroid.so ] && LIST32BIT=true
+ABILIST32=`grep_get_prop ro.product.cpu.abilist32`
+if [ ! "$ABILIST32" ]; then
+  ABILIST32=`grep_get_prop ro.system.product.cpu.abilist32`
+fi
+if [ ! "$ABILIST32" ]; then
+  [ -f /system/lib/libandroid.so ] && ABILIST32=true
 fi
 
 # log
@@ -77,55 +81,63 @@ fi
 # recovery
 mount_partitions_in_recovery
 
-# architecture
+# dolby
 if [ "`grep_prop se.dolby $OPTIONALS`" == 0 ]; then
   DOLBY=false
 else
   DOLBY=true
 fi
-NAME=arm64
-NAME2=arm
-AUDIO64BIT=`grep linker64 /*/bin/hw/*hardware*audio*`
-if [ "$LIST32BIT" ]; then
-  if [ "$ARCH" == $NAME ]; then
-    ui_print "- $ARCH architecture"
-    ui_print " "
-    ui_print "- 32 bit library support"
-    ui_print " "
-  elif [ "$ARCH" == $NAME2 ]; then
-    ui_print "- $ARCH architecture"
-    rm -rf `find $MODPATH -type d -name *64*`
-    sed -i 's|#h||g' $MODPATH/.aml.sh
+
+# architecture
+if [ "$ABILIST" ]; then
+  ui_print "- $ABILIST architecture"
+  ui_print " "
+fi
+NAME=arm64-v8a
+NAME2=armeabi-v7a
+if ! echo "$ABILIST" | grep -q $NAME; then
+  if echo "$ABILIST" | grep -q $NAME2; then
+    rm -rf `find $MODPATH/system -type d -name *64*`
     if [ $DOLBY == true ]; then
-      ui_print "  ! Unsupported Dolby Atmos."
+      ui_print "! Unsupported Dolby Atmos"
+      ui_print " "
     fi
     DOLBY=false
-    ui_print " "
   else
-    ui_print "! Unsupported $ARCH architecture."
-    ui_print "  This module is only for $NAME or $NAME2 architecture."
+    if [ "$BOOTMODE" == true ]; then
+      ui_print "! This ROM doesn't support $NAME nor $NAME2 architecture"
+    else
+      ui_print "! This Recovery doesn't support $NAME nor $NAME2 architecture"
+      ui_print "  Try to install via Magisk app instead"
+    fi
     abort
   fi
-  if [ "$AUDIO64BIT" ]; then
-    ui_print "! Sound Enhancement uses 32 bit audio service only"
-    ui_print "  But this ROM uses 64 bit audio service"
-    ui_print "  Sound Enhancement will not be working"
-    if [ $DOLBY == true ]; then
-      ui_print "  But you can still use the Dolby Atmos"
-    fi
-    ui_print " "
+fi
+if ! echo "$ABILIST" | grep -q $NAME2; then
+  if [ "$BOOTMODE" == true ]; then
+    ui_print "! This ROM doesn't support $NAME2 architecture"
   else
-    sed -i 's|#h||g' $MODPATH/.aml.sh
+    ui_print "! This Recovery doesn't support $NAME2 architecture"
+    ui_print "  Try to install via Magisk app instead"
   fi
-else
-  ui_print "! Doesn't support 32 bit library"
   ui_print "  Sound Enhancement will not be working"
   if [ $DOLBY == true ]; then
     ui_print "  But you can still use the Dolby Atmos"
   fi
-  rm -rf $MODPATH/armeabi-v7a $MODPATH/system*/lib\
+  rm -rf $MODPATH/system*/lib\
    $MODPATH/system*/vendor/lib
   ui_print " "
+fi
+if ! file /*/bin/hw/*hardware*audio* | grep -q 32-bit; then
+  ui_print "! Sound Enhancement uses 32 bit audio service only"
+  ui_print "  But this ROM uses 64 bit audio service"
+  ui_print "  Sound Enhancement will not be working"
+  if [ $DOLBY == true ]; then
+    ui_print "  But you can still use the Dolby Atmos"
+  fi
+  ui_print " "
+else
+  sed -i 's|#h||g' $MODPATH/.aml.sh
 fi
 
 # magisk
@@ -182,7 +194,7 @@ if [ $DOLBY == true ]; then
     FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
     check_function
   fi
-  if [ "$LIST32BIT" ]; then
+  if [ "$ABILIST32" ]; then
     DIR=/lib
     LISTS=`strings $MODPATH/system_dolby/vendor$DIR/$DES | grep ^lib | grep .so`
     FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
@@ -203,7 +215,7 @@ if [ $DOLBY == true ]; then
     DIR=/lib64
     find_file
   fi
-  if [ "$LIST32BIT" ]; then
+  if [ "$ABILIST32" ]; then
     DIR=/lib
     find_file
   fi
@@ -930,7 +942,7 @@ if [ "$IS64BIT" == true ]; then
   FILES=/lib64/libaudio-resampler.so
   file_check_system
 fi
-if [ "$LIST32BIT" ]; then
+if [ "$ABILIST32" ]; then
   FILES=/lib/libaudio-resampler.so
   file_check_system
 fi
@@ -943,7 +955,7 @@ if [ "$IS64BIT" == true ]; then
 #         /lib64/libstagefright_soft_somcalacdec.so
   file_check_vendor
 fi
-if [ "$LIST32BIT" ]; then
+if [ "$ABILIST32" ]; then
   FILES="/lib/libAlacSwDec.so
          /lib/libOmxAlacDec.so
          /lib/libOmxAlacDecSw.so
@@ -959,7 +971,7 @@ if [ $DOLBY == true ]; then
 #           /lib64/libstagefright_soft_ac4dec.so"
     file_check_vendor
   fi
-  if [ "$LIST32BIT" ]; then
+  if [ "$ABILIST32" ]; then
     FILES="/lib/libstagefrightdolby.so
            /lib/libstagefright_soft_ddpdec.so
            /lib/libstagefright_soft_ac4dec.so"
@@ -995,7 +1007,7 @@ if [ "$IS64BIT" == true ]; then
   MODFILE=$MODPATH/system/vendor/lib64/$NAME2
   rename_file
 fi
-if [ "$LIST32BIT" ]; then
+if [ "$ABILIST32" ]; then
   FILE=$MODPATH/system/lib/$NAME
   MODFILE=$MODPATH/system/vendor/lib/$NAME2
   rename_file
@@ -1013,7 +1025,7 @@ if [ "$IS64BIT" == true ]; then
   MODFILE=$MODPATH/system/vendor/lib64/$NAME2
   rename_file
 fi
-if [ "$LIST32BIT" ]; then
+if [ "$ABILIST32" ]; then
   FILE=$MODPATH/system/vendor/lib/$NAME
   MODFILE=$MODPATH/system/vendor/lib/$NAME2
   rename_file
@@ -1042,7 +1054,7 @@ if [ "`grep_prop dolby.mod $OPTIONALS`" != 0 ]; then
     MODFILE=$MODPATH/system/vendor/lib64/soundfx/$NAME2
     rename_file
   fi
-  if [ "$LIST32BIT" ]; then
+  if [ "$ABILIST32" ]; then
     FILE=$MODPATH/system/vendor/lib/soundfx/$NAME
     MODFILE=$MODPATH/system/vendor/lib/soundfx/$NAME2
     rename_file
@@ -1114,7 +1126,7 @@ fi
 # raw
 FILE=$MODPATH/.aml.sh
 if [ "`grep_prop disable.raw $OPTIONALS`" == 0 ]; then
-  ui_print "- Does not disable Ultra Low Latency playback (RAW)"
+  ui_print "- Does not disable Ultra Low Latency (Raw) playback"
   ui_print " "
 else
   sed -i 's|#u||g' $FILE
