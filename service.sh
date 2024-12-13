@@ -274,12 +274,12 @@ if [ "$API" -ge 33 ]; then
 fi
 
 # audio flinger
-DMAF=`dumpsys media.audio_flinger`
+#DMAF=`dumpsys media.audio_flinger`
 
 # function
 stop_log() {
 SIZE=`du $LOGFILE | sed "s|$LOGFILE||g"`
-if [ "$LOG" != stopped ] && [ "$SIZE" -gt 75 ]; then
+if [ "$LOG" != stopped ] && [ "$SIZE" -gt 50 ]; then
   exec 2>/dev/null
   set +x
   LOG=stopped

@@ -37,12 +37,11 @@
 
 ## Installation Guide & Download Link
 - Recommended to use Magisk Delta/Kitsune Mask if Dolby Atmos is activated https://t.me/androidryukimodsdiscussions/100091
-- Don't use ACDB Magisk Module!
-- Remove any other else Dolby Magisk module with different name (no need to remove if it's the same name) if Dolby Atmos is activated
+- Remove any other else Dolby MAGISK MODULE with different name (no need to remove if it's the same name) if Dolby Atmos is activated
 - Reboot
 - If you have Dolby in-built in your ROM, then you need to activate data.cleanup=1 at the first time install (READ Optionals bellow!)
 - Install this module https://www.pling.com/p/1531791/ via Magisk app or KernelSU app or Recovery if Magisk installed
-- Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other else audio mod module
+- Install AML Magisk Module https://t.me/ryukinotes/34 only if using any other else audio mod module
 - If you are using KernelSU, you need to disable Unmount Modules by Default in KernelSU app settings
 - Reboot
 - Disable the "No active profiles" notification and ignore it it's nothing
@@ -59,8 +58,8 @@
 
 ## Optionals & Troubleshootings
 - https://t.me/androidryukimodsdiscussions/25187
-- Global: https://t.me/androidryukimodsdiscussions/29836
-- Global: https://t.me/androidryukimodsdiscussions/60861
+- Global: https://t.me/ryukinotes/34
+- Global: https://t.me/ryukinotes/35
 - Stream: https://t.me/androidryukimodsdiscussions/26764
 
 ## Support & Bug Report
