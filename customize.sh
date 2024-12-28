@@ -946,6 +946,32 @@ if grep -q "$NAME" $FILE ; then
 fi
 
 # function
+file_check_apex_for_vendor() {
+for FILE in $FILES; do
+  DESS="/apex$FILE $SYSTEM/apex$FILE"
+  for DES in $DESS; do
+    if [ -f $DES ]; then
+      ui_print "- Detected"
+      ui_print "$DES"
+      rm -f $MODPATH/system/vendor$FILE
+      ui_print " "
+    fi
+  done
+done
+}
+file_check_system_for_vendor() {
+for FILE in $FILES; do
+  DESS="$SYSTEM$FILE $SYSTEM_EXT$FILE"
+  for DES in $DESS; do
+    if [ -f $DES ]; then
+      ui_print "- Detected"
+      ui_print "$DES"
+      rm -f $MODPATH/system/vendor$FILE
+      ui_print " "
+    fi
+  done
+done
+}
 file_check_system() {
 for FILE in $FILES; do
   DESS="$SYSTEM$FILE $SYSTEM_EXT$FILE"
@@ -977,34 +1003,30 @@ done
 if [ "$IS64BIT" == true ]; then
   FILES=/lib64/libaudio-resampler.so
   file_check_system
+  FILES="/lib64/libAlacSwDec.so
+         /lib64/libOmxAlacDec.so
+         /lib64/libOmxAlacDecSw.so"
+  file_check_vendor
 fi
 if [ "$ABILIST32" ]; then
   FILES=/lib/libaudio-resampler.so
   file_check_system
-fi
-FILES=/etc/media_codecs_somc_audio.xml
-file_check_vendor
-if [ "$IS64BIT" == true ]; then
-  FILES="/lib64/libAlacSwDec.so
-         /lib64/libOmxAlacDec.so
-         /lib64/libOmxAlacDecSw.so"
-#         /lib64/libstagefright_soft_somcalacdec.so
-  file_check_vendor
-fi
-if [ "$ABILIST32" ]; then
   FILES="/lib/libAlacSwDec.so
          /lib/libOmxAlacDec.so
          /lib/libOmxAlacDecSw.so
          /lib/libstagefright_soft_somcalacdec.so"
   file_check_vendor
 fi
+FILES=/etc/media_codecs_somc_audio.xml
+file_check_vendor
 if [ $DOLBY == true ]; then
-  FILES=/etc/media_codecs_dolby_audio.xml
-  file_check_vendor
   if [ "$IS64BIT" == true ]; then
-    FILES=/lib64/libstagefrightdolby.so
-#           "/lib64/libstagefright_soft_ddpdec.so
-#           /lib64/libstagefright_soft_ac4dec.so"
+    FILES=/*vndk*/lib64/libsqlite.so
+    file_check_apex_for_vendor
+    FILES=/lib64/vndk-*/libsqlite.so
+    file_check_system_for_vendor
+    FILES="/lib64/libsqlite.so
+           /lib64/libstagefrightdolby.so"
     file_check_vendor
   fi
   if [ "$ABILIST32" ]; then
@@ -1013,6 +1035,8 @@ if [ $DOLBY == true ]; then
            /lib/libstagefright_soft_ac4dec.so"
     file_check_vendor
   fi
+  FILES=/etc/media_codecs_dolby_audio.xml
+  file_check_vendor
 fi
 
 # function
