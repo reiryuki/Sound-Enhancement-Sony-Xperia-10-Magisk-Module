@@ -269,8 +269,10 @@ fi
 
 # revoke
 PKG=com.reiryuki.soundenhancementlauncher
+appops set $PKG SYSTEM_ALERT_WINDOW allow
 if [ "$API" -ge 33 ]; then
   pm revoke $PKG android.permission.POST_NOTIFICATIONS
+  appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
 fi
 
 # audio flinger
