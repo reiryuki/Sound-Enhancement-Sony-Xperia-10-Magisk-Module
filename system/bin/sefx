@@ -56,8 +56,8 @@ if [ "$PKGS" ]; then
       for PID in $PIDS; do
         DUMP=`dumpsys audio | grep "$PID" | grep sessionId: | sed 's| |\n|g'`
         if [ "$DUMP" ]; then
-          SESSION=`echo "$DUMP" | grep sessionId: | sed 's|sessionId:||g'`
-          if [ "$SESSION" ]; then
+          SESSIONS=`echo "$DUMP" | grep sessionId: | sed 's|sessionId:||g'`
+          for SESSION in $SESSIONS; do
             CONTENT=`echo "$DUMP" | grep content= | sed 's|content=||g'`
             if echo "$CONTENT" | grep -q MUSIC; then
               TYPE=2
@@ -82,9 +82,8 @@ if [ "$PKGS" ]; then
               TYPENAME=Undefined
             fi
             sefx_result
-          else
-            sefx_result
-          fi
+          done
+          [ ! "$SESSION" ] && sefx_result
         else
           sefx_result
         fi
