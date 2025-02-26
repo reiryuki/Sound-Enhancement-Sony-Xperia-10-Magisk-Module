@@ -228,8 +228,9 @@ settings put global dnc_mode_name_2 Office
 # grant
 PKG=com.sonyericsson.soundenhancement
 pm grant $PKG android.permission.RECORD_AUDIO
+appops set $PKG SYSTEM_ALERT_WINDOW allow
+appops set $PKG TAKE_AUDIO_FOCUS allow
 if [ "$API" -ge 30 ]; then
-  appops set $PKG SYSTEM_ALERT_WINDOW allow
   appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
 fi
 if [ "$API" -ge 33 ]; then
