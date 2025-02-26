@@ -12,6 +12,7 @@ echo "Please play music first!"
 }
 sefx_result() {
 echo "Package Name = $PKG"
+echo "Process ID = $PID"
 if [ "$SESSION" ]; then
   echo "Audio Session = $SESSION"
   echo "Content Type = $TYPE ($TYPENAME)"
@@ -48,7 +49,7 @@ PKGS=`dumpsys media_session | sed 's| |\n|g' | grep packages= | sed 's|packages=
 unset PKG
 if [ "$PKGS" ]; then
   for PKG in $PKGS; do
-    PIDS=`pidof "$PKG"`
+    PIDS="`pidof $PKG` `pidof $PKG:service`"
     unset SESSION
     unset TYPE
     unset TYPENAME
