@@ -3,16 +3,14 @@
 # function
 start_broadcast() {
 am broadcast -a android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION --es android.media.extra.PACKAGE_NAME $PKG --ei android.media.extra.AUDIO_SESSION $SESSION --ei android.media.extra.CONTENT_TYPE $TYPE
+WARN=0
 }
 start_activity() {
-am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p com.sonyericsson.soundenhancement
-}
-sefx_warn() {
-echo "Please play music first!"
+am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p $EQPKG
 }
 sefx_result() {
 echo "Package Name = $PKG"
-echo "Process ID = $PID"
+[ "$PID" ] && echo "Process ID = $PID"
 if [ "$SESSION" ]; then
   echo "Audio Session = $SESSION"
   echo "Content Type = $TYPE ($TYPENAME)"
@@ -40,8 +38,6 @@ if [ "$SESSION" ]; then
       fi
     fi
   fi
-else
-  sefx_warn
 fi
 }
 run_sefx() {
@@ -49,7 +45,7 @@ PKGS=`dumpsys media_session | sed 's| |\n|g' | grep packages= | sed 's|packages=
 unset PKG
 if [ "$PKGS" ]; then
   for PKG in $PKGS; do
-    PIDS="`pidof $PKG` `pidof $PKG:service`"
+    PIDS=`ps -A | awk -v pkg="$PKG" '$0 ~ pkg {print $2}'`
     unset SESSION
     unset TYPE
     unset TYPENAME
@@ -93,14 +89,15 @@ if [ "$PKGS" ]; then
       sefx_result
     fi
   done
-else
-  sefx_warn
 fi
 }
 
 # check
 if [ "`whoami`" == root ]; then
+  EQPKG=com.sonyericsson.soundenhancement
+  WARN=1
   run_sefx
+  [ "$WARN" == 1 ] && echo "Please play music first!"
 else
   echo "Please type su first!"
 fi
