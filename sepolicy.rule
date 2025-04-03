@@ -20,10 +20,11 @@ allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untru
 
 # file
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { hal_dms_default_exec vendor_displayfeature_prop } file getattr
-allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } bluetooth_prop file map
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { bluetooth_prop vendor_displayfeature_prop qemu_hw_prop } file map
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_default_prop vendor_audio_prop debug_mtk_gpud_prop audio_config_prop } file { read open getattr map }
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } qemu_hw_prop file { read open getattr }
-allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_displayfeature_prop file { read open }
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_displayfeature_prop mcd_data_file sysfs_migt migt_file } file { read open }
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } proc_mi_log file write
 allow { hal_audio_default mtk_hal_audio audioserver } vendor_dolby_loglevel_prop file { read open getattr }
 allow zygote { device unlabeled } file write
 allow zygote zygote_tmpfs file { create open }
@@ -34,7 +35,7 @@ allow daxservice_app default_prop file read
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } device chr_file { read write open getattr ioctl }
 
 # dir
-allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } migt_file dir search
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { migt_file mcd_data_file } dir search
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } system_file dir write
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } data_log_file dir { search getattr }
 
@@ -50,14 +51,17 @@ allow untrusted_app_27 untrusted_app_27 capability { dac_read_search dac_overrid
 allow untrusted_app untrusted_app capability { dac_read_search dac_override sys_resource }
 
 # additional
-allow { hal_audio_default mtk_hal_audio audioserver } system_suspend_hwservice hwservice_manager find
+allow { hal_audio_default mtk_hal_audio audioserver } { system_suspend_hwservice default_android_hwservice } hwservice_manager find
+allow { hal_audio_default mtk_hal_audio audioserver } default_android_hwservice hwservice_manager add
 allow { hal_audio_default mtk_hal_audio audioserver } hal_system_suspend_service service_manager find
 allow { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop audio_prop radio_prop vendor_pd_locater_dbg_prop } file { read open getattr map }
 allow { hal_audio_default mtk_hal_audio audioserver } { mnt_vendor_file system_prop vendor_default_prop } file { read open getattr }
 allow { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file { write open }
-allow { hal_audio_default mtk_hal_audio audioserver } { sysfs sysfs_boot_mode } file { read open }
+allow { hal_audio_default mtk_hal_audio audioserver } { sysfs sysfs_boot_mode bluetooth_prop } file { read open }
+allow { hal_audio_default mtk_hal_audio audioserver } bluetooth_prop file getattr
 allow { hal_audio_default mtk_hal_audio audioserver } system_prop file map
-allow { hal_audio_default mtk_hal_audio audioserver } sysfs_net dir search
+allow { hal_audio_default mtk_hal_audio audioserver } boot_status_prop file read
+allow { hal_audio_default mtk_hal_audio audioserver } { sysfs_net debugfs_ion } dir search
 allow { hal_audio_default mtk_hal_audio audioserver } { sysfs_net sysfs } dir { read open }
 allow { hal_audio_default mtk_hal_audio audioserver } logd_socket sock_file write
 allow { hal_audio_default mtk_hal_audio audioserver } logd unix_stream_socket connectto
