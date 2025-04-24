@@ -666,6 +666,12 @@ if [ $EIM == true ]; then
       eim_cache_warning
       ui_print " "
     fi
+    if echo $MAGISK_VER | grep -q kitsune-; then
+      ui_print "! It seems you are using a fake Kitsune Mask version"
+      ui_print "  and that is known has a broken early/pre init mount."
+      ui_print "  Please use an original Kitsune Mask instead."
+      ui_print " "
+    fi
   else
     EIM=false
   fi

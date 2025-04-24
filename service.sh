@@ -227,19 +227,21 @@ settings put global dnc_mode_name_2 Office
 
 # grant
 PKG=com.sonyericsson.soundenhancement
-pm grant $PKG android.permission.RECORD_AUDIO
-appops set $PKG SYSTEM_ALERT_WINDOW allow
-appops set $PKG TAKE_AUDIO_FOCUS allow
-if [ "$API" -ge 30 ]; then
-  appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
-fi
-if [ "$API" -ge 33 ]; then
-  appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
-fi
-PKGOPS=`appops get $PKG`
-UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
-if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
-  UIDOPS=`appops get --uid "$UID"`
+if appops get $PKG > /dev/null 2>&1; then
+  pm grant --all-permissions $PKG
+  appops set $PKG SYSTEM_ALERT_WINDOW allow
+  appops set $PKG TAKE_AUDIO_FOCUS allow
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
+  if [ "$API" -ge 33 ]; then
+    appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
+  fi
+  PKGOPS=`appops get $PKG`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
+  if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
+    UIDOPS=`appops get --uid "$UID"`
+  fi
 fi
 
 # allow
@@ -268,12 +270,14 @@ if appops get $PKG > /dev/null 2>&1; then
   fi
 fi
 
-# revoke
+# allow
 PKG=com.reiryuki.soundenhancementlauncher
-appops set $PKG SYSTEM_ALERT_WINDOW allow
-if [ "$API" -ge 33 ]; then
-  pm revoke $PKG android.permission.POST_NOTIFICATIONS
-  appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
+if appops get $PKG > /dev/null 2>&1; then
+  appops set $PKG SYSTEM_ALERT_WINDOW allow
+  if [ "$API" -ge 33 ]; then
+    pm revoke $PKG android.permission.POST_NOTIFICATIONS
+    appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
+  fi
 fi
 
 # audio flinger
