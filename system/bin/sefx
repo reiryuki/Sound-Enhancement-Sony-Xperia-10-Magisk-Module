@@ -14,29 +14,11 @@ echo "Package Name = $PKG"
 if [ "$SESSION" ]; then
   echo "Audio Session = $SESSION"
   echo "Content Type = $TYPE ($TYPENAME)"
-  if ! start_broadcast; then
-    FILE=/sys/fs/selinux/enforce
-    chmod 0644 $FILE
-    SELINUX=`cat $FILE`
-    if [ "$SELINUX" == 1 ]; then
-      echo 0 > $FILE
-      start_broadcast
-      echo 1 > $FILE
-    fi
-  fi
   if [ "$SESSION" -lt 0 ]; then
     echo "Unsupported music player"
   else
-    if ! start_activity; then
-      FILE=/sys/fs/selinux/enforce
-      chmod 0644 $FILE
-      SELINUX=`cat $FILE`
-      if [ "$SELINUX" == 1 ]; then
-        echo 0 > $FILE
-        start_activity
-        echo 1 > $FILE
-      fi
-    fi
+    start_broadcast
+    start_activity
   fi
 fi
 }
@@ -96,7 +78,16 @@ fi
 if [ "`whoami`" == root ]; then
   EQPKG=com.sonyericsson.soundenhancement
   WARN=1
-  run_sefx
+  FILE=/sys/fs/selinux/enforce
+  SELINUX=`cat $FILE`
+  if [ "$SELINUX" == 1 ]; then
+    chmod 0644 $FILE
+    echo 0 > $FILE
+    run_sefx
+    echo 1 > $FILE
+  else
+    run_sefx
+  fi
   [ "$WARN" == 1 ] && echo "Please play music first!"
 else
   echo "Please type su first!"
