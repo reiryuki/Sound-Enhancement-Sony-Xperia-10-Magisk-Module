@@ -10,14 +10,14 @@ ABI=`getprop ro.product.cpu.abi`
 
 # function
 permissive() {
-if [ "$SELINUX" == Enforcing ]; then
-  if ! setenforce 0; then
-    echo 0 > /sys/fs/selinux/enforce
-  fi
+if [ "`toybox cat $FILE`" = 1 ]; then
+  chmod 640 $FILE
+  chmod 440 $FILE2
+  echo 0 > $FILE
 fi
 }
 magisk_permissive() {
-if [ "$SELINUX" == Enforcing ]; then
+if [ "`toybox cat $FILE`" = 1 ]; then
   if [ -x "`command -v magiskpolicy`" ]; then
 	magiskpolicy --live "permissive *"
   else
@@ -36,11 +36,12 @@ fi
 }
 
 # selinux
-SELINUX=`getenforce`
-chmod 0755 $MODPATH/*/libmagiskpolicy.so
+FILE=/sys/fs/selinux/enforce
+FILE2=/sys/fs/selinux/policy
 #1permissive
+chmod 0755 $MODPATH/*/libmagiskpolicy.so
 #2magisk_permissive
-#kFILE=$MODPATH/sepolicy.rule
+FILE=$MODPATH/sepolicy.rule
 #ksepolicy_sh
 FILE=$MODPATH/sepolicy.pfsd
 sepolicy_sh
