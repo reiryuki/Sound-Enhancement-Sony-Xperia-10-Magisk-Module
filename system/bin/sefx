@@ -3,7 +3,6 @@
 # function
 start_broadcast() {
 am broadcast -a android.media.action.OPEN_AUDIO_EFFECT_CONTROL_SESSION --es android.media.extra.PACKAGE_NAME $PKG --ei android.media.extra.AUDIO_SESSION $SESSION --ei android.media.extra.CONTENT_TYPE $TYPE
-WARN=0
 }
 start_activity() {
 am start-activity -a android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL -c android.intent.category.DEFAULT -p $EQPKG
@@ -17,8 +16,27 @@ if [ "$SESSION" ]; then
   if [ "$SESSION" -lt 0 ]; then
     echo "Unsupported music player"
   else
-    start_broadcast
-    start_activity
+    FILE=/sys/fs/selinux/enforce
+    FILE2=/sys/fs/selinux/policy
+    if ! start_broadcast; then
+      if [ "`toybox cat $FILE`" = 1 ]; then
+        chmod 640 $FILE
+        chmod 440 $FILE2
+        echo 0 > $FILE
+        start_broadcast
+        echo 1 > $FILE
+      fi
+    fi
+    WARN=0
+    if ! start_activity; then
+      if [ "`toybox cat $FILE`" = 1 ]; then
+        chmod 640 $FILE
+        chmod 440 $FILE2
+        echo 0 > $FILE
+        start_activity
+        echo 1 > $FILE
+      fi
+    fi
   fi
 fi
 }
@@ -78,16 +96,7 @@ fi
 if [ "`whoami`" == root ]; then
   EQPKG=com.sonyericsson.soundenhancement
   WARN=1
-  FILE=/sys/fs/selinux/enforce
-  SELINUX=`cat $FILE`
-  if [ "$SELINUX" == 1 ]; then
-    chmod 0644 $FILE
-    echo 0 > $FILE
-    run_sefx
-    echo 1 > $FILE
-  else
-    run_sefx
-  fi
+  run_sefx
   [ "$WARN" == 1 ] && echo "Please play music first!"
 else
   echo "Please type su first!"
