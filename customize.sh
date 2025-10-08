@@ -318,6 +318,27 @@ if [ $DOLBY == true ]; then
     FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
     check_function
   fi
+  NAME=_ZN7android8String16aSEOS0_
+  DES=libhidlbase.so
+  LIB=libutils.so
+  if [ "$IS64BIT" == true ]; then
+    DIR=/lib64
+    if [ -f $MODPATH/system$DIR/$DES ]; then
+      LISTS=`strings $MODPATH/system$DIR/$DES | grep ^lib | grep .so\
+             | sed "s|$DES||g"`
+      FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
+      check_function
+    fi
+  fi
+  if [ "$ABILIST32" ]; then
+    DIR=/lib
+    if [ -f $MODPATH/system$DIR/$DES ]; then
+      LISTS=`strings $MODPATH/system$DIR/$DES | grep ^lib | grep .so\
+             | sed "s|$DES||g"`
+      FILE=`for LIST in $LISTS; do echo $SYSTEM$DIR/$LIST; done`
+      check_function
+    fi
+  fi
   MODNAME2='Sound Enhancement and Dolby Atmos Sony Xperia 10'
   sed -i "s|$MODNAME|$MODNAME2|g" $MODPATH/module.prop
   MODNAME=$MODNAME2
@@ -1156,6 +1177,39 @@ if grep -q libvndksupport.so /system/etc/*.txt; then
   || [ -f $MODPATH/system/vendor/lib/$NAME2 ]; then
   FILE="$MODPATH/system/vendor/lib*/$NAME2
 $MODPATH/system/vendor/lib*/vendor.dolby*.hardware.dms*@*.so"
+    change_name
+  fi
+  NAME=libutils.so
+  NAME2=libutdlb.so
+  if [ "$IS64BIT" == true ]; then
+    FILE=$MODPATH/system/lib64/$NAME
+    MODFILE=$MODPATH/system/vendor/lib64/$NAME2
+    rename_file
+  fi
+  if [ "$ABILIST32" ]; then
+    FILE=$MODPATH/system/lib/$NAME
+    MODFILE=$MODPATH/system/vendor/lib/$NAME2
+    rename_file
+  fi
+  if [ -f $MODPATH/system/vendor/lib64/$NAME2 ]\
+  || [ -f $MODPATH/system/vendor/lib/$NAME2 ]; then
+    FILE="$MODPATH/system/vendor/lib*/$NAME2
+$MODPATH/system/vendor/lib*/hw/android.hardware.audio.effect@*.0-impl.so
+$MODPATH/system/vendor/lib*/libhidldlbs.so
+$MODPATH/system/vendor/lib*/libsqlite.so
+$MODPATH/system/vendor/lib*/soundfx/lib*wdap*.so
+$MODPATH/system/vendor/lib*/soundfx/libswvqe*.so
+$MODPATH/system/vendor/lib*/soundfx/libswgamedap*.so
+$MODPATH/system/vendor/lib*/libdapparamstorage*.so
+$MODPATH/system/vendor/lib*/libdlbdsservice*.so
+$MODPATH/system/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
+$MODPATH/system/vendor/lib*/vendor.dolby*.hardware.dms*@*.so
+$MODPATH/system/vendor/lib*/vendor.dolby*.hardware.dms*@*-impl.so
+$MODPATH/system/vendor/lib*/libdeccfg*.so
+$MODPATH/system/vendor/lib*/libstagefright_foundation.so
+$MODPATH/system/vendor/lib*/libstagefrightdolby.so
+$MODPATH/system/vendor/lib*/libstagefright_soft_ddpdec*.so
+$MODPATH/system/vendor/lib*/libstagefright_soft_ac4dec*.so"
     change_name
   fi
 fi
