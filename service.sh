@@ -79,7 +79,8 @@ else
   SERVER=mediaserver
 fi
 killall $SERVER\
- android.hardware.audio@4.0-service-mediatek
+ android.hardware.audio@4.0-service-mediatek\
+ android.hardware.audio.service
 
 # unused
 #NAMES=vendor.semc.system.idd-1-0

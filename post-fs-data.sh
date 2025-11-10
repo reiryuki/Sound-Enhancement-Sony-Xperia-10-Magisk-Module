@@ -105,12 +105,22 @@ if [ -L $MODPATH/system/vendor ]\
     chmod 0755 $FILE
     chown 0.2000 $FILE
   done
+  FILES=`find $MODPATH/vendor/lib* -type f`
+  for FILE in $FILES; do
+    chmod 0644 $FILE
+    chown 0.0 $FILE
+  done
   chcon -R u:object_r:vendor_file:s0 $MODPATH/vendor
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/etc
   chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/vendor/odm/etc
 #  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/bin/hw/vendor.dolby*.hardware.dms*@*-service
 #  chcon u:object_r:hal_dms_default_exec:s0 $MODPATH/vendor/odm/bin/hw/vendor.dolby*.hardware.dms*@*-service
 else
+  FILES=`find $MODPATH/system/vendor/lib* -type f`
+  for FILE in $FILES; do
+    chmod 0644 $FILE
+    chown 0.0 $FILE
+  done
   chmod 0751 $MODPATH/system/vendor/bin
   chmod 0751 $MODPATH/system/vendor/bin/hw
   chmod 0755 $MODPATH/system/vendor/odm/bin
