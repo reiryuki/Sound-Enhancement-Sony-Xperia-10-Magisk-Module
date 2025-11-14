@@ -554,6 +554,10 @@ if [ ! -f $FILE.orig ] && [ ! -f $FILE.bak ]; then
 fi
 }
 patch_manifest() {
+if [ "$MIRROR" ]\
+&& ! grep -q " $MIRROR" /proc/mounts; then
+  FILE=`echo $FILE | sed -e "s|$MIRROR||g" -e 's|/system_root||g'`
+fi
 if [ -f $FILE ]; then
   backup
   if [ -f $FILE.orig ] || [ -f $FILE.bak ]; then
