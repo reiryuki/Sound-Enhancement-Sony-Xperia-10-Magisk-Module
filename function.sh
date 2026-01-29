@@ -289,24 +289,5 @@ if [ "$BOOTMODE" == true ]; then
   mount -o ro,remount /vendor
 fi
 }
-restore() {
-for FILE in $FILES; do
-  if [ -f $FILE.orig ]; then
-    mv -f $FILE.orig $FILE
-  fi
-  if [ -f $FILE.bak ]; then
-    mv -f $FILE.bak $FILE
-  fi
-done
-}
-
-
-
-
-
-
-
-
-
 
 

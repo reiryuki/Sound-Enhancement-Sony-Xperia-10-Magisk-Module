@@ -7,6 +7,10 @@ set -x
 
 # var
 API=`getprop ro.build.version.sdk`
+if [ ! -d $MODPATH/vendor ]\
+|| [ -L $MODPATH/vendor ]; then
+  MODSYSTEM=/system
+fi
 
 # function
 dolby_prop() {
@@ -102,26 +106,16 @@ DIR=/odm/bin/hw
 FILES=$DIR/vendor.dolby.hardware.dms@2.0-service
 if [ "`realpath $DIR`" == $DIR ]; then
   for FILE in $FILES; do
-    if [ -f $FILE ]; then
-      if [ -L $MODPATH/system/vendor ]\
-      && [ -d $MODPATH/vendor ]; then
-        mount -o bind $MODPATH/vendor$FILE $FILE
-      else
-        mount -o bind $MODPATH/system/vendor$FILE $FILE
-      fi
-    fi
+    [ -f $FILE ] && mount -o bind $MODPATH$MODSYSTEM/vendor$FILE $FILE
   done
 fi
+# permission
+chmod 0755 $MODPATH$MODSYSTEM/vendor/bin/hw/*
+chown 0.2000 $MODPATH$MODSYSTEM/vendor/bin/hw/*
 # run
 SERVICES=`realpath /vendor`/bin/hw/vendor.dolby.hardware.dms@1.0-service
 for SERVICE in $SERVICES; do
   killall $SERVICE
-  if ! stat -c %a $SERVICE | grep -E '755|775|777|757'\
-  || [ "`stat -c %u.%g $SERVICE`" != 0.2000 ]; then
-    mount -o remount,rw $SERVICE
-    chmod 0755 $SERVICE
-    chown 0.2000 $SERVICE
-  fi
   $SERVICE &
   PID=`pidof $SERVICE`
 done
@@ -138,9 +132,11 @@ killall vendor.qti.hardware.vibrator.service\
  vendor.samsung.hardware.light-service\
  vendor.qti.hardware.lights.service\
  android.hardware.lights-service.qti
-#skillall vendor.qti.hardware.display.allocator-service\
-#s vendor.qti.hardware.display.composer-service\
-#s camerahalserver qcrilNrd mtkfusionrild
+if grep 'BUGGY MODE' $MODPATH/module.prop; then
+  killall vendor.qti.hardware.display.allocator-service\
+   vendor.qti.hardware.display.composer-service\
+   camerahalserver qcrilNrd mtkfusionrild
+fi
 #xkillall android.hardware.sensors@1.0-service\
 #x android.hardware.sensors@2.0-service\
 #x android.hardware.sensors@2.0-service-mediatek\
@@ -156,22 +152,12 @@ sleep 20
 
 # aml fix
 AML=/data/adb/modules/aml
-if [ -L $AML/system/vendor ]\
-&& [ -d $AML/vendor ]; then
-  DIR=$AML/vendor/odm/etc
-else
-  DIR=$AML/system/vendor/odm/etc
-fi
+DIR=$AML$MODSYSTEM/vendor/odm/etc
 if [ -d $DIR ] && [ ! -f $AML/disable ]; then
   chcon -R u:object_r:vendor_configs_file:s0 $DIR
 fi
 AUD=`grep AUD= $MODPATH/copy.sh | sed -e 's|AUD=||g' -e 's|"||g'`
-if [ -L $AML/system/vendor ]\
-&& [ -d $AML/vendor ]; then
-  DIR=$AML/vendor
-else
-  DIR=$AML/system/vendor
-fi
+DIR=$AML$MODSYSTEM/vendor
 FILES=`find $DIR -type f -name $AUD`
 if [ -d $AML ] && [ ! -f $AML/disable ]\
 && find $DIR -type f -name $AUD; then
@@ -281,9 +267,6 @@ if appops get $PKG > /dev/null 2>&1; then
   fi
 fi
 
-# audio flinger
-#DMAF=`dumpsys media.audio_flinger`
-
 # function
 stop_log() {
 SIZE=`du $LOGFILE | sed "s|$LOGFILE||g"`
@@ -302,11 +285,7 @@ fi
 sleep 15
 stop_log
 NEXTPID=`pidof $SERVER`
-if [ "`getprop init.svc.$SERVER`" != stopped ]; then
-  [ "$PID" != "$NEXTPID" ] && killall $PROC
-else
-  start $SERVER
-fi
+[ "$PID" != "$NEXTPID" ] && killall $PROC
 check_audioserver
 }
 check_service() {
