@@ -4,7 +4,6 @@
 allow system_server system_file file write
 
 # context
-create { system_lib_file vendor_file vendor_configs_file vendor_data_file vendor_media_data_file hal_dms_default_exec }
 allow { system_file system_lib_file vendor_file vendor_configs_file vendor_data_file vendor_media_data_file hal_dms_default_exec } labeledfs filesystem associate
 allow init { system_file system_lib_file vendor_file vendor_configs_file vendor_data_file vendor_media_data_file } { dir file } relabelfrom
 allow init hal_dms_default_exec file relabelfrom
@@ -51,7 +50,7 @@ allow untrusted_app_27 untrusted_app_27 capability { dac_read_search dac_overrid
 allow untrusted_app untrusted_app capability { dac_read_search dac_override sys_resource }
 
 # additional
-allow { hal_audio_default mtk_hal_audio audioserver } { system_suspend_hwservice default_android_hwservice } hwservice_manager find
+allow { hal_audio_default mtk_hal_audio audioserver } system_suspend_hwservice hwservice_manager find
 allow { hal_audio_default mtk_hal_audio audioserver } default_android_hwservice hwservice_manager add
 allow { hal_audio_default mtk_hal_audio audioserver } hal_system_suspend_service service_manager find
 allow { hal_audio_default mtk_hal_audio audioserver } { default_prop boottime_prop audio_prop radio_prop vendor_pd_locater_dbg_prop } file { read open getattr map }
@@ -84,7 +83,6 @@ allow audioserver audioserver tcp_socket create
 ## Sound Enhancement
 
 # context
-create audio_hweffect_device
 allow audio_hweffect_device tmpfs filesystem associate
 allow init audio_hweffect_device chr_file relabelfrom
 

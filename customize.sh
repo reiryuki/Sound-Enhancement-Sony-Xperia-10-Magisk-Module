@@ -444,7 +444,8 @@ for NAME in $NAMES; do
    /persist/magisk/$NAME\
    /data/unencrypted/magisk/$NAME\
    /cache/magisk/$NAME\
-   /cust/magisk/$NAME
+   /cust/magisk/$NAME\
+   /klogdump/magisk/$NAME
 done
 }
 
@@ -611,6 +612,8 @@ if echo $MAGISK_VER | grep -Eq 'delta|kitsune'\
       EIMDIR=/mnt/vendor/persist/early-mount.d
     elif grep ' /cust ' /proc/mounts | grep -q ext4; then
       EIMDIR=/cust/early-mount.d
+    elif grep ' /klogdump ' /proc/mounts | grep -q ext4; then
+      EIMDIR=/klogdump/early-mount.d
     fi
   fi
   if [ ! "$EIMDIR" ]\
@@ -629,6 +632,8 @@ if echo $MAGISK_VER | grep -Eq 'delta|kitsune'\
       EIMDIR=/mnt/vendor/persist/early-mount.d
     elif grep ' /cust ' /proc/mounts | grep -q f2fs; then
       EIMDIR=/cust/early-mount.d
+    elif grep ' /klogdump ' /proc/mounts | grep -q f2fs; then
+      EIMDIR=/klogdump/early-mount.d
     fi
   fi
   if [ "$EIMDIR" ]; then
@@ -1368,15 +1373,6 @@ if [ "`grep_prop audio.rotation $OPTIONALS`" == 1 ]; then
 resetprop -n ro.audio.monitorRotation true\
 resetprop -n ro.audio.monitorWindowRotation true' $FILE
   ui_print " "
-fi
-
-# raw
-FILE=$MODPATH/.aml.sh
-if [ "`grep_prop disable.raw $OPTIONALS`" == 0 ]; then
-  ui_print "- Does not disable Ultra Low Latency (Raw) playback"
-  ui_print " "
-else
-  sed -i 's|#u||g' $FILE
 fi
 
 # vendor_overlay

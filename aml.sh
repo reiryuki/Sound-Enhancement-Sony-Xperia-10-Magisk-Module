@@ -362,8 +362,7 @@ fi
 for MODAP in $MODAPS; do
   sed -i 's|COMPRESS_OFFLOAD|NONE|g' $MODAP
   sed -i 's|,compressed_offload||g' $MODAP
-#u  sed -i 's|RAW|NONE|g' $MODAP
-#u  sed -i 's|,raw||g' $MODAP
+  sed -i 's|compressed_offload,||g' $MODAP
 done
 
 # patch audio policy xml
