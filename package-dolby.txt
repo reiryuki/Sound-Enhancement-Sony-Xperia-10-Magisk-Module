@@ -1,5 +1,5 @@
 com.sonyericsson.soundenhancement
 com.sonymobile.audioutil
-com.reiryuki.soundenhancementlauncher
+reiryuki.soundenhancementlauncher
 com.dolby.daxappui
 com.dolby.daxservice

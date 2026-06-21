@@ -582,7 +582,7 @@ early_init_mount_dir() {
 if echo $MAGISK_VER | grep -Eq 'delta|kitsune'\
 && [ "`grep_prop dolby.skip.early $OPTIONALS`" != 1 ]; then
   check_data
-  get_flags > /dev/null 2>&1
+  get_flags >/dev/null 2>&1
   if [ "$BOOTMODE" == true ]; then
     if [ "$MAGISK_VER_CODE" -ge 26000 ]; then
       PREINITDEVICE=`grep_prop PREINITDEVICE $INTERNALDIR/config`
@@ -850,14 +850,13 @@ hide_oat
 APPS="$APPS MusicFX AudioFX"
 hide_app
 if [ $DOLBY == true ]; then
-  if [ "`grep_prop dolby.mod $OPTIONALS`" == 0 ]; then
-    APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner 
-          DolbyAtmos AudioEffectCenter"
-  else
-    APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner 
-          DolbyAtmos"
-  fi
+  APPS="MotoDolbyDax3 MotoDolbyV3 OPSoundTuner 
+        DolbyAtmos LunarisDolby"
   hide_app
+  if [ "`grep_prop dolby.mod $OPTIONALS`" == 0 ]; then
+    APPS=AudioEffectCenter
+    hide_app
+  fi
 fi
 
 # function

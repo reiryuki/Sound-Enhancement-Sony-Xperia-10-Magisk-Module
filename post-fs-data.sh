@@ -5,12 +5,36 @@ MODPATH=${0%/*}
 exec 2>$MODPATH/debug-pfsd.log
 set -x
 
+# function
+set_perm() {
+  chown $2:$3 $1 || return 1
+  chmod $4 $1 || return 1
+  local CON=$5
+  [ -z $CON ] && CON=u:object_r:system_file:s0
+  chcon $CON $1 || return 1
+}
+set_perm_recursive() {
+  find $1 -type d 2>/dev/null | while read dir; do
+    set_perm $dir $2 $3 $4 $6
+  done
+  find $1 -type f -o -type l 2>/dev/null | while read file; do
+    set_perm $file $2 $3 $5 $6
+  done
+}
+
+# permission
+set_perm_recursive $MODPATH 0 0 0755 0644
+
 # var
 ABI=`getprop ro.product.cpu.abi`
 if [ ! -d $MODPATH/vendor ]\
 || [ -L $MODPATH/vendor ]; then
   MODSYSTEM=/system
 fi
+MOD=/data/adb/modules/nomount
+NM=$MOD/bin/nm
+NOMOUNT=false
+[ ! -f $MOD/disable ] && [ -x $NM ] && $NM v >/dev/null 2>&1 && NOMOUNT=true
 
 # function
 permissive() {
@@ -23,9 +47,9 @@ fi
 magisk_permissive() {
 if [ "`toybox cat $FILE`" = 1 ]; then
   if [ -x "`command -v magiskpolicy`" ]; then
-	magiskpolicy --live "permissive *"
+    magiskpolicy --live "permissive *"
   else
-	$MODPATH/$ABI/libmagiskpolicy.so --live "permissive *"
+    $MODPATH/$ABI/libmagiskpolicy.so --live "permissive *"
   fi
 fi
 }
@@ -49,6 +73,15 @@ FILE=$MODPATH/sepolicy.rule
 #ksepolicy_sh
 FILE=$MODPATH/sepolicy.pfsd
 sepolicy_sh
+
+# conflict
+NAMES="ainur_narsil zyx_ainur_silmaril"
+for NAME in $NAMES; do
+  DIR=/data/adb/modules/$NAME
+  if [ -d $DIR ] && [ ! -f $DIR/remove ]; then
+    touch $DIR/remove
+  fi
+done
 
 # run
 . $MODPATH/copy.sh
@@ -107,11 +140,6 @@ for FILE in $FILES; do
   chmod 0755 $FILE
   chown 0.2000 $FILE
 done
-FILES=`find $MODPATH$MODSYSTEM/vendor/lib* -type f`
-for FILE in $FILES; do
-  chmod 0644 $FILE
-  chown 0.0 $FILE
-done
 chcon -R u:object_r:vendor_file:s0 $MODPATH$MODSYSTEM/vendor
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH$MODSYSTEM/vendor/etc
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH$MODSYSTEM/vendor/odm/etc
@@ -125,9 +153,15 @@ DIR=$MODPATH/system/odm
 FILES=`find $DIR -type f -name $AUD`
 for FILE in $FILES; do
   DES=/odm`echo $FILE | sed "s|$DIR||g"`
-  if [ -f $DES ]; then
-    umount $DES
-    mount -o bind $FILE $DES
+  RDES=`realpath $DES`
+  if [ -f $RDES ]; then
+    if $NOMOUNT; then
+      $NM del $RDES 2>/dev/null || true
+      $NM add $RDES $FILE
+    else
+      umount $RDES
+      mount -o bind $FILE $RDES
+    fi
   fi
 done
 }
@@ -136,9 +170,15 @@ DIR=$MODPATH/system/my_product
 FILES=`find $DIR -type f -name $AUD`
 for FILE in $FILES; do
   DES=/my_product`echo $FILE | sed "s|$DIR||g"`
-  if [ -f $DES ]; then
-    umount $DES
-    mount -o bind $FILE $DES
+  RDES=`realpath $DES`
+  if [ -f $RDES ]; then
+    if $NOMOUNT; then
+      $NM del $RDES 2>/dev/null || true
+      $NM add $RDES $FILE
+    else
+      umount $RDES
+      mount -o bind $FILE $RDES
+    fi
   fi
 done
 }
@@ -172,8 +212,13 @@ if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep 1.0; then
         <transport>hwbinder</transport>\
         <fqname>@1.0::IDms/default</fqname>\
     </hal>' $MODPATH$M
-    umount $M
-    mount -o bind $MODPATH$M $M
+    if $NOMOUNT; then
+      $NM del $M 2>/dev/null || true
+      $NM add $M $MODPATH$M
+    else
+      umount $M
+      mount -o bind $MODPATH$M $M
+    fi
     killall hwservicemanager
   fi
   sed -i 's|description=Equalizer|description=BUGGY MODE. Equalizer|g' $MODPATH/module.prop
@@ -188,8 +233,13 @@ fi
 # function
 mount_bind_file() {
 for FILE in $FILES; do
-  umount $FILE
-  mount -o bind $MODFILE $FILE
+  if $NOMOUNT; then
+    $NM del $FILE 2>/dev/null || true
+    $NM add $FILE $MODFILE
+  else
+    umount $FILE
+    mount -o bind $MODFILE $FILE
+  fi
 done
 }
 mount_bind_to_apex() {

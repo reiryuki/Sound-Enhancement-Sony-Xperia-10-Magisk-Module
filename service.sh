@@ -11,6 +11,27 @@ if [ ! -d $MODPATH/vendor ]\
 || [ -L $MODPATH/vendor ]; then
   MODSYSTEM=/system
 fi
+MOD=/data/adb/modules/nomount
+NM=$MOD/bin/nm
+NOMOUNT=false
+[ ! -f $MOD/disable ] && [ -x $NM ] && $NM v >/dev/null 2>&1 && NOMOUNT=true
+AML=/data/adb/modules/aml
+AUD=`cat $MODPATH/audio.txt`
+
+# NoMount
+if $NOMOUNT; then
+  if [ ! -d $AML ] || [ -f $AML/disable ]; then
+    FILES=`find $MODPATH/system $MODPATH/vendor -type f -name $AUD`
+    for FILE in $FILES; do
+      DES=`echo $FILE | sed -e "s|$MODPATH||g" -e 's|/system/odm|/odm|g' -e 's|/system/my_product|/my_product|g'`
+      RDES=`realpath $DES`
+      if [ -f $RDES ]; then
+        $NM del $RDES 2>/dev/null || true
+        $NM add $RDES $FILE
+      fi
+    done
+  fi
+fi
 
 # function
 dolby_prop() {
@@ -106,7 +127,16 @@ DIR=/odm/bin/hw
 FILES=$DIR/vendor.dolby.hardware.dms@2.0-service
 if [ "`realpath $DIR`" == $DIR ]; then
   for FILE in $FILES; do
-    [ -f $FILE ] && mount -o bind $MODPATH$MODSYSTEM/vendor$FILE $FILE
+    MODFILE=$MODPATH$MODSYSTEM/vendor$FILE
+    if [ -f $FILE ]; then
+      if $NOMOUNT; then
+        $NM del $FILE 2>/dev/null || true
+        $NM add $FILE $MODFILE
+      else
+        umount $FILE
+        mount -o bind $MODFILE $FILE
+      fi
+    fi
   done
 fi
 # permission
@@ -136,6 +166,12 @@ if grep 'BUGGY MODE' $MODPATH/module.prop; then
   killall vendor.qti.hardware.display.allocator-service\
    vendor.qti.hardware.display.composer-service\
    camerahalserver qcrilNrd mtkfusionrild
+  DES=/system/etc/vintf/manifest.xml
+  FILE=$MODPATH$DES
+  if [ -f $DES ] && $NOMOUNT; then
+    $NM del $DES 2>/dev/null || true
+    $NM add $DES $FILE
+  fi
 fi
 #xkillall android.hardware.sensors@1.0-service\
 #x android.hardware.sensors@2.0-service\
@@ -146,42 +182,6 @@ fi
 
 # dolby
 #ddolby_service
-
-# wait
-sleep 20
-
-# aml fix
-AML=/data/adb/modules/aml
-DIR=$AML$MODSYSTEM/vendor/odm/etc
-if [ -d $DIR ] && [ ! -f $AML/disable ]; then
-  chcon -R u:object_r:vendor_configs_file:s0 $DIR
-fi
-AUD=`grep AUD= $MODPATH/copy.sh | sed -e 's|AUD=||g' -e 's|"||g'`
-DIR=$AML$MODSYSTEM/vendor
-FILES=`find $DIR -type f -name $AUD`
-if [ -d $AML ] && [ ! -f $AML/disable ]\
-&& find $DIR -type f -name $AUD; then
-  if ! grep '/odm' $AML/post-fs-data.sh && [ -d /odm ]\
-  && [ "`realpath /odm/etc`" == /odm/etc ]; then
-    for FILE in $FILES; do
-      DES=/odm`echo $FILE | sed "s|$DIR||g"`
-      if [ -f $DES ]; then
-        umount $DES
-        mount -o bind $FILE $DES
-      fi
-    done
-  fi
-  if ! grep '/my_product' $AML/post-fs-data.sh\
-  && [ -d /my_product ]; then
-    for FILE in $FILES; do
-      DES=/my_product`echo $FILE | sed "s|$DIR||g"`
-      if [ -f $DES ]; then
-        umount $DES
-        mount -o bind $FILE $DES
-      fi
-    done
-  fi
-fi
 
 # wait
 until [ "`getprop sys.boot_completed`" == 1 ]; do
@@ -214,7 +214,7 @@ settings put global dnc_mode_name_2 Office
 
 # grant
 PKG=com.sonyericsson.soundenhancement
-if appops get $PKG > /dev/null 2>&1; then
+if appops get $PKG >/dev/null 2>&1; then
   pm grant --all-permissions $PKG
   appops set $PKG SYSTEM_ALERT_WINDOW allow
   appops set $PKG TAKE_AUDIO_FOCUS allow
@@ -225,7 +225,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
+  UID=`grep "^$PKG " /data/system/packages.list | awk '{print $2}'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -233,12 +233,12 @@ fi
 
 # allow
 PKG=com.dolby.daxappui
-if appops get $PKG > /dev/null 2>&1; then
+if appops get $PKG >/dev/null 2>&1; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
+  UID=`grep "^$PKG " /data/system/packages.list | awk '{print $2}'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -246,21 +246,25 @@ fi
 
 # allow
 PKG=com.dolby.daxservice
-if appops get $PKG > /dev/null 2>&1; then
+if appops get $PKG >/dev/null 2>&1; then
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
+  UID=`grep "^$PKG " /data/system/packages.list | awk '{print $2}'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
 fi
 
 # allow
-PKG=com.reiryuki.soundenhancementlauncher
-if appops get $PKG > /dev/null 2>&1; then
+PKG=reiryuki.soundenhancementlauncher
+if appops get $PKG >/dev/null 2>&1; then
+  appops set $PKG WRITE_SETTINGS allow
   appops set $PKG SYSTEM_ALERT_WINDOW allow
+  if [ "$API" -ge 30 ]; then
+    appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
+  fi
   if [ "$API" -ge 33 ]; then
     pm revoke $PKG android.permission.POST_NOTIFICATIONS
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
