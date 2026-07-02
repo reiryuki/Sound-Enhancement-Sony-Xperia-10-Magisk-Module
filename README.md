@@ -23,6 +23,8 @@
 
 v1.2.2
 - Dolby Atmos: Fix inaccessible libhwbinder.so in some ROMs
+- AudioSettings.apk v1.7
+  - Fix launch animation
 
 v1.2.1
 - AudioSettings.apk v1.6
