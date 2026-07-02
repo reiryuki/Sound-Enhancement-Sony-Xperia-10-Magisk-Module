@@ -290,6 +290,11 @@ for LIB in $LIBS; do
     if [ ! "$FILE" ]; then
       ui_print "- Using /system$DIR/$LIB."
       mv -f $MODPATH/system_support$DIR/$LIB $MODPATH/system$DIR
+      FILE=`find $VENDOR$DIR $ODM$DIR -type f -name $LIB`
+      if [ ! "$FILE" ]; then
+        ui_print "  Using /vendor$DIR/$LIB."
+        cp -f $MODPATH/system$DIR/$LIB $MODPATH/system/vendor$DIR
+      fi
       ui_print " "
     fi
   fi
