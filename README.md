@@ -73,16 +73,15 @@ v1.1.3
 https://t.me/androidryukimodsdiscussions/144433
 
 ## Requirements
-- HIDL audio service
+- Android 10 (SDK 29) and up
+- Magisk or Kitsune Mask or KernelSU or Apatch installed
 - Sound Enhancement:
-  - armeabi-v7a or arm64-v8a architecture
-  - 32 bit audio service (this also can be found in 64 bit ROM with 32 bit support, not only 32 bit ROM)
-  - Android 10 (SDK 29) and up
-  - Magisk or Kitsune Mask or KernelSU or Apatch installed
+  - armeabi-v7a or arm64-v8a with armeabi-v7a support architecture
+  - 32 bit HIDL audio service
 - Dolby Atmos:
   - arm64-v8a architecture
-  - Android 10 (SDK 29) and up
-  - Magisk or Kitsune Mask or KernelSU or Apatch installed (Recommended to use Magisk Delta/Kitsune Mask for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/ryukinotes/49)
+  - HIDL audio service
+  - Recommended to use Magisk Delta/Kitsune Mask for systemless early init mount manifest.xml if your ROM is Read-Only https://t.me/ryukinotes/49
 
 ## WARNING!!!
 Possibility of bootloop or even softbrick or a service failure on Read-Only ROM with the Dolby Atmos if you don't use Magisk Delta/Kitsune Mask.
