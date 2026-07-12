@@ -20,6 +20,12 @@ AUD=`cat $MODPATH/audio.txt`
 
 # NoMount
 if $NOMOUNT; then
+  DES=/system/etc/vintf/manifest.xml
+  FILE=$MODPATH$DES
+  if [ -f $FILE ] && [ -f $DES ]; then
+    $NM del $DES 2>/dev/null || true
+    $NM add $DES $FILE
+  fi
   if [ ! -d $AML ] || [ -f $AML/disable ]; then
     FILES=`find $MODPATH/system $MODPATH/vendor -type f -name $AUD`
     for FILE in $FILES; do
@@ -149,35 +155,6 @@ for SERVICE in $SERVICES; do
   $SERVICE &
   PID=`pidof $SERVICE`
 done
-# restart
-killall vendor.qti.hardware.vibrator.service\
- vendor.qti.hardware.vibrator.service.oneplus9\
- vendor.qti.hardware.vibrator.service.oplus\
- android.hardware.camera.provider@2.4-service_64\
- vendor.mediatek.hardware.mtkpower@1.0-service\
- android.hardware.usb@1.0-service\
- android.hardware.usb@1.0-service.basic\
- android.hardware.light-service.mt6768\
- android.hardware.lights-service.xiaomi_mithorium\
- vendor.samsung.hardware.light-service\
- vendor.qti.hardware.lights.service\
- android.hardware.lights-service.qti
-if grep 'BUGGY MODE' $MODPATH/module.prop; then
-  killall vendor.qti.hardware.display.allocator-service\
-   vendor.qti.hardware.display.composer-service\
-   camerahalserver qcrilNrd mtkfusionrild
-  DES=/system/etc/vintf/manifest.xml
-  FILE=$MODPATH$DES
-  if [ -f $DES ] && $NOMOUNT; then
-    $NM del $DES 2>/dev/null || true
-    $NM add $DES $FILE
-  fi
-fi
-#xkillall android.hardware.sensors@1.0-service\
-#x android.hardware.sensors@2.0-service\
-#x android.hardware.sensors@2.0-service-mediatek\
-#x android.hardware.sensors@2.0-service.multihal\
-#x android.hardware.sensors@2.0-service.multihal-mediatek
 }
 
 # dolby

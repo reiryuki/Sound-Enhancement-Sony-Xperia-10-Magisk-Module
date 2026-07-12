@@ -24,6 +24,7 @@ allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untru
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } qemu_hw_prop file { read open getattr }
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } { vendor_displayfeature_prop mcd_data_file sysfs_migt migt_file } file { read open }
 allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } proc_mi_log file write
+allow { system_app priv_app platform_app untrusted_app_29 untrusted_app_27 untrusted_app } vendor_file file read
 allow { hal_audio_default mtk_hal_audio audioserver } vendor_dolby_loglevel_prop file { read open getattr }
 allow zygote { device unlabeled } file write
 allow zygote zygote_tmpfs file { create open }
