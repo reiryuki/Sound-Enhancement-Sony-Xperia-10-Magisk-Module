@@ -21,6 +21,11 @@
 
 ## Changelog
 
+v1.2.4
+- Dolby Atmos:
+  - Fix manifest.xml detection bug in some ROMs
+  - Fix sepolicy denial
+
 v1.2.3
 - AudioSettings.apk v1.8
   - Executes sefx command automatically via app launcher (if the root access is granted) so you don't need to run sefx via Termux/Terminal manually
@@ -40,7 +45,8 @@ v1.2.1
 - Support NoMount metamodule
 - Resets module folders/files permissions at post-fs-data
 - Move _uninstall.log to /data/adb/logs/
-- Hides LunarisDolby.apk if the Dolby Atmos is activated
+- Dolby Atmos:
+  - Hides in-built LunarisDolby.apk
 - Removes conflicted weird modules
 
 v1.2.0
@@ -52,26 +58,29 @@ v1.1.9
 - Improve detections
 
 v1.1.8
-- Fix wrong manifest.xml location patch target in latest Magisk version
+- Dolby Atmos:
+  - Fix wrong manifest.xml location patch target in latest Magisk version
 
 v1.1.7
 - Using startService instead of startForegroundService to fix crash in KernelSU
 - Tidy up aml.sh
-- Exclude audio effects haptic .xml
+- Exclude \*audio\*effects\*haptic\*.xml
 - Fix wrong file permissions in some ROMs
 
 v1.1.6
-- Fix ZN7android8String16aSEOS0 function not found in some ROMs
-- Add libutils.so as system_support
+- Dolby Atmos:
+  - Fix ZN7android8String16aSEOS0 function not found in some ROMs
+  - Add libutils.so as system_support
+  - Move DaxUI.apk 36dB to priv-app
 - Abort if failed to mount mirror system at installation
-- Forgot to move DaxUI.apk 36dB to priv-app
 
 v1.1.5
 - Fix conflict with Play Integrity Fix Magisk Module in some devices
 
 v1.1.4
 - Fix sefx script failure in some ROMs
-- Fake Kitsune Mask detection for Dolby
+- Dolby Atmos:
+  - Fake Kitsune Mask detection
 - Improve /odm and /my_product support detection
 
 ## Screenshots
@@ -97,7 +106,7 @@ Possibility of bootloop or even softbrick or a service failure on Read-Only ROM 
 - Reboot
 - If you are using KernelSU, you need to disable Unmount Modules by Default in KernelSU app settings and install https://github.com/KernelSU-Modules-Repo/meta-overlayfs or https://github.com/KernelSU-Modules-Repo/magic_mount_rs or https://github.com/KernelSU-Modules-Repo/hybrid_mount or https://github.com/maxsteeel/nomount first depending on ROM compatibility
 - If you have Dolby in-built in your ROM, then you need to activate data.cleanup=1 at the first time install (READ Optionals bellow!)
-- Install this module https://devuploads.com/s2gmdjfzw3xx via Magisk app or Kitsune Mask app or KernelSU app or Apatch app or Recovery if Magisk or Kitsune Mask installed
+- Install this module via Magisk app or Kitsune Mask app or KernelSU app or Apatch app or Recovery if Magisk or Kitsune Mask installed
 - Install AML Magisk Module https://t.me/ryukinotes/34 only if using any other else audio mod module
 - Reboot
 - Disable the "No active profiles" notification and ignore it it's nothing

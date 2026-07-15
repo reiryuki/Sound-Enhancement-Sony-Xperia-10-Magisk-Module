@@ -688,7 +688,7 @@ if [ $EIM == true ]; then
     if [ ! -f $DES ]; then
       cp -af $SRC $DIR
     fi
-    if ! grep -A2 vendor.dolby.hardware.dms $DES | grep -q 1.0; then
+    if ! grep -A2 '>vendor.dolby.hardware.dms<' $DES | grep -q 1.0; then
       ui_print "- Patching"
       ui_print "$DES"
       sed -i '/<manifest/a\
@@ -776,21 +776,21 @@ if [ $DOLBY == true ]; then
           /*/etc/vintf/manifest/*.xml /*/*/etc/vintf/manifest/*.xml"
   fi
   if [ "`grep_prop dolby.skip.vendor $OPTIONALS`" != 1 ]\
-  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -q 1.0; then
+  && ! grep -A2 '>vendor.dolby.hardware.dms<' $FILE | grep -q 1.0; then
     FILE=$VENDOR/etc/vintf/manifest.xml
     patch_manifest
   fi
   if [ "`grep_prop dolby.skip.system $OPTIONALS`" != 1 ]\
-  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -q 1.0; then
+  && ! grep -A2 '>vendor.dolby.hardware.dms<' $FILE | grep -q 1.0; then
     FILE=$SYSTEM/etc/vintf/manifest.xml
     patch_manifest
   fi
   if [ "`grep_prop dolby.skip.system_ext $OPTIONALS`" != 1 ]\
-  && ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -q 1.0; then
+  && ! grep -A2 '>vendor.dolby.hardware.dms<' $FILE | grep -q 1.0; then
     FILE=$SYSTEM_EXT/etc/vintf/manifest.xml
     patch_manifest
   fi
-  if ! grep -A2 vendor.dolby.hardware.dms $FILE | grep -q 1.0; then
+  if ! grep -A2 '>vendor.dolby.hardware.dms<' $FILE | grep -q 1.0; then
     patch_manifest_eim
     if [ $EIM == false ]; then
       ui_print "- Using BUGGY MODE systemless manifest.xml patch."
