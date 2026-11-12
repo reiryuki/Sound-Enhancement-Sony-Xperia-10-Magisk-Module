@@ -384,7 +384,6 @@ if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   ui_print "- Using modified UI apk..."
   if [ -f $FILE ]; then
     cp -f $FILE $DIR
-    chmod 0644 $DIR/$APP.apk
     ui_print "  Applied"
     MOD_UI=true
   else
@@ -735,7 +734,6 @@ if [ $DOLBY == true ]\
   ui_print "- Using modified Dolby UI apk..."
   if [ -f $FILE ]; then
     cp -f $FILE $DIR
-    chmod 0644 $DIR/$APP.apk
     ui_print "  Applied"
     MOD_UI_DOLBY=true
   else
@@ -966,6 +964,21 @@ fi
 # function
 dolby_settings() {
 FILE=$MODPATH/system/vendor/etc/dolby/dax-default.xml
+if [ "`grep_prop dolby.mod_xml $OPTIONALS`" == 1 ]; then
+  MODFILE=/data/media/"$UID"/dax-default.xml
+  if [ -f $MODFILE ]; then
+    ui_print "- Copying"
+    ui_print "$MODFILE"
+    ui_print "  to"
+    ui_print "$FILE"
+    cp -f $MODFILE $FILE
+    ui_print " "
+  else
+    ui_print "! $MODFILE"
+    ui_print "  not found."
+    ui_print " "
+  fi
+fi
 PROP=`grep_prop dolby.bass $OPTIONALS`
 if [ "$PROP" == true ]; then
   ui_print "- Changing all bass-enhancer-enable value to true"
@@ -1392,14 +1405,16 @@ MODSYSTEM=/system
 # unmount
 unmount_mirror
 
-# note
-#ui_print "- If Sound Enhancement FX doesn't work, then type:"
-#ui_print " "
-#ui_print "  su"
-#ui_print "  sefx"
-#ui_print " "
-#ui_print "  at Terminal/Termux app while playing music"
-#ui_print " "
+# prepare
+PKG=com.sonyericsson.soundenhancement
+DIR=/storage/emulated/"$UID"/Android/data/$PKG/files
+DIR2=/storage/emulated/"$UID"/Android/data/$PKG/cache
+ui_print "- Creating directories:"
+ui_print "  $DIR"
+mkdir -p $DIR
+ui_print "  $DIR2"
+mkdir -p $DIR2
+ui_print " "
 
 
 
