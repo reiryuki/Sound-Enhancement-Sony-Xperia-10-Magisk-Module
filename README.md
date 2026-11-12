@@ -34,7 +34,7 @@ https://t.me/androidryukimodsdiscussions/144433
 
 ## Download Links and Changelog
 
-v1.2.5 https://github.com/reiryuki/Sound-Enhancement-Sony-Xperia-10-Magisk-Module
+v1.2.5 https://move2link.co/fb1a9ec
 - Update libmagiskpolicy.so from Magisk (debug) 31.0 (31000)
 - Prepare /storage/emulated/"$UID"/Android/data/$PKG/ directories
 - Add a new optional dolby.mod_xml to let users to use any modified/custom dax-default.xml. Please read Optionals below.
